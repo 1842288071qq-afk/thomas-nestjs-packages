@@ -1,0 +1,498 @@
+[
+  {
+    "key": "question_type",
+    "name": "试题类型",
+    "items": [
+      {
+        "value": "ATEST",
+        "text": "单选题"
+      },
+      {
+        "value": "XTEST",
+        "text": "多选题"
+      },
+      {
+        "value": "PDTEST",
+        "text": "判断题"
+      },
+      {
+        "value": "JDTEST",
+        "text": "简答题"
+      },
+      {
+        "value": "TKTEST",
+        "text": "填空题"
+      },
+      {
+        "value": "BTEST",
+        "text": "共用选项型题"
+      },
+      {
+        "value": "A3TEST",
+        "text": "共用题干型题"
+      }
+    ]
+  },
+  {
+    "key": "hospital_level",
+    "name": "医院等级",
+    "items": [
+      {
+        "value": "sjjd",
+        "text": "三级甲等"
+      },
+      {
+        "value": "sj",
+        "text": "三级医院"
+      },
+      {
+        "value": "ejjd",
+        "text": "二级甲等"
+      },
+      {
+        "value": "ej",
+        "text": "二级医院"
+      },
+      {
+        "value": "yj",
+        "text": "一级医院"
+      }
+    ]
+  },
+  {
+    "key": "enable",
+    "name": "启用禁用",
+    "items": [
+      {
+        "value": "enabled",
+        "text": "启用"
+      },
+      {
+        "value": "disabled",
+        "text": "禁用"
+      }
+    ]
+  },
+  {
+    "key": "gender",
+    "name": "性别",
+    "items": [
+      {
+        "value": "male",
+        "text": "男"
+      },
+      {
+        "value": "female",
+        "text": "女"
+      }
+    ]
+  },
+  {
+    "key": "yesOrNo",
+    "name": "是或否",
+    "items": [
+      {
+        "value": "1",
+        "text": "是"
+      },
+      {
+        "value": "0",
+        "text": "否"
+      }
+    ]
+  },
+  {
+    "key": "tree",
+    "name": "树形测试",
+    "items": [
+      {
+        "value": "1",
+        "text": "1",
+        "children": [
+          {
+            "value": "1-1",
+            "text": "1-1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "key": "hospital_type",
+    "name": "医院类型",
+    "items": [
+      {
+        "value": "zhyy",
+        "text": "综合医院"
+      },
+      {
+        "value": "fcckyy",
+        "text": "妇产/产科医院"
+      },
+      {
+        "value": "etyy",
+        "text": "儿童医院"
+      },
+      {
+        "value": "zlyy",
+        "text": "肿瘤医院"
+      },
+      {
+        "value": "kqyy",
+        "text": "口腔医院"
+      },
+      {
+        "value": "ykyy",
+        "text": "眼科医院"
+      },
+      {
+        "value": "crbyy",
+        "text": "传染病医院"
+      },
+      {
+        "value": "jsbyy",
+        "text": "精神病医院/精神卫生中心"
+      },
+      {
+        "value": "kfyy",
+        "text": "康复医院"
+      },
+      {
+        "value": "gkyy",
+        "text": "骨科医院/创伤医院"
+      },
+      {
+        "value": "xxgbbyy",
+        "text": "心血管病医院"
+      },
+      {
+        "value": "nksjzk",
+        "text": "脑科/神经专科医院"
+      },
+      {
+        "value": "pfkkyy",
+        "text": "皮肤科医院"
+      },
+      {
+        "value": "zybfzy",
+        "text": "职业病防治院"
+      },
+      {
+        "value": "lnbyy",
+        "text": "老年病医院"
+      },
+      {
+        "value": "sszkyy",
+        "text": "烧伤专科医院"
+      },
+      {
+        "value": "zyyy",
+        "text": "中医医院"
+      },
+      {
+        "value": "zxyjhyy",
+        "text": "中西医结合医院"
+      },
+      {
+        "value": "mzyy",
+        "text": "民族医院"
+      }
+    ]
+  },
+  {
+    "key": "hospital_status",
+    "name": "医院状态",
+    "items": [
+      {
+        "text": "创建",
+        "value": "created"
+      },
+      {
+        "text": "正式",
+        "value": "formal"
+      },
+      {
+        "text": "试用",
+        "value": "trial"
+      }
+    ]
+  },
+  {
+    "key": "hospital_service_status",
+    "name": "医院服务状态",
+    "items": [
+      {
+        "value": "created",
+        "text": "创建"
+      },
+      {
+        "value": "trial_applying",
+        "text": "试用申请中"
+      },
+      {
+        "value": "trial_failed",
+        "text": "试用申请驳回"
+      },
+      {
+        "value": "trialing",
+        "text": "试用中"
+      },
+      {
+        "value": "trial_expired",
+        "text": "试用结束"
+      },
+      {
+        "value": "formalizing",
+        "text": "正式服务申请中"
+      },
+      {
+        "value": "formalizing_failed",
+        "text": "正式服务申请驳回"
+      },
+      {
+        "value": "formalized",
+        "text": "正式服务中"
+      },
+      {
+        "value": "formalized_expired",
+        "text": "正式服务结束"
+      }
+    ]
+  },
+  {
+    "key": "hospital_audit_type",
+    "name": "审批申请类型",
+    "items": [
+      {
+        "value": "trial_request",
+        "text": "开通试用"
+      },
+      {
+        "value": "trial_renew",
+        "text": "延长试用"
+      },
+      {
+        "value": "trial_to_formal",
+        "text": "试用转正"
+      },
+      {
+        "value": "formal_request",
+        "text": "开通正式"
+      },
+      {
+        "value": "formal_renew",
+        "text": "正式续约"
+      },
+      {
+        "value": "resource_change",
+        "text": "资源变更"
+      }
+    ]
+  },
+  {
+    "key": "hospital_audit_status",
+    "name": "审批状态",
+    "items": [
+      {
+        "value": "pending",
+        "text": "待审批"
+      },
+      {
+        "value": "approved",
+        "text": "审批通过"
+      },
+      {
+        "value": "rejected",
+        "text": "审批驳回"
+      }
+    ]
+  },
+  {
+    "key": "hospital_contract_type",
+    "name": "合同类型",
+    "items": [
+      {
+        "value": "bilateral",
+        "text": "双方合同"
+      },
+      {
+        "value": "trilateral",
+        "text": "三方合同"
+      }
+    ]
+  },
+  {
+    "key": "payment_type",
+    "name": "付款类型",
+    "items": [
+      {
+        "value": "one_time_payment",
+        "text": "一次性付款"
+      },
+      {
+        "value": "annual_payment",
+        "text": "按年付款"
+      }
+    ]
+  },
+  {
+    "key": "paper_mode",
+    "name": "命题方式",
+    "items": [
+      {
+        "value": "uniform",
+        "text": "统一命题"
+      },
+      {
+        "value": "random",
+        "text": "随机命题"
+      }
+    ]
+  },
+  {
+    "key": "generation_mode",
+    "name": "组卷方式",
+    "items": [
+      {
+        "value": "intelligent_random",
+        "text": "智能随机抽题"
+      },
+      {
+        "value": "knowledge_point",
+        "text": "按知识点抽题"
+      },
+      {
+        "value": "manual",
+        "text": "手动组卷"
+      },
+      {
+        "value": "paper_composition",
+        "text": "以卷组卷"
+      }
+    ]
+  },
+  {
+    "key": "medical_title",
+    "name": "职称",
+    "items": [
+      {
+        "text": "医士",
+        "value": "doctor_0"
+      },
+      {
+        "text": "医师",
+        "value": "doctor_1"
+      },
+      {
+        "text": "主治（主管）医师",
+        "value": "doctor_2"
+      },
+      {
+        "text": "副主任医师",
+        "value": "doctor_3"
+      },
+      {
+        "text": "主任医师",
+        "value": "doctor_4"
+      },
+      {
+        "text": "药士",
+        "value": "pharmacist_0"
+      },
+      {
+        "text": "药师",
+        "value": "pharmacist_1"
+      },
+      {
+        "text": "主管药师",
+        "value": "pharmacist_2"
+      },
+      {
+        "text": "副主任药师",
+        "value": "pharmacist_3"
+      },
+      {
+        "text": "主任药师",
+        "value": "pharmacist_4"
+      },
+      {
+        "text": "护士",
+        "value": "nurse_0"
+      },
+      {
+        "text": "护师",
+        "value": "nurse_1"
+      },
+      {
+        "text": "主管护师",
+        "value": "nurse_2"
+      },
+      {
+        "text": "副主任护师",
+        "value": "nurse_3"
+      },
+      {
+        "text": "主任护师",
+        "value": "nurse_4"
+      },
+      {
+        "text": "技士",
+        "value": "technician_0"
+      },
+      {
+        "text": "技师",
+        "value": "technician_1"
+      },
+      {
+        "text": "主管技师",
+        "value": "technician_2"
+      },
+      {
+        "text": "副主任技师",
+        "value": "technician_3"
+      },
+      {
+        "text": "主任技师",
+        "value": "technician_4"
+      },
+      {
+        "text": "研究实习员",
+        "value": "researcher_0"
+      },
+      {
+        "text": "助理研究员",
+        "value": "researcher_1"
+      },
+      {
+        "text": "副研究员",
+        "value": "researcher_2"
+      },
+      {
+        "text": "研究员",
+        "value": "researcher_3"
+      }
+    ]
+  },
+  {
+    "key": "scope_strategy",
+    "name": "可见范围",
+    "items": [
+      {
+        "value": "ALL",
+        "text": "全局可见"
+      },
+      {
+        "value": "DEPT_AND_CHILDREN",
+        "text": "部门及下属部门"
+      },
+      {
+        "value": "DEPT_ONLY",
+        "text": "仅本部门"
+      },
+      {
+        "value": "SELF",
+        "text": "仅个人可见"
+      }
+    ]
+  }
+]

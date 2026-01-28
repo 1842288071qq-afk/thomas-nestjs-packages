@@ -1,0 +1,49 @@
+# GitLab CI/CD Configuration for wjy2026 backend (deploy only)
+
+stages:
+  - deploy
+
+workflow:
+  rules:
+    - if: '$CI_SERVER_HOST !~ /gitlab.*thomas\..*/'
+      when: never
+    - if: '$CI_COMMIT_MESSAGE =~ /#ci-skip/'
+      when: never
+    - if: '$CI_COMMIT_MESSAGE =~ /\[skip ci\]/i'
+      when: never
+    - when: always
+
+variables:
+  DOCKER_IMAGE: "nodejs-lts-common-tool:latest"
+  DEPLOY_HOST: "172.10.10.10"
+  DEPLOY_PORT: "22"
+  DEPLOY_USER: "dev-server"
+  DEPLOY_PATH: "/Users/Shared/dev-server/wjy2026/wjy2026-backend"
+
+default:
+  tags:
+    - "wjy2026"
+    - "docker-executor"
+  image:
+    name: ${DOCKER_IMAGE}
+    pull_policy: if-not-present
+
+部署:backend:
+  stage: deploy
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "web"'
+      when: on_success
+    - if: '$CI_COMMIT_BRANCH == "ci-test" && $CI_PIPELINE_SOURCE != "web"'
+      when: on_success
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+      when: on_success
+  before_script:
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - cp "$SSH_PRIVATE_KEY" ~/.ssh/id_ed25519
+    - chmod 600 ~/.ssh/id_ed25519
+    - ssh-keyscan -p ${DEPLOY_PORT} ${DEPLOY_HOST} >> ~/.ssh/known_hosts 2>/dev/null
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - echo "Deploying backend to ${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}"
+    - ssh -p ${DEPLOY_PORT} ${DEPLOY_USER}@${DEPLOY_HOST} 'eval "$(/opt/homebrew/opt/fnm/bin/fnm env)" && cd '${DEPLOY_PATH}' && git pull && pnpm i && npm run build && pm2 restart ./devops/ecosystem.dev.config.js'

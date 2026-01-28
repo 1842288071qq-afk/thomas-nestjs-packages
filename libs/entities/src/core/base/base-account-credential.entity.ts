@@ -1,0 +1,29 @@
+import { Column, Index } from 'typeorm';
+import { EntityWithIdAndTimeTrace } from './extendable';
+
+@Index('idx_credential_identifier', ['identifier'])
+export abstract class BaseAccountCredential extends EntityWithIdAndTimeTrace {
+  @Column({ length: 32 })
+  type: string;
+
+  @Column({ length: 128 })
+  identifier: string;
+
+  @Column({ length: 255, nullable: true })
+  secret?: string;
+
+  @Column({ length: 64, nullable: true })
+  salt?: string;
+
+  @Column({ length: 64, nullable: true })
+  provider?: string;
+
+  @Column({ name: 'expire_at', type: 'timestamptz', nullable: true })
+  expireAt?: Date;
+
+  @Column({ name: 'is_primary', type: 'boolean', default: false })
+  isPrimary: boolean;
+
+  @Column({ length: 16, default: 'active' })
+  status: string;
+}
