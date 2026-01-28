@@ -1,4 +1,8 @@
-import { EntityWithIdAndAuditor } from '@app/entities/core/base/extendable';
+import {
+  WithAuditor,
+  WithTimeTrace,
+  WithId,
+} from '@app/entities/core/base/extendable';
 import {
   Column,
   Entity,
@@ -10,10 +14,12 @@ import {
 
 import { Identity } from '../identity/identity.entity';
 
+class OpDeptRoot {}
+
 @Entity({ name: 'op_dept' })
 @Index('idx_op_dept_parent', ['parentDeptId'])
 @Index('uq_op_dept_id_path', ['idPath'], { unique: true })
-export class OpDept extends EntityWithIdAndAuditor {
+export class OpDept extends WithAuditor(WithTimeTrace(WithId(OpDeptRoot))) {
   @Column({ name: 'parent_dept_id', nullable: true })
   parentDeptId?: string;
 

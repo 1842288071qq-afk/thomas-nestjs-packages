@@ -1,8 +1,12 @@
 import { Column, Index } from 'typeorm';
-import { EntityWithIdAndTimeTrace } from './extendable';
+import { WithId, WithTimeTrace } from './extendable';
+
+class BaseAccountCredentialRoot {}
 
 @Index('idx_credential_identifier', ['identifier'])
-export abstract class BaseAccountCredential extends EntityWithIdAndTimeTrace {
+export abstract class BaseAccountCredential extends WithTimeTrace(
+  WithId(BaseAccountCredentialRoot),
+) {
   @Column({ length: 32 })
   type: string;
 

@@ -8,7 +8,7 @@ import {
   identityTypeNameMap,
 } from './identity-required.decorator';
 import { BizError } from '@app/core/BizError';
-import { IdentityActiveService } from '../../identity-active.service';
+import { IdentityActiveService } from '../../services/identity-active.service';
 
 @Injectable()
 export class IdentityRequiredGuard implements CanActivate {
@@ -25,11 +25,15 @@ export class IdentityRequiredGuard implements CanActivate {
     );
 
     const request = context.switchToHttp().getRequest<Request>();
-    const identityId = this.extractIdentityId(request);
-
+    // 先查找 ALS 里的账号信息
+    const account = this.threadLocal.get('account');
+    let identityId = this.extractIdentityId(request);
+    // 如果没有指定，那么默认从account下的identities里取第一个身份
+    if (!identityId && account?.identities && account.identities.length > 0) {
+      identityId = account.identities[0].id;
+    }
     // --- 尝试前置挂载身份信息 ---
     if (identityId) {
-      const account = this.threadLocal.get('account');
       if (account) {
         const identity = account.identities?.find((i) => i.id === identityId);
         if (identity) {
@@ -81,9 +85,13 @@ export class IdentityRequiredGuard implements CanActivate {
     return true;
   }
 
+  /**
+   *  从请求中提取 IdentityId，优先级：Header > Body > Query
+   * @returns
+   */
   private extractIdentityId(req: Request): string | undefined {
-    return ((req.headers['wjy-identity-id'] as string) ||
-      (req.body as { wjyIdentityId: string })?.wjyIdentityId ||
-      req.query?.wjyIdentityId) as string;
+    return ((req.headers['Identity-Id'] as string) ||
+      (req.body as { IdentityId: string })?.IdentityId ||
+      req.query?.IdentityId) as string;
   }
 }

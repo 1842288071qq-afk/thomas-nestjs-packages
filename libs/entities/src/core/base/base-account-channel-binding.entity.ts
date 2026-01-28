@@ -1,10 +1,14 @@
 import { Column, Index } from 'typeorm';
-import { EntityWithIdAndTimeTrace } from './extendable';
+import { WithId, WithTimeTrace } from './extendable';
+
+class BaseAccountChannelBindingRoot {}
 
 @Index('uq_channel_external_user', ['channel', 'externalUserId'], {
   unique: true,
 })
-export abstract class BaseAccountChannelBinding extends EntityWithIdAndTimeTrace {
+export abstract class BaseAccountChannelBinding extends WithTimeTrace(
+  WithId(BaseAccountChannelBindingRoot),
+) {
   @Column({ length: 64 })
   channel: string;
 

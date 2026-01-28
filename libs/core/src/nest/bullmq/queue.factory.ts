@@ -9,6 +9,7 @@ import {
   QUEUE_NAMES,
 } from './bullmq.constants';
 import type { AppConfig } from '@app/common/config/config.interface';
+import * as os from 'os';
 
 /**
  * 队列工厂服务
@@ -27,13 +28,13 @@ export class QueueFactory implements OnModuleDestroy {
     private readonly configService: ConfigService,
   ) {
     const appConfig = this.configService.get<AppConfig>('app');
-    const appName = appConfig?.name || 'wjy-api';
-    const devName = appConfig?.devName;
+    const appName = appConfig?.name || 'nestjs-app';
+    const devName = appConfig?.devName || os.hostname();
 
-    // 构建队列前缀：{appName}:{devName}:bullmq 或 {appName}:bullmq
+    // 构建队列前缀：bullmq:{appName}:{devName}
     this.prefix = devName
-      ? `${appName}:${devName}:bullmq`
-      : `${appName}:bullmq`;
+      ? `bullmq:${appName}:${devName}`
+      : `bullmq:${appName}`;
 
     this.logger.log(`QueueFactory initialized with prefix: ${this.prefix}`);
 

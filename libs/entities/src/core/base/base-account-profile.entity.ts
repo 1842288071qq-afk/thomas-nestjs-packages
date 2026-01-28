@@ -1,7 +1,11 @@
 import { Column } from 'typeorm';
-import { EntityWithIdAndTimeTrace } from './extendable';
+import { WithId, WithTimeTrace } from './extendable';
 
-export abstract class BaseAccountProfile extends EntityWithIdAndTimeTrace {
+class BaseAccountProfileRoot {}
+
+export abstract class BaseAccountProfile extends WithTimeTrace(
+  WithId(BaseAccountProfileRoot),
+) {
   @Column({ name: 'avatar_url', length: 255, nullable: true })
   avatarUrl?: string;
 

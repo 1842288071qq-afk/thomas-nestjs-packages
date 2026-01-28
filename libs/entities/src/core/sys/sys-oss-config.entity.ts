@@ -1,8 +1,11 @@
 import { Entity, Column } from 'typeorm';
-import { EntityWithIdAndAuditor } from '../base/extendable';
+import { WithAuditor, WithTimeTrace, WithId } from '../base/extendable';
 
 @Entity('sys_oss_config')
-export class SysOssConfigEntity extends EntityWithIdAndAuditor {
+class SysOssConfigEntityRoot {}
+export class SysOssConfigEntity extends WithAuditor(
+  WithTimeTrace(WithId(SysOssConfigEntityRoot)),
+) {
   @Column({ comment: '配置描述名称' })
   name: string;
 

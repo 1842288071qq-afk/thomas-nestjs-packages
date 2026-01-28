@@ -1,7 +1,6 @@
 import { AccountEntities } from '@app/entities/core/account';
-import { AuthEntities } from '@app/entities/auth';
-import { OpAccountEntities } from '@app/entities/op-account';
-import { OtherEntities } from '@app/entities/other';
+import { IdentityEntities } from '@app/entities/core/identity';
+import { CommonBusinessEntities } from '@app/entities/core/common-business';
 import { SysEntities } from '@app/entities/core/sys';
 import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -10,15 +9,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      // 运营平台账号系统
-      ...OpAccountEntities,
-      // 考核云、医考拉账号系统
+      // 账号
       ...AccountEntities,
-      // 限业务系统
-      ...AuthEntities,
-      // 其他通用表
-      ...OtherEntities,
-      // 系统级表
+      // 身份表
+      ...IdentityEntities,
+      // 通用业务（用户、运营用户、角色、权限、部门等）
+      ...CommonBusinessEntities,
+      // 系统通用（文件、配置等）
       ...SysEntities,
     ]),
   ],

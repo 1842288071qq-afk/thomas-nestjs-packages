@@ -3,9 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { OpDept } from '@app/entities/core/common-business/op-dept.entity';
 import { OpDeptClosure } from '@app/entities/core/common-business/op-dept-closure.entity';
-import { OpUser } from '@app/entities/op-account/op-user.entity';
 import { BizError } from '@app/core/BizError';
 import { snowflakeIdGenerator } from '@app/common/utils/id';
+import { OpUser } from '@app/entities';
 
 export interface ICreateOpDeptParams {
   name: string;

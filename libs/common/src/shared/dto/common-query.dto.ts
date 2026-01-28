@@ -1,28 +1,11 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
-
-/**
- * 医院ID查询 DTO
- */
-export class HospitalIdQueryDTO {
-  @IsNotEmpty({ message: '医院ID不能为空' })
-  @IsString()
-  hospitalId: string;
-}
-
-/**
- * 医院ID查询 DTO (可选)
- */
-export class OptionalHospitalIdQueryDTO {
-  @IsOptional()
-  @IsString()
-  hospitalId?: string;
-}
+import { EnsureNotBlank } from '@app/core/nest/composition/ensure-not-blank.decorator';
+import { IsString } from 'class-validator';
 
 /**
  * ID查询 DTO (通用ID)
  */
 export class IdQueryDTO {
-  @IsNotEmpty({ message: 'ID不能为空' })
+  @EnsureNotBlank({ message: 'ID不能为空' })
   @IsString()
   id: string;
 }

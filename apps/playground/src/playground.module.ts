@@ -4,24 +4,23 @@ import { PlaygroundService } from './playground.service';
 import { datasourceConfig } from './config/datasource.config';
 import { configModuleImport } from '@app/common/config/configModuleImport';
 import { applyTypeOrmDs } from '@app/common/config/applyTypeOrmDs';
-import { User } from './entities/User';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from './user/user.module';
 import { GlobalModule } from '@app/core/nest/global.module';
 import { RedisModule } from '@app/core/nest/redis/redis.module';
-import { redisConfig } from './config/redis.config';
 import { JwtAuthModule } from '@app/core/nest/jwt-auth';
-import { jwtConfig } from './config/jwt.config';
 import { mqConfig } from './config/mq.config';
 import { MqPlaygroundModule } from './mq-playground/mq-playground.module';
 import { BullmqPlaygroundModule } from './bullmq-playground/bullmq-playground.module';
 import '@app/common/shared/types/shared-types';
+import { EntityFeatureModule } from '@app/common/shared';
+import { AccountDeserializeModule } from '@app/common/shared/guards/account-deserialize/account-deserialize.module';
+import { IdentityRequiredModule } from '@app/common/shared/guards/identity-required/identity-required.module';
+import { PermissionModule } from '@app/common/shared/guards/permission/permission.module';
 
 @Module({
   imports: [
     // 加载配置
     configModuleImport({
-      configs: [datasourceConfig, redisConfig, jwtConfig, mqConfig],
+      configs: [datasourceConfig, mqConfig],
       envName: 'playground',
     }),
     // 应用数据源
@@ -31,13 +30,17 @@ import '@app/common/shared/types/shared-types';
     }),
     // 加载全局模块
     GlobalModule,
+    // 加载全局entity
+    EntityFeatureModule,
+    // account信息挂载
+    AccountDeserializeModule,
+    // 身份验证拦截
+    IdentityRequiredModule,
+    // 权限拦截
+    PermissionModule,
     // 使用redis
     RedisModule,
     JwtAuthModule.forRoot(),
-    // 加载entity
-    TypeOrmModule.forFeature([User]),
-    // 加载user模块
-    UserModule,
     // 加载MQ演示模块
     MqPlaygroundModule,
     // 加载BullMQ演示模块

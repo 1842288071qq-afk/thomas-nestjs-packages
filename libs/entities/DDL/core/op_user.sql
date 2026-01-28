@@ -35,7 +35,7 @@ CREATE TABLE op_role (
   description TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  enable VARCHAR(16) NOT NULL DEFAULT 'enabled',
+  status VARCHAR(16) NOT NULL DEFAULT 'active',
   UNIQUE (name)
 );
 
@@ -45,7 +45,7 @@ COMMENT ON COLUMN op_role.code IS '角色编码';
 COMMENT ON COLUMN op_role.name IS '角色名称，唯一';
 COMMENT ON COLUMN op_role.created_admin_id IS '创建该角色的管理员ID';
 COMMENT ON COLUMN op_role.description IS '角色描述';
-COMMENT ON COLUMN op_role.enable IS '是否启用，enabled: 启用, disabled: 禁用';
+COMMENT ON COLUMN op_role.status IS '是否启用，active: 启用, disabled: 禁用';
 COMMENT ON COLUMN op_role.created_at IS '创建时间';
 COMMENT ON COLUMN op_role.updated_at IS '更新时间';
 
@@ -97,48 +97,85 @@ CREATE INDEX idx_op_user_role_role ON op_user_role (role_id);
 -- =============================================================================
 
 -- 1. 运营平台部门表
-CREATE TABLE op_dept (
-  id BIGSERIAL PRIMARY KEY,
-  parent_dept_id BIGINT,
-  name VARCHAR(128) NOT NULL,
-  depth INT NOT NULL DEFAULT 0,
-  id_path VARCHAR(1024) NOT NULL,
-  order_index INT NOT NULL DEFAULT 0,
-  is_default BOOLEAN NOT NULL DEFAULT FALSE,
-  created_by BIGINT,
-  updated_by BIGINT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+create table op_dept
+(
+    id             bigserial
+        primary key,
+    parent_dept_id bigint,
+    name           varchar(128)                                       not null,
+    depth          integer                  default 0                 not null,
+    id_path        varchar(1024)                                      not null,
+    order_index    integer                  default 0                 not null,
+    created_by     bigint,
+    updated_by     bigint,
+    created_at     timestamp with time zone default CURRENT_TIMESTAMP not null,
+    updated_at     timestamp with time zone default CURRENT_TIMESTAMP not null,
+    is_default     boolean                  default false
 );
 
-COMMENT ON TABLE op_dept IS '运营平台部门表';
-COMMENT ON COLUMN op_dept.id IS '部门主键';
-COMMENT ON COLUMN op_dept.parent_dept_id IS '父部门ID，根部门为NULL';
-COMMENT ON COLUMN op_dept.name IS '部门名称';
-COMMENT ON COLUMN op_dept.depth IS '层级深度，根部门为0';
-COMMENT ON COLUMN op_dept.id_path IS '逗号分隔的ID路径，如 1,2,3';
-COMMENT ON COLUMN op_dept.order_index IS '排序索引';
-COMMENT ON COLUMN op_dept.is_default IS '是否为默认部门,由运维设置或取最早创建的部门';
-COMMENT ON COLUMN op_dept.created_by IS '创建人ID，关联 op_user.id';
-COMMENT ON COLUMN op_dept.updated_by IS '更新人ID，关联 op_user.id';
-COMMENT ON COLUMN op_dept.created_at IS '创建时间';
-COMMENT ON COLUMN op_dept.updated_at IS '更新时间';
+comment on table op_dept is '运营平台部门表';
 
-CREATE INDEX idx_op_dept_parent ON op_dept (parent_dept_id);
-CREATE UNIQUE INDEX uq_op_dept_id_path ON op_dept (id_path);
+comment on column op_dept.id is '部门主键';
+
+comment on column op_dept.parent_dept_id is '父部门ID，根部门为NULL';
+
+comment on column op_dept.name is '部门名称';
+
+comment on column op_dept.depth is '层级深度，根部门为0';
+
+comment on column op_dept.id_path is '逗号分隔的ID路径，如 1,2,3';
+
+comment on column op_dept.order_index is '排序索引';
+
+comment on column op_dept.created_by is '创建人ID，关联 op_user.id';
+
+comment on column op_dept.updated_by is '更新人ID，关联 op_user.id';
+
+comment on column op_dept.created_at is '创建时间';
+
+comment on column op_dept.updated_at is '更新时间';
+
+comment on column op_dept.is_default is '是否默认部门';
+
+alter table op_dept
+    owner to postgres;
+
+create index idx_op_dept_parent
+    on op_dept (parent_dept_id);
+
+create unique index uq_op_dept_id_path
+    on op_dept (id_path);
+
+grant delete, insert, references, select, trigger, truncate, update on op_dept to wjy2026_user;
+
+
 
 
 -- 2. 运营平台部门闭包表 (用于快速查询祖先/后代关系)
-CREATE TABLE op_dept_closure (
-  ancestor_dept_id BIGINT NOT NULL,
-  descendant_dept_id BIGINT NOT NULL,
-  distance INT NOT NULL,
-  PRIMARY KEY (ancestor_dept_id, descendant_dept_id)
+create table op_dept_closure
+(
+    ancestor_dept_id   bigint  not null,
+    descendant_dept_id bigint  not null,
+    distance           integer not null,
+    primary key (ancestor_dept_id, descendant_dept_id)
 );
 
-COMMENT ON TABLE op_dept_closure IS '运营平台部门闭包表，用于快速查询祖先/后代关系';
-COMMENT ON COLUMN op_dept_closure.ancestor_dept_id IS '祖先部门ID';
-COMMENT ON COLUMN op_dept_closure.descendant_dept_id IS '后代部门ID';
-COMMENT ON COLUMN op_dept_closure.distance IS '层级距离，0表示自身';
+comment on table op_dept_closure is '运营平台部门闭包表，用于快速查询祖先/后代关系';
 
-CREATE INDEX idx_op_dept_closure_descendant ON op_dept_closure (descendant_dept_id);
+comment on column op_dept_closure.ancestor_dept_id is '祖先部门ID';
+
+comment on column op_dept_closure.descendant_dept_id is '后代部门ID';
+
+comment on column op_dept_closure.distance is '层级距离，0表示自身';
+
+alter table op_dept_closure
+    owner to postgres;
+
+create index idx_op_dept_closure_descendant
+    on op_dept_closure (descendant_dept_id);
+
+create index idx_op_dept_closure_ancestor_descendant
+    on op_dept_closure (ancestor_dept_id, descendant_dept_id);
+
+grant delete, insert, references, select, trigger, truncate, update on op_dept_closure to wjy2026_user;
+

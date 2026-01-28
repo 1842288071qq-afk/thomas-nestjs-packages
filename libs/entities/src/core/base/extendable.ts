@@ -1,6 +1,5 @@
 import { snowflakeIdGenerator } from '@app/common/utils/id';
 import {
-  Entity,
   PrimaryColumn,
   BeforeInsert,
   CreateDateColumn,
@@ -97,6 +96,22 @@ export function WithSoftDelete<TBase extends Constructor>(Base: TBase) {
 }
 
 /**
+ * Mixin: 增加状态管理支持
+ * 包含 status 字段，统一状态值为 'active' | 'disabled' 等
+ */
+export function WithStatus<TBase extends Constructor>(Base: TBase) {
+  abstract class Trait extends Base {
+    @Column({
+      type: 'varchar',
+      length: 16,
+      default: 'active',
+    })
+    status: string;
+  }
+  return Trait;
+}
+
+/**
  * 数据范围策略枚举
  */
 export enum ScopeStrategy {
@@ -139,38 +154,3 @@ export function WithScopeStrategy<TBase extends Constructor>(Base: TBase) {
   }
   return Trait;
 }
-
-// ==========================================
-// 2. 导出组合后的基类 (为了兼容现有代码)
-// ==========================================
-
-/**
- * Mixin 启动基类
- */
-class RootEntity {}
-
-@Entity()
-export class EntityWithId extends WithId(RootEntity) {}
-
-@Entity()
-export class EntityWithTimeTrace extends WithTimeTrace(RootEntity) {}
-
-@Entity()
-export class EntityWithIdAndTimeTrace extends WithTimeTrace(
-  WithId(RootEntity),
-) {}
-
-@Entity()
-export class EntityWithIdAndTimeTraceAndSoftDelete extends WithSoftDelete(
-  WithTimeTrace(WithId(RootEntity)),
-) {}
-
-@Entity()
-export class EntityWithIdAndAuditor extends WithAuditor(
-  WithTimeTrace(WithId(RootEntity)),
-) {}
-
-@Entity()
-export class EntityWithIdAndAuditorAndSoftDelete extends WithSoftDelete(
-  WithAuditor(WithTimeTrace(WithId(RootEntity))),
-) {}

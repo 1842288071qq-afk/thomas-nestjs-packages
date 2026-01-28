@@ -1,4 +1,8 @@
-import { EntityWithIdAndTimeTrace } from '@app/entities/core/base/extendable';
+import {
+  WithTimeTrace,
+  WithId,
+  WithStatus,
+} from '@app/entities/core/base/extendable';
 import {
   Column,
   Entity,
@@ -8,13 +12,15 @@ import {
   OneToMany,
 } from 'typeorm';
 
-import { Identity } from '../base/base-identity.entity';
+import { Identity } from '../identity/identity.entity';
 import { OpRolePermission } from './op-role-permission.entity';
 import { OpUserRole } from './op-user-role.entity';
 
+class OpRoleRoot {}
+
 @Entity({ name: 'op_role' })
 @Index('uq_op_role_name', ['name'], { unique: true })
-export class OpRole extends EntityWithIdAndTimeTrace {
+export class OpRole extends WithStatus(WithTimeTrace(WithId(OpRoleRoot))) {
   @Column({ name: 'code', length: 64 })
   code: string;
 
@@ -26,9 +32,6 @@ export class OpRole extends EntityWithIdAndTimeTrace {
 
   @Column({ type: 'text', nullable: true })
   description?: string;
-
-  @Column({ length: 16, default: 'enabled' })
-  enable: string;
 
   @ManyToOne(() => Identity, { createForeignKeyConstraints: false })
   @JoinColumn({ name: 'created_admin_id' })

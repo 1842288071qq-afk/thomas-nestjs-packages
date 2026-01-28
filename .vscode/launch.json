@@ -7,27 +7,6 @@
     {
       "type": "node",
       "request": "attach",
-      "name": "Debug Attach KHY",
-      "port": 9229,
-      "restart": true
-    },
-    {
-      "type": "node",
-      "request": "attach",
-      "name": "DebugAttach YYPT",
-      "port": 9230,
-      "restart": true
-    },
-    {
-      "type": "node",
-      "request": "attach",
-      "name": "Debug Attach YKL",
-      "port": 9231,
-      "restart": true
-    },
-    {
-      "type": "node",
-      "request": "attach",
       "name": "Debug Attach Playground",
       "port": 9232,
       "restart": true

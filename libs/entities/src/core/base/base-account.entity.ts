@@ -1,9 +1,13 @@
 import { Column, Index } from 'typeorm';
-import { EntityWithIdAndTimeTrace } from './extendable';
+import { WithId, WithTimeTrace } from './extendable';
+
+class BaseAccountRoot {}
 
 @Index('uq_account_username', ['username'], { unique: true })
 @Index('uq_account_phone', ['phone'], { unique: true })
-export abstract class BaseAccount extends EntityWithIdAndTimeTrace {
+export abstract class BaseAccount extends WithTimeTrace(
+  WithId(BaseAccountRoot),
+) {
   @Column({ length: 64 })
   username: string;
 

@@ -4,6 +4,7 @@ export interface RedisClientConfig {
   port: number;
   password?: string;
   db?: number;
+  keyPrefix?: string;
 }
 
 export interface RedisConfig {

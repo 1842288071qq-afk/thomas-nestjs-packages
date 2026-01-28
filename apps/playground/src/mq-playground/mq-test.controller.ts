@@ -13,12 +13,14 @@ import { MqDevFilterGuard } from '@app/core/nest/mq/mq-dev-filter.guard';
 import { KafkaEvent } from '@app/core/nest/mq/kafka-event.decorator';
 import { RabbitAckInterceptor } from '@app/core/nest/mq/rabbit-ack.interceptor';
 import { KafkaCommitInterceptor } from '@app/core/nest/mq/kafka-commit.interceptor';
+import { Public } from '@app/core/nest/jwt-auth';
 
 interface testMqPayload {
   key: number;
   value: string;
 }
 
+@Public()
 @Controller('mq-test')
 @UseGuards(MqDevFilterGuard)
 export class MqTestController {
@@ -29,6 +31,7 @@ export class MqTestController {
     private readonly rabbitPublisher: RabbitEventPublisher,
   ) {}
 
+  @Public()
   @Post('kafka/publish')
   async publishKafka(@Body() body: testMqPayload) {
     this.logger.log(`Publishing to Kafka: ${JSON.stringify(body)}`);

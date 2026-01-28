@@ -2,6 +2,8 @@ import { ConfigModule, registerAs } from '@nestjs/config';
 import appConfig from './app.config';
 import fileConfig from './file.config';
 import './config.interface';
+import { redisConfig } from './redis.config';
+import { jwtConfig } from './jwt.config';
 
 interface ConfigModuleImportOptions {
   // 写在代码里面的配置
@@ -18,7 +20,7 @@ export function configModuleImport(option: ConfigModuleImportOptions) {
   const { configs, envName } = option;
   return ConfigModule.forRoot({
     isGlobal: true,
-    load: [...configs, appConfig, fileConfig],
+    load: [...configs, appConfig, fileConfig, redisConfig, jwtConfig],
     // 环境变量文件路径
     envFilePath: [`./env/${envName}.local`, `./env/${envName}.env`],
   });

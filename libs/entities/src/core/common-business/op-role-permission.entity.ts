@@ -1,4 +1,4 @@
-import { EntityWithId } from '@app/entities/core/base/extendable';
+import { WithId } from '@app/entities/core/base/extendable';
 import {
   Column,
   CreateDateColumn,
@@ -11,12 +11,14 @@ import {
 import { OpRole } from './op-role.entity';
 import { OpPermission } from './op-permission.entity';
 
+class OpRolePermissionRoot {}
+
 @Entity({ name: 'op_role_permission' })
 @Index('idx_op_role_permission_code', ['permissionCode'])
 @Index('uq_op_role_permission', ['roleId', 'permissionCode'], {
   unique: true,
 })
-export class OpRolePermission extends EntityWithId {
+export class OpRolePermission extends WithId(OpRolePermissionRoot) {
   @Column({ name: 'role_id' })
   roleId: string;
 

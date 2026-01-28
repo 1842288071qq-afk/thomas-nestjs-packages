@@ -1,4 +1,9 @@
-import { EntityWithIdAndAuditorAndSoftDelete } from '@app/entities/core/base/extendable';
+import {
+  WithSoftDelete,
+  WithAuditor,
+  WithTimeTrace,
+  WithId,
+} from '@app/entities/core/base/extendable';
 import {
   Column,
   Entity,
@@ -14,9 +19,13 @@ import { Identity } from '../identity/identity.entity';
 import { OpUserRole } from './op-user-role.entity';
 import { OpDept } from './op-dept.entity';
 
+class OpUserRoot {}
+
 @Entity({ name: 'op_user' })
 @Index('uq_op_user_identity', ['identityId'], { unique: true })
-export class OpUser extends EntityWithIdAndAuditorAndSoftDelete {
+export class OpUser extends WithSoftDelete(
+  WithAuditor(WithTimeTrace(WithId(OpUserRoot))),
+) {
   @Column({ name: 'identity_id' })
   identityId: string;
 
@@ -29,8 +38,8 @@ export class OpUser extends EntityWithIdAndAuditorAndSoftDelete {
   @Column({ length: 32, nullable: true })
   phone?: string;
 
-  @Column({ length: 16, default: 'enabled' })
-  enable: string;
+  @Column({ length: 16, default: 'active' })
+  status: string;
 
   @Column({ name: 'dept_id', nullable: true })
   deptId?: string | null;

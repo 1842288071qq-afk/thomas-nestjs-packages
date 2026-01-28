@@ -1,13 +1,16 @@
+import { Identity, OpRole } from '@app/entities';
 import { Account } from '@app/entities/core/account/account.entity';
 import { OpAccount } from '@app/entities/core/account/op-account.entity';
-import { Identity, HospitalRole, OpRole } from '@app/entities/auth';
 
 declare global {
   // 扩展 ThreadLocalStore 接口
   interface ThreadLocalStore<
+    // 账号类型，默认为 Account 或 OpAccount
     T = Account | OpAccount,
+    // 身份类型，统一为Identity
     I = Identity,
-    R = HospitalRole | OpRole,
+    // 业务角色，默认为 OpRole (只有运营平台有角色概念)
+    R = OpRole,
   > {
     // 账号信息
     account?: T | null;

@@ -1,11 +1,15 @@
 import { Column, Entity, Index } from 'typeorm';
-import { EntityWithIdAndTimeTraceAndSoftDelete } from './extendable';
+import { WithSoftDelete, WithTimeTrace, WithId } from './extendable';
 import { AccountSource, IdentityType } from '../identity/constants';
+
+class BaseIdentityRoot {}
 
 @Entity({ name: 'identity' })
 @Index('idx_identity_account', ['accountId', 'accountSource'])
 @Index('idx_identity_type', ['identityType'])
-export class BaseIdentity extends EntityWithIdAndTimeTraceAndSoftDelete {
+export class BaseIdentity extends WithSoftDelete(
+  WithTimeTrace(WithId(BaseIdentityRoot)),
+) {
   @Column({
     name: 'account_source',
     type: 'varchar',

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { SharedServicesModule } from '../../shared-services.module';
+import { SharedServicesModule } from '../../services/shared-services.module';
 import { AccountDeserializeService } from './account-deserialize.service';
 import { AccountDeserializeGuard } from './account-deserialize.guard';
 import { APP_GUARD } from '@nestjs/core';

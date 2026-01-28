@@ -1,9 +1,17 @@
 import { Entity, Column, JoinColumn, ManyToOne } from 'typeorm';
-import { EntityWithIdAndAuditorAndSoftDelete } from '../base/extendable';
+import {
+  WithSoftDelete,
+  WithAuditor,
+  WithTimeTrace,
+  WithId,
+} from '../base/extendable';
 import { SysOssConfigEntity } from './sys-oss-config.entity';
 
 @Entity('sys_file')
-export class SysFileEntity extends EntityWithIdAndAuditorAndSoftDelete {
+class SysFileEntityRoot {}
+export class SysFileEntity extends WithSoftDelete(
+  WithAuditor(WithTimeTrace(WithId(SysFileEntityRoot))),
+) {
   @Column({ comment: '文件名 (含后缀)' })
   filename: string;
 

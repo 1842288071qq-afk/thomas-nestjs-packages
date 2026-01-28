@@ -36,6 +36,8 @@ export class MqModule {
                   consumer: {
                     groupId: kafkaConfig?.groupId || 'wjy-consumer-group',
                     allowAutoCommit: false,
+                    // 应用自定义的 consumer 配置
+                    ...(kafkaConfig?.consumer || {}),
                   },
                 },
               };
@@ -101,6 +103,8 @@ export class MqModule {
           consumer: {
             groupId: mqConfig.kafka.groupId,
             allowAutoCommit: false,
+            // 应用自定义的 consumer 配置
+            ...(mqConfig.kafka.consumer || {}),
           },
         },
       });

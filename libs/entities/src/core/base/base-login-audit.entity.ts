@@ -1,10 +1,12 @@
 import { Column, CreateDateColumn, Index } from 'typeorm';
-import { EntityWithId } from './extendable';
+import { WithId } from './extendable';
+
+class BaseLoginAuditRoot {}
 
 @Index('idx_audit_success', ['success'])
 @Index('idx_audit_account_created', ['accountId', 'createdAt'])
 @Index('idx_audit_identity_created', ['identityId', 'createdAt'])
-export abstract class BaseLoginAudit extends EntityWithId {
+export abstract class BaseLoginAudit extends WithId(BaseLoginAuditRoot) {
   @Column({ name: 'account_id' })
   accountId: string;
 

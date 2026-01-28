@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Request } from 'express';
 import { ThreadLocal } from '@app/core/nest/als/thread-local';
 import { JwtPayload } from '@app/core/nest/jwt-auth';
-import { SharedService } from '../../shared.service';
+import { FindAccountService } from '../../services/find-account.service';
 import '../../types/shared-types';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class AccountDeserializeService {
 
   constructor(
     private readonly threadLocal: ThreadLocal,
-    private readonly sharedService: SharedService,
+    private readonly findAccountService: FindAccountService,
   ) {}
 
   /**
@@ -27,7 +27,7 @@ export class AccountDeserializeService {
     }
 
     try {
-      const account = await this.sharedService.findAccountById(accountId);
+      const account = await this.findAccountService.findAccountById(accountId);
       this.threadLocal.set('account', account || null);
     } catch (error) {
       this.logger.error(`Failed to deserialize account ${accountId}`, error);

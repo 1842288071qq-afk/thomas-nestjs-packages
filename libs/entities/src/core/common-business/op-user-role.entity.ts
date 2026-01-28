@@ -1,4 +1,4 @@
-import { EntityWithIdAndTimeTrace } from '@app/entities/core/base/extendable';
+import { WithId, WithTimeTrace } from '@app/entities/core/base/extendable';
 import {
   Column,
   CreateDateColumn,
@@ -12,12 +12,14 @@ import { OpUser } from './op-user.entity';
 import { Identity } from '../identity/identity.entity';
 import { OpRole } from './op-role.entity';
 
+class OpUserRoleRoot {}
+
 @Entity({ name: 'op_user_role' })
 @Index('idx_op_user_role_role', ['roleId'])
 @Index('uq_op_user_role', ['opUserId', 'roleId'], {
   unique: true,
 })
-export class OpUserRole extends EntityWithIdAndTimeTrace {
+export class OpUserRole extends WithTimeTrace(WithId(OpUserRoleRoot)) {
   @Column({ name: 'op_user_id' })
   opUserId: string;
 

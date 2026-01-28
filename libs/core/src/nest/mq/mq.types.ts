@@ -15,6 +15,12 @@ export interface KafkaConfig {
   clientId: string;
   brokers: string[];
   groupId: string;
+  consumer?: {
+    sessionTimeout?: number;
+    heartbeatInterval?: number;
+    rebalanceTimeout?: number;
+    [key: string]: unknown;
+  };
 }
 
 export interface RabbitConfig {

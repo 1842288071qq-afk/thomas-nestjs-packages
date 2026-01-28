@@ -16,15 +16,9 @@ import { BizError } from '@app/core/BizError';
 import { ThreadLocal } from '@app/core/nest/als/thread-local';
 import { IdentityRequired } from '../guards/identity-required/identity-required.decorator';
 import { ParseCsvArrayPipe } from '@app/core/nest/transform/ParseCsvArray.pipe';
-import { IdentityType } from '@app/entities/auth';
+import { IdentityType } from '@app/entities/core/identity/constants';
 
-@IdentityRequired(
-  IdentityType.OP_USER,
-  IdentityType.OP_AGENT_USER,
-  IdentityType.HOSPITAL_ADMIN,
-  IdentityType.STUDENT,
-  IdentityType.PERSONAL_USER,
-)
+@IdentityRequired(IdentityType.OP_USER, IdentityType.User)
 @Controller('files')
 export class FileController {
   constructor(

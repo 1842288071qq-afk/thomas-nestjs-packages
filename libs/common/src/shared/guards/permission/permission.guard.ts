@@ -8,13 +8,31 @@ import {
 import { Reflector } from '@nestjs/core';
 
 import { PermissionService } from './permission.service';
-import {
-  PERMISSION_REQUIRED_KEY,
-  PermissionRequirement,
-} from './permission-required.decorator';
+import { PERMISSION_REQUIRED_KEY } from './permission-required.decorator';
+import { PermissionRequirement } from './permission.types';
 import { ThreadLocal } from '@app/core/nest/als/thread-local';
-import { Identity, IdentityType } from '@app/entities/auth';
+import { Identity, IdentityType } from '@app/entities/core/identity';
 
+/**
+ * 权限检查卫兵
+ *
+ * 支持的身份类型：
+ * - OP_USER: 运营平台用户（拥有角色和权限）
+ *
+ * 后续扩展其他身份类型时：
+ * 1. 在 Identity 实体中添加新的关联关系
+ * 2. 在本卫兵中添加新的分支处理逻辑
+ * 3. 创建对应的 xxxPermissionService 来处理权限查询
+ *
+ * @example
+ * ```typescript
+ * // 使用装饰器来指定权限要求
+ * @PermissionRequired('user.view')
+ * @PermissionRequired(['user.create', 'user.delete']) // AND 关系
+ * @PermissionRequired([['user.view'], ['admin.view']]) // OR 关系
+ * @PermissionRequired((perms) => perms.includes('admin'))
+ * ```
+ */
 @Injectable()
 export class PermissionGuard implements CanActivate {
   constructor(
@@ -29,6 +47,7 @@ export class PermissionGuard implements CanActivate {
       [context.getHandler(), context.getClass()],
     );
 
+    // 如果没有权限要求，直接放行
     if (!requirement) {
       return true;
     }
@@ -39,22 +58,42 @@ export class PermissionGuard implements CanActivate {
     }
 
     const { identity } = store;
-
     if (!identity) {
       throw new UnauthorizedException('Identity not found in context');
     }
 
-    // 1. 获取角色和权限并挂载到 ThreadLocal
-    await this.mountRolesAndPermissions(identity);
+    // 仅支持 OP_USER 的权限检查
+    if (identity.identityType !== IdentityType.OP_USER) {
+      // 其他身份类型如需权限控制，需在此添加分支处理
+      throw new ForbiddenException(
+        `Permission check not supported for identity type: ${identity.identityType}`,
+      );
+    }
 
-    // 2. 检查权限要求
-    const permissionCodes = this.threadLocal.get('permissionCodes') || [];
+    return this.checkOpUserPermissions(identity, requirement);
+  }
 
-    // 如果是运营平台超管，直接放行
-    if (this.isOpSuper(identity)) {
+  /**
+   * 检查运营平台用户的权限
+   */
+  private async checkOpUserPermissions(
+    identity: Identity,
+    requirement: PermissionRequirement,
+  ): Promise<boolean> {
+    const opUser = identity.opUser;
+    if (!opUser) {
+      throw new UnauthorizedException('OpUser not found in identity');
+    }
+
+    // 运营平台超级管理员直接放行
+    if (opUser.isSuper) {
       return true;
     }
 
+    // 获取并挂载用户权限到 ThreadLocal
+    await this.mountUserPermissions(opUser.id);
+
+    const permissionCodes = this.threadLocal.get('permissionCodes') || [];
     if (!this.checkRequirement(requirement, permissionCodes)) {
       throw new ForbiddenException('Insufficient permissions');
     }
@@ -63,92 +102,23 @@ export class PermissionGuard implements CanActivate {
   }
 
   /**
-   * 挂载角色和权限到 ThreadLocal
+   * 将用户权限和角色挂载到 ThreadLocal（避免重复查询）
    */
-  private async mountRolesAndPermissions(identity: Identity) {
-    // 如果已经挂载过，直接返回
+  private async mountUserPermissions(userId: string): Promise<void> {
+    // 如果已挂载，直接返回
     if (this.threadLocal.get('permissionCodes')) {
       return;
     }
 
-    const isOp = identity.identityType === IdentityType.OP_USER;
-    const isAgent = identity.identityType === IdentityType.OP_AGENT_USER;
-    let type: 'hospital' | 'op' | 'agent' = 'hospital';
-    if (isOp) type = 'op';
-    else if (isAgent) type = 'agent';
+    const permData = await this.permissionService.getUserPermissionData(userId);
 
-    // 提取业务用户ID (OpUser.id || OpAgentUser.id || HospitalAdmin.id)
-    let userId: string | undefined;
-    if (isOp) {
-      userId = identity.opUser?.id;
-    } else if (isAgent) {
-      userId = identity.opAgentUser?.id;
-    } else {
-      userId = identity.hospitalAdmin?.id;
-    }
-
-    if (!userId) {
-      // 非后台管理身份（如学生、个人用户）或者未加载关联业务对象，设置为空
-      this.threadLocal.set('roles', []);
-      this.threadLocal.set('permissionCodes', []);
-      return;
-    }
-
-    // 获取用户基础权限数据
-    const userPermData = await this.permissionService.getUserPermissionData({
-      type,
-      userId,
-    });
-
-    let finalPermissionCodes = userPermData.permissionCodes;
-
-    // 医院租户逻辑
-    const hospitalId =
-      identity.hospitalAdmin?.hospitalId || identity.student?.hospitalId;
-
-    if (isOp || isAgent) {
-      // 运营平台/代理商逻辑
-      if (isOp && identity.opUser?.isSuper) {
-        // 运营平台超管获取所有运营权限
-        const allOpPerms = await this.permissionService.getPermissions('op');
-        finalPermissionCodes = allOpPerms.map((p) => p.code);
-      }
-    } else {
-      if (!hospitalId) {
-        throw new UnauthorizedException('Hospital not found in context');
-      }
-
-      const maxPermCodes = (await this.permissionService.getMaxPermissionCodes(
-        hospitalId,
-      )) as string[];
-
-      if (identity.hospitalAdmin?.isSuperAdmin) {
-        // 医院超管直接赋予医院最大的权限码
-        finalPermissionCodes = maxPermCodes;
-      } else {
-        // 普通管理员权限不能超过医院最大权限
-        finalPermissionCodes = finalPermissionCodes.filter((code) =>
-          maxPermCodes.includes(code),
-        );
-      }
-    }
-
-    // 获取角色对象列表
-    const roleObjects = await this.permissionService.getRoleDataByCodes({
-      type,
-      roleCodes: userPermData.roleCodes,
-      hospitalId,
-    });
+    // 根据角色代码翻译为角色对象
+    const roleObjects = await this.permissionService.getRoleDataByCodes(
+      permData.roleCodes,
+    );
 
     this.threadLocal.set('roles', roleObjects);
-    this.threadLocal.set('permissionCodes', finalPermissionCodes);
-  }
-
-  /**
-   * 判断是否为运营平台超管
-   */
-  private isOpSuper(identity: Identity): boolean {
-    return identity.opUser?.isSuper === true;
+    this.threadLocal.set('permissionCodes', permData.permissionCodes);
   }
 
   /**

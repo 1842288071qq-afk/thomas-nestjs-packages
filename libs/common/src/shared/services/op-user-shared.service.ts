@@ -1,15 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { OpUser } from '@app/entities/op-account/op-user.entity';
 import { OpUserRole } from '@app/entities/core/common-business/op-user-role.entity';
 import { OpAccount } from '@app/entities/core/account/op-account.entity';
-import { Identity, AccountSource, IdentityType } from '@app/entities/auth';
 import { OpAccountCredential } from '@app/entities/core/account/op-account-credential.entity';
 import { BizError } from '@app/core/BizError';
 import { IPageData } from '@app/core/Pagination';
 import { PasswordUtil } from '@app/common/utils/password';
 import { OpDept } from '@app/entities/core/common-business/op-dept.entity';
+import { AccountSource, Identity, IdentityType, OpUser } from '@app/entities';
+import { PermissionService } from '../guards/permission/permission.service';
 
 export interface ICreateOpUserParams {
   username: string;
@@ -57,6 +57,7 @@ export class OpUserSharedService {
     private readonly opDeptRepository: Repository<OpDept>,
     private readonly dataSource: DataSource,
     private readonly passwordUtil: PasswordUtil,
+    private readonly permissionService: PermissionService,
   ) {}
 
   /**
@@ -192,10 +193,10 @@ export class OpUserSharedService {
     }
     if (isSuper !== undefined) user.isSuper = isSuper;
     if (enable !== undefined) {
-      user.enable = enable;
+      user.status = enable;
       // 同步禁用状态到 identity.status
       if (user.identity) {
-        user.identity.status = enable === 'disabled' ? 'inactive' : 'active';
+        user.identity.status = enable === 'disabled' ? 'disabled' : 'active';
       }
     }
     if (operatorId) user.updatedBy = operatorId;
@@ -204,7 +205,12 @@ export class OpUserSharedService {
     if (user.identity) {
       await this.identityRepository.save(user.identity);
     }
-    return await this.opUserRepository.save(user);
+    const result = await this.opUserRepository.save(user);
+
+    // 用户信息变更后清除权限缓存
+    await this.permissionService.clearUserPermissionCache(id);
+
+    return result;
   }
 
   /**
@@ -341,6 +347,9 @@ export class OpUserSharedService {
     });
 
     this.logger.log(`用户 ${userId} 角色已更新，共 ${roleIds.length} 个角色`);
+
+    // 用户角色变更后清除权限缓存
+    await this.permissionService.clearUserPermissionCache(userId);
   }
 
   /**

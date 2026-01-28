@@ -1,14 +1,7 @@
 import { SetMetadata, CustomDecorator } from '@nestjs/common';
+import { PermissionRequirement } from './permission.types';
 
 export const PERMISSION_REQUIRED_KEY = 'permission_required';
-
-export type PermissionCheckFunc = (permissionList: string[]) => boolean;
-
-export type PermissionRequirement =
-  | string
-  | string[]
-  | PermissionCheckFunc
-  | PermissionRequirement[];
 
 /**
  * 权限要求装饰器

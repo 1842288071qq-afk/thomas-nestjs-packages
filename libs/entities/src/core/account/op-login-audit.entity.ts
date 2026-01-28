@@ -2,7 +2,7 @@ import { BaseLoginAudit } from '@app/entities/core/base/base-login-audit.entity'
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 import { OpAccount } from './op-account.entity';
-import { Identity } from '../base/base-identity.entity';
+import { Identity } from '../identity';
 
 @Entity({ name: 'op_login_audit' })
 export class OpLoginAudit extends BaseLoginAudit {
