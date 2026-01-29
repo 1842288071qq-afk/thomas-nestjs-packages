@@ -10,7 +10,7 @@ import { JwtPayload } from '../types/jwt-payload.type';
  * getMe(@CurrentAccount() accountId: string) {}
  */
 export const CurrentAccount = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext): string => {
+  (_data: unknown, ctx: ExecutionContext): string => {
     const request = ctx.switchToHttp().getRequest<Request>();
     const user = request.user as JwtPayload | undefined;
 
