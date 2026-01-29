@@ -2,9 +2,9 @@
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
-# nestjs-boilerplate
+# thomas NestJS Boilerplate
 
-本工程是一个 NestJS 的模版，采用 NestJS 的 Monorepo 模式。
+这是一个基于 NestJS 的 Monorepo 模板项目，采用模块化架构，用于快速启动新的 NestJS 应用。
 
 ## 📖 文档中心
 
@@ -15,68 +15,57 @@
 
 ## 🏗️ 工程结构
 
-本工程采用 **Nx Monorepo** 架构：
+本工程采用 **Monorepo** 架构：
 
-- **`apps/`**: 业务进程入口。
+- **`apps/`**: 应用入口目录
+  - `playground`: 示例应用
 
-- **`libs/`**: 核心逻辑与基础设施。
-  - `core`: 跨项目通用技术组件（缓存、认证、日志等）。
-  - `common`: 本项目通用业务逻辑（Guard、共享服务等）。
-  - `entities`: 数据库实体与 DDL 定义。
+- **`libs/`**: 共享库与基础设施
+  - `core`: 跨项目通用技术组件（缓存、认证、MQ 等）
+  - `common`: 通用业务逻辑（Guard、共享服务等）
+  - `entities`: 数据库实体与 DDL 定义
 
 ## 🚀 快速开始
 
-### 1. 安装开发工具与依赖
-
-首先，全局安装 NestJS CLI：
+### 1. 安装依赖
 
 ```bash
-npm install -g @nestjs/cli
-```
-
-安装项目依赖（推荐使用 `pnpm`）：
-
-```bash
+# 使用 pnpm（推荐）
 pnpm install
 ```
 
 ### 2. 环境配置
 
-配置文件位于 `env/` 目录下。请根据需要复制并创建对应的 `.env` 文件。
+配置文件位于 `env/` 目录下。请根据需要复制并创建对应的 `.env` 文件：
 
 ```bash
-# 例如配置 khy 应用
-cp env/khy.env.example env/khy.env
+cp env/playground.env.example env/playground.env
 ```
-
-> [!IMPORTANT]
-> 框架会自动根据 `APP_NAME` 环境变量或启动命令加载对应的 `.env` 文件。
 
 ### 3. 本地开发
 
-启动指定应用：
+启动应用：
 
 ```bash
-# 启动 khy (医院端)
-pnpm dev:khy
-# 或等价于
-nest start khy --watch --debug
+# 启动 playground 应用
+pnpm dev:playground
 
-# 启动 yypt (运营端)
-pnpm dev:yypt
-# 或等价于
-nest start yypt --watch --debug
+# 或使用 nest cli 直接启动
+nest start playground --watch --debug
 ```
 
-| 命令                               | 说明                                                                                                              |
-| :--------------------------------- | :---------------------------------------------------------------------------------------------------------------- |
-| `nest build <app> --webpack`       | 编译指定应用，并采用webpack打包（默认情况下，本工程设置了为不使用webpack，方便开发调试通过sourcemap看打印调用栈） |
-| `nest start <app> --watch --debug` | 启动指定应用，监听文件变化，并开启debug模式                                                                       |
-| `npm run lint`                     | 运行 ESLint 校验并修复                                                                                            |
-| `npm run format`                   | 运行 Prettier 格式化代码                                                                                          |
+### 4. 常用命令
 
-### 4. debug断点
+| 命令                               | 说明                                                           |
+| :--------------------------------- | :------------------------------------------------------------- |
+| `nest start <app> --watch --debug` | 启动应用，监听文件变化，并开启 debug 模式                     |
+| `nest build <app>`                 | 编译应用                                                       |
+| `npm run lint`                     | 运行 ESLint 校验并修复                                         |
+| `npm run format`                   | 运行 Prettier 格式化代码                                       |
 
-在运行开发模式后，都加上了`--debug`标识，此时使用任意js调试客户端attach到本地9229端口即可进行调试。
+### 5. 调试
 
-本项目集成了`vscode`的`launch.json`配置，运行开发模式后可在UI上attach进行断点调试。
+启动开发模式后，应用会在本地 9229 端口开启 debug。可通过以下方式进行调试：
+
+- VS Code: 使用集成的 launch 配置进行断点调试
+- Chrome DevTools: 访问 `chrome://inspect` 连接远程调试器
