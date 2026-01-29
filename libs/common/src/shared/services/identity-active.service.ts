@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RedisService } from '@app/core/nest/redis/redis.service';
 import { Identity } from '@app/entities';
+import { CronHandler } from '@app/core/nest/bullmq';
 
 @Injectable()
 export class IdentityActiveService {
@@ -41,7 +41,7 @@ export class IdentityActiveService {
   /**
    * 定时任务：异步落库（每5分钟执行一次）
    */
-  @Cron('0 */5 * * * *')
+  @CronHandler('identity-active-sync', '0 */5 * * * *', '同步身份活跃时间')
   async syncToDb() {
     const dirtyMembers = await this.redisService
       .getHelper()
