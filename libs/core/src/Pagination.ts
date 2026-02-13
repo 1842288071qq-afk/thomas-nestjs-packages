@@ -1,4 +1,5 @@
 import { Transform, Type } from 'class-transformer';
+import { IsInt, IsOptional } from 'class-validator';
 
 /**
  * 统一要求的分页列表数据返回
@@ -20,9 +21,14 @@ export interface IPageData<T = Record<string, unknown>> {
  */
 export class PaginationDTO {
   @Type(() => Number)
+  @IsInt()
+  @IsOptional()
   @Transform(({ value }) => Number(value) || 1)
   page: number = 1;
+
   @Type(() => Number)
+  @IsInt()
+  @IsOptional()
   @Transform(({ value }) => Number(value) || 10)
   pageSize: number = 10;
 }
@@ -33,6 +39,8 @@ export class PaginationDTO {
  */
 export class ListParamsDTO {
   @Type(() => Number)
+  @IsInt()
+  @IsOptional()
   // transform保证limit为number类型，而且默认为10
   @Transform(({ value }) => Number(value) || 10)
   limit: number = 10;

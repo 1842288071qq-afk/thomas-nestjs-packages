@@ -5,3 +5,4 @@ export * from './rabbit-publisher.service';
 export * from './mq-dev-filter.guard';
 export * from './kafka-commit.interceptor';
 export * from './kafka-event.decorator';
+export * from './mq.config.template';

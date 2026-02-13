@@ -138,14 +138,13 @@ export class BullMQModule {
           configService.get<RedisClientConfig>('redis.default');
         const bullMqConfig =
           configService.get<RedisClientConfig>('redis.bullmq');
-        // 深度合并：redisConfig 作为基础，bullMqConfig 的字段覆盖上去
-        const config = { ...redisConfig, ...bullMqConfig };
+        const configMerge = { ...(redisConfig || {}), ...(bullMqConfig || {}) };
         return {
           redis: {
-            host: config?.host || 'localhost',
-            port: config?.port || 6379,
-            password: config?.password,
-            db: config?.db,
+            host: configMerge?.host || 'localhost',
+            port: configMerge?.port || 6379,
+            password: configMerge?.password,
+            db: configMerge?.db,
           },
         };
       },

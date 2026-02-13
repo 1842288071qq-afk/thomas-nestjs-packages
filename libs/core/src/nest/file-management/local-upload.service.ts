@@ -15,9 +15,8 @@ export class LocalUploadService {
     private readonly configService: ConfigService,
     private readonly fileService: FileService,
   ) {
-    this.storageRoot = this.configService.get<string>(
-      'file.local.storageRoot',
-      './uploads',
+    this.storageRoot = path.resolve(
+      this.configService.get<string>('file.local.storageRoot', './uploads'),
     );
     this.serveRoot = this.configService.get<string>(
       'file.local.serveRoot',

@@ -47,7 +47,7 @@ export class RedisService implements OnModuleDestroy {
       db: config.db,
       lazyConnect: true,
       maxRetriesPerRequest: null,
-      keyPrefix: config.keyPrefix || '',
+      keyPrefix: config.keyPrefix,
     };
 
     const client = new Redis(options);

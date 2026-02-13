@@ -2,7 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Job } from 'bullmq';
-import { WorkerFactory } from './worker.factory';
+import { WorkerFactory, CreateWorkerOptions } from './worker.factory';
 import { CronService } from './cron/cron.service';
 import { CronRegistry } from './cron/cron.registry';
 import {
@@ -36,8 +36,8 @@ export class WorkerDiscoveryService implements OnModuleInit {
   onModuleInit(): void {
     // 1. 自动发现 @TaskHandler
     const taskHandlers = this.discoverTaskHandlers();
-    for (const [queue, handlers] of taskHandlers) {
-      this.createWorkerForQueue(queue, handlers);
+    for (const [queue, info] of taskHandlers) {
+      this.createWorkerForQueue(queue, info.handlers, info.options);
     }
     if (taskHandlers.size === 0) {
       this.logger.debug('No @TaskHandler found');
@@ -112,8 +112,26 @@ export class WorkerDiscoveryService implements OnModuleInit {
   /**
    * 扫描所有使用 @TaskHandler 装饰器的方法
    */
-  private discoverTaskHandlers(): Map<QueueName, Map<string, TaskHandler>> {
-    const handlers = new Map<QueueName, Map<string, TaskHandler>>();
+  private discoverTaskHandlers(): Map<
+    QueueName,
+    {
+      handlers: Map<string, TaskHandler>;
+      options: {
+        concurrency?: number;
+        workerOptions?: Record<string, any>;
+      };
+    }
+  > {
+    const handlers = new Map<
+      QueueName,
+      {
+        handlers: Map<string, TaskHandler>;
+        options: {
+          concurrency?: number;
+          workerOptions?: Record<string, any>;
+        };
+      }
+    >();
 
     const providers = this.discoveryService.getProviders();
 
@@ -148,13 +166,19 @@ export class WorkerDiscoveryService implements OnModuleInit {
           return;
         }
 
-        const { taskName, queue } = metadata;
+        const { taskName, queue, concurrency, workerOptions } = metadata;
 
         if (!handlers.has(queue)) {
-          handlers.set(queue, new Map());
+          handlers.set(queue, {
+            handlers: new Map(),
+            options: {
+              concurrency: 0,
+              workerOptions: {},
+            },
+          });
         }
 
-        const queueHandlers = handlers.get(queue)!;
+        const queueInfo = handlers.get(queue)!;
         const targetMethod = instance[methodName];
         if (typeof targetMethod !== 'function') {
           return;
@@ -162,13 +186,35 @@ export class WorkerDiscoveryService implements OnModuleInit {
         const boundHandler = (targetMethod as TaskHandler).bind(
           instance,
         ) as TaskHandler;
-        queueHandlers.set(taskName, boundHandler);
+        queueInfo.handlers.set(taskName, boundHandler);
+
+        // 聚合配置
+        if (concurrency) {
+          // 如果定义了并发，取最大值（或者累加，这里选择累加更符合多处理器场景）
+          queueInfo.options.concurrency =
+            (queueInfo.options.concurrency || 0) + concurrency;
+        }
+
+        if (workerOptions) {
+          // 合并 Worker 选项
+          queueInfo.options.workerOptions = {
+            ...queueInfo.options.workerOptions,
+            ...workerOptions,
+          };
+        }
 
         this.logger.log(
           `Discovered @TaskHandler: ${wrapper.name}.${methodName} -> ${queue}:${taskName}`,
         );
       });
     });
+
+    // 处理默认并发
+    for (const [_, info] of handlers) {
+      if (!info.options.concurrency || info.options.concurrency === 0) {
+        info.options.concurrency = 1;
+      }
+    }
 
     return handlers;
   }
@@ -179,6 +225,7 @@ export class WorkerDiscoveryService implements OnModuleInit {
   private createWorkerForQueue(
     queue: QueueName,
     taskHandlers: Map<string, TaskHandler>,
+    options: { concurrency?: number; workerOptions?: Record<string, any> },
   ): void {
     const handlersObj: Record<string, TaskHandler> = {};
 
@@ -186,10 +233,14 @@ export class WorkerDiscoveryService implements OnModuleInit {
       handlersObj[taskName] = handler;
     }
 
-    this.workerFactory.createRoutedWorker(queue, handlersObj);
+    this.workerFactory.createRoutedWorker(queue, handlersObj, {
+      concurrency: options.concurrency,
+      workerOptions:
+        options.workerOptions as CreateWorkerOptions['workerOptions'],
+    });
 
     this.logger.log(
-      `Worker created for queue "${queue}" with ${taskHandlers.size} handlers`,
+      `Worker created for queue "${queue}" with ${taskHandlers.size} handlers, concurrency: ${options.concurrency}`,
     );
   }
 }

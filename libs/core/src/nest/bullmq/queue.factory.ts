@@ -9,7 +9,7 @@ import {
   QUEUE_NAMES,
 } from './bullmq.constants';
 import type { AppConfig } from '@app/common/config/config.interface';
-import * as os from 'os';
+import os from 'os';
 
 /**
  * 队列工厂服务
@@ -32,9 +32,7 @@ export class QueueFactory implements OnModuleDestroy {
     const devName = appConfig?.devName || os.hostname();
 
     // 构建队列前缀：bullmq:{appName}:{devName}
-    this.prefix = devName
-      ? `bullmq:${appName}:${devName}`
-      : `bullmq:${appName}`;
+    this.prefix = `bullmq:${appName}:${devName}`;
 
     this.logger.log(`QueueFactory initialized with prefix: ${this.prefix}`);
 

@@ -4,11 +4,15 @@ import { ConfigService } from '@nestjs/config';
 import { JwtPayload } from '../types/jwt-payload.type';
 import { JwtIssueInput } from '../types/jwt-issue-input.type';
 import { JwtIssueResult } from '../types/jwt-issue-result.type';
+import { SessionService } from '../../session/session.service';
 
 export class JwtIssuer {
-  constructor(private readonly config: ConfigService) {}
+  constructor(
+    private readonly config: ConfigService,
+    private readonly sessionService?: SessionService,
+  ) {}
 
-  issue(input: JwtIssueInput): JwtIssueResult {
+  async issue(input: JwtIssueInput): Promise<JwtIssueResult> {
     const now = Math.floor(Date.now() / 1000);
 
     const defaultExpiresIn = this.config.get<number>('jwt.defaultExpiresIn');
@@ -28,6 +32,17 @@ export class JwtIssuer {
     if (expiresIn && expiresIn > 0) {
       payload.exp = now + expiresIn;
     }
+
+    // --- 会话持久化 ---
+    if (this.sessionService) {
+      await this.sessionService.createSession({
+        jti: payload.jti,
+        accountId: payload.accountId,
+        client: payload.client,
+        system: payload.system,
+      });
+    }
+
     const secret = this.config.get<string>('jwt.secret')!;
     const token = jwt.sign(payload, secret);
 

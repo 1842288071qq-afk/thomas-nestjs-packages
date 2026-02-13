@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Job } from 'bullmq';
+import { Job, JobType } from 'bullmq';
 import { QueueFactory } from './queue.factory';
 import { AddTaskOptions, QueueName, TaskResult } from './bullmq.types';
+// import { BizError } from '../../BizError';
 
 /**
  * 任务服务
@@ -30,13 +31,42 @@ export class TaskService {
    * });
    * ```
    */
-  async addTask<T = unknown>(options: AddTaskOptions<T>): Promise<Job<T>> {
+  async addTask<T = unknown>(
+    options: AddTaskOptions<T>,
+  ): Promise<Job<T> | null> {
     const { queue, name, data, bizKey, delay, priority, jobOptions } = options;
 
     // 生成幂等 jobId: {taskName}#{bizKey}
     const jobId = `${name}#${bizKey}`;
 
     const queueInstance = this.queueFactory.getQueue(queue);
+
+    // 检查任务状态，防重逻辑
+    const existingJob = await queueInstance.getJob(jobId);
+    if (existingJob) {
+      const state = await existingJob.getState();
+
+      // 1. 如果任务正在执行，直接返回 null，表示当前任务无法被更新或重新添加
+      if (state === 'active') {
+        this.logger.debug(
+          `Task is active, skipping update: queue=${queue}, jobId=${jobId}`,
+        );
+        return null;
+      }
+
+      // 2. 如果任务还在等待或延迟中，更新数据并返回最新 Job
+      if (['waiting', 'delayed'].includes(state)) {
+        await existingJob.updateData(data);
+        this.logger.debug(`Task data updated: queue=${queue}, jobId=${jobId}`);
+        return (await queueInstance.getJob(jobId)) || null;
+      }
+
+      // 3. 如果是已结算（完成或失败），先移除旧任务以允许重新添加
+      if (['completed', 'failed'].includes(state)) {
+        await existingJob.remove();
+        this.logger.debug(`Removed settled job for re-run: ${jobId}`);
+      }
+    }
 
     const job = await queueInstance.add(name, data, {
       jobId,
@@ -61,7 +91,7 @@ export class TaskService {
   async addDelayedTask<T = unknown>(
     options: Omit<AddTaskOptions<T>, 'delay'>,
     delayMs: number,
-  ): Promise<Job<T>> {
+  ): Promise<Job<T> | null> {
     return this.addTask({
       ...options,
       delay: delayMs,
@@ -146,6 +176,65 @@ export class TaskService {
     await job.retry();
     this.logger.debug(`Task retried: queue=${queue}, jobId=${jobId}`);
     return true;
+  }
+
+  /**
+   * 获取任务 Job 实例
+   *
+   * @param queue 队列名称
+   * @param jobId 任务 ID
+   */
+  async getJob<T = unknown>(
+    queue: QueueName,
+    jobId: string,
+  ): Promise<Job<T> | null> {
+    const queueInstance = this.queueFactory.getQueue(queue);
+    const job = await queueInstance.getJob(jobId);
+    return (job as Job<T>) || null;
+  }
+
+  /**
+   * 更新任务数据
+   *
+   * @param queue 队列名称
+   * @param jobId 任务 ID
+   * @param data 新任务数据
+   */
+  async updateJobData<T = unknown>(
+    queue: QueueName,
+    jobId: string,
+    data: T,
+  ): Promise<void> {
+    const job = await this.getJob<T>(queue, jobId);
+    if (!job) {
+      this.logger.warn(
+        `Cannot update task data, job not found: queue=${queue}, jobId=${jobId}`,
+      );
+      return;
+    }
+    await job.updateData(data);
+    this.logger.debug(`Task data updated: queue=${queue}, jobId=${jobId}`);
+  }
+
+  /**
+   * 获取任务列表
+   *
+   * @param queue 队列名称
+   * @param types 任务状态数组
+   * @param start 起始索引
+   * @param end 结束索引
+   * @param asc 是否升序
+   */
+  async getJobs<T = unknown>(
+    queue: QueueName,
+    types: JobType[] = ['active', 'waiting', 'completed', 'failed', 'delayed'],
+    start = 0,
+    end = 19,
+    asc = false,
+  ): Promise<Job<T>[]> {
+    const queueInstance = this.queueFactory.getQueue(queue);
+    const jobs = await queueInstance.getJobs(types, start, end, asc);
+    return jobs as Job<T>[];
   }
 
   /**

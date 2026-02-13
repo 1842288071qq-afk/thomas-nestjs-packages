@@ -19,7 +19,6 @@ export interface KafkaConfig {
     sessionTimeout?: number;
     heartbeatInterval?: number;
     rebalanceTimeout?: number;
-    [key: string]: unknown;
   };
 }
 

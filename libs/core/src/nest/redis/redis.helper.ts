@@ -99,17 +99,24 @@ export class RedisHelper {
 
   async scan(pattern: string, count = 100): Promise<string[]> {
     const keys: string[] = [];
+    const prefix = this.redis.options.keyPrefix || '';
     let cursor = '0';
     do {
       const [nextCursor, foundKeys] = await this.redis.scan(
         cursor,
         'MATCH',
-        pattern,
+        prefix + pattern,
         'COUNT',
         count,
       );
       cursor = nextCursor;
-      keys.push(...foundKeys);
+      // 这里的 key 是带 prefix 的，需要去掉，否则后面再次使用时 ioredis 会重复加前缀
+      const strippedKeys = prefix
+        ? foundKeys.map((key) =>
+            key.startsWith(prefix) ? key.slice(prefix.length) : key,
+          )
+        : foundKeys;
+      keys.push(...strippedKeys);
     } while (cursor !== '0');
     return keys;
   }

@@ -38,12 +38,12 @@ export class BullmqPlaygroundController {
       delay: body.delay,
     });
 
-    this.logger.log(`Task added: ${job.id}`);
+    this.logger.log(`Task added: ${job?.id}`);
 
     return {
-      jobId: job.id,
-      name: job.name,
-      data: job.data,
+      jobId: job?.id,
+      name: job?.name,
+      data: job?.data,
     };
   }
 

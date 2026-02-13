@@ -5,7 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { getMetadataStorage, validate, ValidationError } from 'class-validator';
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 
 export interface ValidationErrors {
   errors: string[];
@@ -40,7 +40,7 @@ export class ValidationPipeWithTransform implements PipeTransform<unknown> {
 
     // 转换并校验
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const object = plainToClass(metatype, value, {
+    const object = plainToInstance(metatype, value, {
       enableImplicitConversion: false,
     });
 
@@ -53,8 +53,8 @@ export class ValidationPipeWithTransform implements PipeTransform<unknown> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const errors = await validate(object, {
       skipMissingProperties: false, // 不跳过缺失属性
-      whitelist: false, // 不自动删除未装饰的属性
-      forbidNonWhitelisted: false, // 允许非白名单属性
+      whitelist: true, // 自动删除未装饰的属性 (白名单功能)
+      forbidNonWhitelisted: false, // 剔除未装饰的属性，且不报错
     });
 
     if (errors.length > 0) {
@@ -66,7 +66,7 @@ export class ValidationPipeWithTransform implements PipeTransform<unknown> {
   }
 
   /**
-   * 检查类是否有 class-validator 的验证装饰器
+   * 检查类或其父类是否有 class-validator 的验证装饰器
    */
   private hasValidationMetadata(metatype: any): boolean {
     if (!metatype) {
@@ -74,16 +74,28 @@ export class ValidationPipeWithTransform implements PipeTransform<unknown> {
     }
 
     const storage = getMetadataStorage();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    let target = metatype;
 
-    const metas = storage.getTargetValidationMetadatas(
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      metatype, // target
-      '', // schema (一般用不到)
-      false, // always
-      false, // strictGroups
-    );
+    while (target && target !== Object) {
+      const metas = storage.getTargetValidationMetadatas(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        target, // target
+        '', // schema
+        false, // always
+        false, // strictGroups
+      );
 
-    return metas.length > 0;
+      if (metas.length > 0) {
+        return true;
+      }
+
+      // 检查父类
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      target = Object.getPrototypeOf(target);
+    }
+
+    return false;
   }
 
   private toValidate(metatype: unknown): boolean {
