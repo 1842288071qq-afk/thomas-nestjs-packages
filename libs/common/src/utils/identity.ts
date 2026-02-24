@@ -1,5 +1,5 @@
-import { Identity } from '@app/entities/auth';
-import { BizError } from '@app/core/BizError';
+import { Identity } from '@thomas/nestjs/entities/auth';
+import { BizError } from '@thomas/nestjs/core/BizError';
 
 /**
  * 从身份信息中获取医院 ID

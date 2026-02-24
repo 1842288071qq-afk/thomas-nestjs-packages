@@ -8,15 +8,15 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FileService } from '@app/core/nest/file-management/file.service';
-import { LocalUploadService } from '@app/core/nest/file-management/local-upload.service';
-import { CreateFileDto } from '@app/core/nest/file-management/dto/file.dto';
-import { ApiResBody } from '@app/core/ApiResBody';
-import { BizError } from '@app/core/BizError';
-import { ThreadLocal } from '@app/core/nest/als/thread-local';
+import { FileService } from '@thomas/nestjs/core/nest/file-management/file.service';
+import { LocalUploadService } from '@thomas/nestjs/core/nest/file-management/local-upload.service';
+import { CreateFileDto } from '@thomas/nestjs/core/nest/file-management/dto/file.dto';
+import { ApiResBody } from '@thomas/nestjs/core/ApiResBody';
+import { BizError } from '@thomas/nestjs/core/BizError';
+import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
 import { IdentityRequired } from '../guards/identity-required/identity-required.decorator';
-import { ParseCsvArrayPipe } from '@app/core/nest/transform/ParseCsvArray.pipe';
-import { IdentityType } from '@app/entities/core/identity/constants';
+import { ParseCsvArrayPipe } from '@thomas/nestjs/core/nest/transform/ParseCsvArray.pipe';
+import { IdentityType } from '@thomas/nestjs/entities/core/identity/constants';
 
 @IdentityRequired(IdentityType.OP_USER, IdentityType.User)
 @Controller('files')

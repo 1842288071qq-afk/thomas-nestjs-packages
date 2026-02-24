@@ -1,11 +1,11 @@
-import { BaseAccount } from '@app/entities/core/base/base-account.entity';
+import { BaseAccount } from '@thomas/nestjs/entities/core/base/base-account.entity';
 import { Entity, OneToMany, OneToOne, DeleteDateColumn } from 'typeorm';
 
 import { OpAccountCredential } from './op-account-credential.entity';
 import { OpAccountChannelBinding } from './op-account-channel-binding.entity';
 import { OpAccountProfile } from './op-account-profile.entity';
 import { OpLoginAudit } from './op-login-audit.entity';
-import { Identity } from '@app/entities/core/identity/identity.entity';
+import { Identity } from '@thomas/nestjs/entities/core/identity/identity.entity';
 
 @Entity({ name: 'op_account' })
 export class OpAccount extends BaseAccount {

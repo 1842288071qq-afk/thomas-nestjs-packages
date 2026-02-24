@@ -1,6 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
-import { TaskHandler, QueueName, CronHandler } from '@app/core/nest/bullmq';
+import {
+  TaskHandler,
+  QueueName,
+  CronHandler,
+} from '@thomas/nestjs/core/nest/bullmq';
 
 /**
  * BullMQ Playground 任务处理器

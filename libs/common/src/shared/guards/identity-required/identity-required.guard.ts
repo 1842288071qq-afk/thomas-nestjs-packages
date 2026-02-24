@@ -1,13 +1,13 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
-import { ThreadLocal } from '@app/core/nest/als/thread-local';
+import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
 import {
   IDENTITY_REQUIRED_KEY,
   IdentityType,
   identityTypeNameMap,
 } from './identity-required.decorator';
-import { BizError } from '@app/core/BizError';
+import { BizError } from '@thomas/nestjs/core/BizError';
 import { IdentityActiveService } from '../../services/identity-active.service';
 
 @Injectable()

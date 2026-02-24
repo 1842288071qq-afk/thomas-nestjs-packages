@@ -15,7 +15,7 @@
 ### 权限流程
 
 ```
-请求 → PermissionGuard 
+请求 → PermissionGuard
        ↓
     检查身份类型
        ↓
@@ -37,7 +37,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CacheService } from '@app/core/nest/cache/cache.service';
+import { CacheService } from '@thomas/nestjs/core/nest/cache/cache.service';
 
 @Injectable()
 export class XxxPermissionService {
@@ -152,7 +152,8 @@ export class PermissionGuard implements CanActivate {
       return;
     }
 
-    const permData = await this.xxxPermissionService.getUserPermissionData(userId);
+    const permData =
+      await this.xxxPermissionService.getUserPermissionData(userId);
     this.threadLocal.set('roles', []);
     this.threadLocal.set('permissionCodes', permData.permissionCodes);
   }
@@ -225,19 +226,23 @@ export class PermissionModule {}
 ## 设计原则
 
 ### 1. 隔离性（Isolation）
+
 - 每个身份类型的权限查询逻辑独立，互不影响
 - 通过不同的权限服务实现不同的业务规则
 
 ### 2. 可扩展性（Extensibility）
+
 - 新增身份类型只需添加分支，无需修改现有逻辑
 - 遵循开闭原则：对扩展开放，对修改关闭
 
 ### 3. 缓存策略（Caching）
+
 - 每个身份类型的权限数据独立缓存
 - 缓存 key 清晰，避免碰撞
 - 支持细粒度的缓存清除
 
 ### 4. ThreadLocal 使用
+
 - 权限数据在请求处理链中通过 ThreadLocal 传递
 - 避免每次需要权限信息时都重复查询
 - 业务代码可通过 `threadLocal.get('permissionCodes')` 获取权限列表

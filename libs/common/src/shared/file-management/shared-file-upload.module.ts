@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { FileManagementModule as CoreFileManagementModule } from '@app/core/nest/file-management/file-management.module';
+import { FileManagementModule as CoreFileManagementModule } from '@thomas/nestjs/core/nest/file-management/file-management.module';
 import { FileController } from './file.controller';
 import { BusinessFileController } from './business-file.controller';
 

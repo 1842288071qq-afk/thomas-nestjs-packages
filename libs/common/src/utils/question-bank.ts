@@ -8,7 +8,7 @@ import {
   TestType,
   TestOption,
   TestJsonBase,
-} from '@app/entities/questionBank/DTO/testJson';
+} from '@thomas/nestjs/entities/questionBank/DTO/testJson';
 
 /**
  * 将题库中心原始题目项转换为 CenterTestItem 实体所需的平铺属性和 TestJson

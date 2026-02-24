@@ -1,6 +1,10 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Job } from 'bullmq';
-import { WorkerFactory, QueueName, TaskProcessor } from '@app/core/nest/bullmq';
+import {
+  WorkerFactory,
+  QueueName,
+  TaskProcessor,
+} from '@thomas/nestjs/core/nest/bullmq';
 
 /**
  * BullMQ Playground Manual Worker

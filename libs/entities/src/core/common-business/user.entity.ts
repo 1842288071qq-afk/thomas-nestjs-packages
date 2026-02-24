@@ -3,7 +3,7 @@ import {
   WithAuditor,
   WithTimeTrace,
   WithId,
-} from '@app/entities/core/base/extendable';
+} from '@thomas/nestjs/entities/core/base/extendable';
 import {
   Column,
   Entity,

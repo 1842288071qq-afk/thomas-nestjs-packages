@@ -2,12 +2,12 @@ import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { PermissionGuard } from './permission.guard';
 import { PermissionService } from './permission.service';
-import { EntityFeatureModule } from '../../EntityFeature.module';
-import { CacheModule } from '@app/core/nest/cache/cache.module';
+import { CoreEntityFeatureModule } from '../../CoreEntityFeature.module';
+import { CacheModule } from '@thomas/nestjs/core/nest/cache/cache.module';
 import '../../types/shared-types';
 
 @Module({
-  imports: [EntityFeatureModule, CacheModule],
+  imports: [CoreEntityFeatureModule, CacheModule],
   providers: [
     {
       provide: APP_GUARD,

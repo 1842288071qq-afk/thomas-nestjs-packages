@@ -7,13 +7,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { EventPattern, Payload, Transport } from '@nestjs/microservices';
-import { KafkaEventPublisher } from '@app/core/nest/mq/kafka-publisher.service';
-import { RabbitEventPublisher } from '@app/core/nest/mq/rabbit-publisher.service';
-import { MqDevFilterGuard } from '@app/core/nest/mq/mq-dev-filter.guard';
-import { KafkaEvent } from '@app/core/nest/mq/kafka-event.decorator';
-import { RabbitAckInterceptor } from '@app/core/nest/mq/rabbit-ack.interceptor';
-import { KafkaCommitInterceptor } from '@app/core/nest/mq/kafka-commit.interceptor';
-import { Public } from '@app/core/nest/jwt-auth';
+import { KafkaEventPublisher } from '@thomas/nestjs/core/nest/mq/kafka-publisher.service';
+import { RabbitEventPublisher } from '@thomas/nestjs/core/nest/mq/rabbit-publisher.service';
+import { MqDevFilterGuard } from '@thomas/nestjs/core/nest/mq/mq-dev-filter.guard';
+import { KafkaEvent } from '@thomas/nestjs/core/nest/mq/kafka-event.decorator';
+import { RabbitAckInterceptor } from '@thomas/nestjs/core/nest/mq/rabbit-ack.interceptor';
+import { KafkaCommitInterceptor } from '@thomas/nestjs/core/nest/mq/kafka-commit.interceptor';
+import { Public } from '@thomas/nestjs/core/nest/jwt-auth';
 
 interface testMqPayload {
   key: number;

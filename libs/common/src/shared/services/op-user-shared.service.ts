@@ -1,14 +1,19 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { OpUserRole } from '@app/entities/core/common-business/op-user-role.entity';
-import { OpAccount } from '@app/entities/core/account/op-account.entity';
-import { OpAccountCredential } from '@app/entities/core/account/op-account-credential.entity';
-import { BizError } from '@app/core/BizError';
-import { IPageData } from '@app/core/Pagination';
-import { PasswordUtil } from '@app/common/utils/password';
-import { OpDept } from '@app/entities/core/common-business/op-dept.entity';
-import { AccountSource, Identity, IdentityType, OpUser } from '@app/entities';
+import { OpUserRole } from '@thomas/nestjs/entities/core/common-business/op-user-role.entity';
+import { OpAccount } from '@thomas/nestjs/entities/core/account/op-account.entity';
+import { OpAccountCredential } from '@thomas/nestjs/entities/core/account/op-account-credential.entity';
+import { BizError } from '@thomas/nestjs/core/BizError';
+import { IPageData } from '@thomas/nestjs/core/Pagination';
+import { PasswordUtil } from '@thomas/nestjs/common/utils/password';
+import { OpDept } from '@thomas/nestjs/entities/core/common-business/op-dept.entity';
+import {
+  AccountSource,
+  Identity,
+  IdentityType,
+  OpUser,
+} from '@thomas/nestjs/entities';
 import { PermissionService } from '../guards/permission/permission.service';
 
 export interface ICreateOpUserParams {

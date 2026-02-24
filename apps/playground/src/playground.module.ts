@@ -2,19 +2,19 @@ import { Module } from '@nestjs/common';
 import { PlaygroundController } from './playground.controller';
 import { PlaygroundService } from './playground.service';
 import { datasourceConfig } from './config/datasource.config';
-import { configModuleImport } from '@app/common/config/configModuleImport';
-import { applyTypeOrmDs } from '@app/common/config/applyTypeOrmDs';
-import { GlobalModule } from '@app/core/nest/global.module';
-import { RedisModule } from '@app/core/nest/redis/redis.module';
-import { JwtAuthModule } from '@app/core/nest/jwt-auth';
+import { configModuleImport } from '@thomas/nestjs/common/config/configModuleImport';
+import { applyTypeOrmDs } from '@thomas/nestjs/common/config/applyTypeOrmDs';
+import { GlobalModule } from '@thomas/nestjs/core/nest/global.module';
+import { RedisModule } from '@thomas/nestjs/core/nest/redis/redis.module';
+import { JwtAuthModule } from '@thomas/nestjs/core/nest/jwt-auth';
 import { mqConfig } from './config/mq.config';
 import { MqPlaygroundModule } from './mq-playground/mq-playground.module';
 import { BullmqPlaygroundModule } from './bullmq-playground/bullmq-playground.module';
-import '@app/common/shared/types/shared-types';
-import { EntityFeatureModule } from '@app/common/shared';
-import { AccountDeserializeModule } from '@app/common/shared/guards/account-deserialize/account-deserialize.module';
-import { IdentityRequiredModule } from '@app/common/shared/guards/identity-required/identity-required.module';
-import { PermissionModule } from '@app/common/shared/guards/permission/permission.module';
+import '@thomas/nestjs/common/shared/types/shared-types';
+import { CoreEntityFeatureModule } from '@thomas/nestjs/common/shared';
+import { AccountDeserializeModule } from '@thomas/nestjs/common/shared/guards/account-deserialize/account-deserialize.module';
+import { IdentityRequiredModule } from '@thomas/nestjs/common/shared/guards/identity-required/identity-required.module';
+import { PermissionModule } from '@thomas/nestjs/common/shared/guards/permission/permission.module';
 
 @Module({
   imports: [
@@ -31,7 +31,7 @@ import { PermissionModule } from '@app/common/shared/guards/permission/permissio
     // 加载全局模块
     GlobalModule,
     // 加载全局entity
-    EntityFeatureModule,
+    CoreEntityFeatureModule,
     // account信息挂载
     AccountDeserializeModule,
     // 身份验证拦截

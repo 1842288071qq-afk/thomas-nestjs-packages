@@ -1,6 +1,6 @@
 import { applyDecorators } from '@nestjs/common';
 import { IsNotEmpty, IsString, ValidationOptions } from 'class-validator';
-import { Trim } from '@app/core/nest/transform/trim.decorator';
+import { Trim } from '@thomas/nestjs/core/nest/transform/trim.decorator';
 
 export function EnsureNotBlank(validationOptions?: ValidationOptions) {
   return applyDecorators(

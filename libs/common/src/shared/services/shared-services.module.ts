@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { CacheModule } from '@app/core/nest/cache/cache.module';
-import { BullMQModule } from '@app/core/nest/bullmq';
-import { EntityFeatureModule } from '../EntityFeature.module';
+import { CacheModule } from '@thomas/nestjs/core/nest/cache/cache.module';
+import { BullMQModule } from '@thomas/nestjs/core/nest/bullmq';
+import { CoreEntityFeatureModule } from '../CoreEntityFeature.module';
 import { PermissionModule } from '../guards/permission/permission.module';
 import { FindAccountService } from './find-account.service';
 import { OpUserSharedService } from './op-user-shared.service';
@@ -13,7 +13,7 @@ import { DataScopeEngine } from '../../utils/dataScopeEngine';
 
 @Module({
   imports: [
-    EntityFeatureModule,
+    CoreEntityFeatureModule,
     CacheModule,
     BullMQModule.forRootFromConfig(),
     PermissionModule,

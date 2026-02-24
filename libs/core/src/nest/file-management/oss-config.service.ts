@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { SysOssConfigEntity } from '@app/entities/core/sys/sys-oss-config.entity';
+import { SysOssConfigEntity } from '@thomas/nestjs/entities/core/sys/sys-oss-config.entity';
 import { CreateOssConfigDto, UpdateOssConfigDto } from './dto/oss-config.dto';
-import { BizError } from '@app/core/BizError';
-import { ThreadLocal } from '@app/core/nest/als/thread-local';
+import { BizError } from '@thomas/nestjs/core/BizError';
+import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
 import { RedisService } from '../redis/redis.service';
 
 @Injectable()

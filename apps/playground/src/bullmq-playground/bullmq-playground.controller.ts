@@ -1,6 +1,10 @@
 import { Controller, Get, Post, Body, Logger, Query } from '@nestjs/common';
-import { TaskService, QueueName, CronService } from '@app/core/nest/bullmq';
-import { Public } from '@app/core/nest/jwt-auth/decorator/public.decorator';
+import {
+  TaskService,
+  QueueName,
+  CronService,
+} from '@thomas/nestjs/core/nest/bullmq';
+import { Public } from '@thomas/nestjs/core/nest/jwt-auth/decorator/public.decorator';
 
 /**
  * BullMQ Playground Controller

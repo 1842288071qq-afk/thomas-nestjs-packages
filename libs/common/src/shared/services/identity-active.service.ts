@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { RedisService } from '@app/core/nest/redis/redis.service';
-import { Identity } from '@app/entities';
-import { CronHandler } from '@app/core/nest/bullmq';
+import { RedisService } from '@thomas/nestjs/core/nest/redis/redis.service';
+import { Identity } from '@thomas/nestjs/entities';
+import { CronHandler } from '@thomas/nestjs/core/nest/bullmq';
 
 @Injectable()
 export class IdentityActiveService {

@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere } from 'typeorm';
-import { CacheService } from '@app/core/nest/cache/cache.service';
+import { CacheService } from '@thomas/nestjs/core/nest/cache/cache.service';
 
-import { Account } from '@app/entities/core/account/account.entity';
-import { OpAccount } from '@app/entities/core/account/op-account.entity';
+import { Account } from '@thomas/nestjs/entities/core/account/account.entity';
+import { OpAccount } from '@thomas/nestjs/entities/core/account/op-account.entity';
 import {
   ACCOUNT_RELATIONS,
   OP_ACCOUNT_RELATIONS,

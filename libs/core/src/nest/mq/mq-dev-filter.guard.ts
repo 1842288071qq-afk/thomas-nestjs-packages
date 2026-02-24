@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { KafkaContext } from '@nestjs/microservices';
-import { AppConfig } from '@app/common/config/config.interface';
+import { AppConfig } from '@thomas/nestjs/common/config/config.interface';
 
 @Injectable()
 export class MqDevFilterGuard implements CanActivate {

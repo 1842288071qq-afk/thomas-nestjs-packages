@@ -6,12 +6,12 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { LocalUploadService } from '@app/core/nest/file-management/local-upload.service';
-import { ApiResBody } from '@app/core/ApiResBody';
-import { BizError } from '@app/core/BizError';
-import { ThreadLocal } from '@app/core/nest/als/thread-local';
+import { LocalUploadService } from '@thomas/nestjs/core/nest/file-management/local-upload.service';
+import { ApiResBody } from '@thomas/nestjs/core/ApiResBody';
+import { BizError } from '@thomas/nestjs/core/BizError';
+import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
 import { IdentityRequired } from '../guards/identity-required/identity-required.decorator';
-import { IdentityType } from '@app/entities/core/identity/constants';
+import { IdentityType } from '@thomas/nestjs/entities/core/identity/constants';
 import { AvatarUploadDto } from './dto/business-file.dto';
 
 /**

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
-import { ThreadLocalModule } from '@app/core/nest/als/thread-local.module';
+import { ThreadLocalModule } from '@thomas/nestjs/core/nest/als/thread-local.module';
 import { SharedServicesModule } from '../../services/shared-services.module';
 import { IdentityRequiredGuard } from './identity-required.guard';
 import '../../types/shared-types';

@@ -5,7 +5,7 @@ import {
   Brackets,
   ObjectLiteral,
 } from 'typeorm';
-import { ScopeStrategy } from '@app/entities/core/base/extendable';
+import { ScopeStrategy } from '@thomas/nestjs/entities/core/base/extendable';
 
 const DEFAULT_CLOSURE_TABLE_NAME = 'hospital_dept_closure';
 

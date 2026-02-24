@@ -3,8 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { FileService } from './file.service';
 import * as path from 'path';
 import * as fs from 'fs-extra';
-import { SysFileEntity } from '@app/entities/core/sys/sys-file.entity';
-import { BizError } from '@app/core/BizError';
+import { SysFileEntity } from '@thomas/nestjs/entities/core/sys/sys-file.entity';
+import { BizError } from '@thomas/nestjs/core/BizError';
 
 @Injectable()
 export class LocalUploadService {

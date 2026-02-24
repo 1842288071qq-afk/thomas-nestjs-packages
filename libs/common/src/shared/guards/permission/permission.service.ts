@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 
-import { CacheService } from '@app/core/nest/cache/cache.service';
-import { OpPermission } from '@app/entities/core/common-business/op-permission.entity';
-import { OpRolePermission } from '@app/entities/core/common-business/op-role-permission.entity';
-import { OpRole } from '@app/entities/core/common-business/op-role.entity';
-import { OpUserRole } from '@app/entities/core/common-business/op-user-role.entity';
+import { CacheService } from '@thomas/nestjs/core/nest/cache/cache.service';
+import { OpPermission } from '@thomas/nestjs/entities/core/common-business/op-permission.entity';
+import { OpRolePermission } from '@thomas/nestjs/entities/core/common-business/op-role-permission.entity';
+import { OpRole } from '@thomas/nestjs/entities/core/common-business/op-role.entity';
+import { OpUserRole } from '@thomas/nestjs/entities/core/common-business/op-user-role.entity';
 import { UserRoleData } from './permission.types';
 
 /**

@@ -1,4 +1,4 @@
-import { WithId } from '@app/entities/core/base/extendable';
+import { WithId } from '@thomas/nestjs/entities/core/base/extendable';
 import {
   Column,
   CreateDateColumn,

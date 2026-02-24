@@ -3,7 +3,7 @@ import { SetMetadata, CustomDecorator } from '@nestjs/common';
 import {
   IdentityType,
   IdentityTypeNameMap,
-} from '@app/entities/core/identity/constants';
+} from '@thomas/nestjs/entities/core/identity/constants';
 
 export { IdentityType };
 

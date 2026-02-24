@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Request } from 'express';
-import { ThreadLocal } from '@app/core/nest/als/thread-local';
-import { JwtPayload } from '@app/core/nest/jwt-auth';
+import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
+import { JwtPayload } from '@thomas/nestjs/core/nest/jwt-auth';
 import { FindAccountService } from '../../services/find-account.service';
 import '../../types/shared-types';
 

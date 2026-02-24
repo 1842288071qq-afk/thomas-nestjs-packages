@@ -1,4 +1,4 @@
-import { BaseAccountCredential } from '@app/entities/core/base/base-account-credential.entity';
+import { BaseAccountCredential } from '@thomas/nestjs/entities/core/base/base-account-credential.entity';
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 
 import { OpAccount } from './op-account.entity';

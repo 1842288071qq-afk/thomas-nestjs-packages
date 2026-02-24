@@ -1,7 +1,7 @@
-import { AccountEntities } from '@app/entities/core/account';
-import { IdentityEntities } from '@app/entities/core/identity';
-import { CommonBusinessEntities } from '@app/entities/core/common-business';
-import { SysEntities } from '@app/entities/core/sys';
+import { AccountEntities } from '@thomas/nestjs/entities/core/account';
+import { IdentityEntities } from '@thomas/nestjs/entities/core/identity';
+import { CommonBusinessEntities } from '@thomas/nestjs/entities/core/common-business';
+import { SysEntities } from '@thomas/nestjs/entities/core/sys';
 import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -21,4 +21,4 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   ],
   exports: [TypeOrmModule],
 })
-export class EntityFeatureModule {}
+export class CoreEntityFeatureModule {}

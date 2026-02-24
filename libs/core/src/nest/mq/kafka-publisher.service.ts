@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { ClientKafka } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { DomainEvent, EventPublisher } from './mq.types';
-import { AppConfig } from '@app/common/config/config.interface';
+import { AppConfig } from '@thomas/nestjs/common/config/config.interface';
 
 @Injectable()
 export class KafkaEventPublisher implements EventPublisher, OnModuleInit {

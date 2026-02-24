@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository } from 'typeorm';
-import { BizError } from '@app/core/BizError';
-import { OpRole } from '@app/entities/core/common-business/op-role.entity';
-import { OpRolePermission } from '@app/entities/core/common-business/op-role-permission.entity';
-import { OpUserRole } from '@app/entities/core/common-business/op-user-role.entity';
-import { OpUser } from '@app/entities/core/common-business/op-user.entity';
-import { IPageData } from '@app/core/Pagination';
+import { BizError } from '@thomas/nestjs/core/BizError';
+import { OpRole } from '@thomas/nestjs/entities/core/common-business/op-role.entity';
+import { OpRolePermission } from '@thomas/nestjs/entities/core/common-business/op-role-permission.entity';
+import { OpUserRole } from '@thomas/nestjs/entities/core/common-business/op-user-role.entity';
+import { OpUser } from '@thomas/nestjs/entities/core/common-business/op-user.entity';
+import { IPageData } from '@thomas/nestjs/core/Pagination';
 import { PermissionService } from '../guards/permission/permission.service';
 
 /**

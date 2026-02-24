@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { BullMQModule } from '@app/core/nest/bullmq';
+import { BullMQModule } from '@thomas/nestjs/core/nest/bullmq';
 import { BullmqPlaygroundController } from './bullmq-playground.controller';
 import { BullmqPlaygroundHandlers } from './bullmq-playground.handlers';
 import { BullmqPlaygroundManualWorker } from './bullmq-playground.manual-worker';

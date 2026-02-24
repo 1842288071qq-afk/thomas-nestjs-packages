@@ -23,22 +23,22 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@app/common": [
+      "@thomas/nestjs/common": [
         "libs/common/src"
       ],
-      "@app/common/*": [
+      "@thomas/nestjs/common/*": [
         "libs/common/src/*"
       ],
-      "@app/core": [
+      "@thomas/nestjs/core": [
         "libs/core/src"
       ],
-      "@app/core/*": [
+      "@thomas/nestjs/core/*": [
         "libs/core/src/*"
       ],
-      "@app/entities": [
+      "@thomas/nestjs/entities": [
         "libs/entities/src"
       ],
-      "@app/entities/*": [
+      "@thomas/nestjs/entities/*": [
         "libs/entities/src/*"
       ]
     }

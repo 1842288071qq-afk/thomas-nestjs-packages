@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
-import { OpDept } from '@app/entities/core/common-business/op-dept.entity';
-import { OpDeptClosure } from '@app/entities/core/common-business/op-dept-closure.entity';
-import { BizError } from '@app/core/BizError';
-import { snowflakeIdGenerator } from '@app/common/utils/id';
-import { OpUser } from '@app/entities';
+import { OpDept } from '@thomas/nestjs/entities/core/common-business/op-dept.entity';
+import { OpDeptClosure } from '@thomas/nestjs/entities/core/common-business/op-dept-closure.entity';
+import { BizError } from '@thomas/nestjs/core/BizError';
+import { snowflakeIdGenerator } from '@thomas/nestjs/common/utils/id';
+import { OpUser } from '@thomas/nestjs/entities';
 
 export interface ICreateOpDeptParams {
   name: string;

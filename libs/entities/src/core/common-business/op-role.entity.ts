@@ -2,7 +2,7 @@ import {
   WithTimeTrace,
   WithId,
   WithStatus,
-} from '@app/entities/core/base/extendable';
+} from '@thomas/nestjs/entities/core/base/extendable';
 import {
   Column,
   Entity,

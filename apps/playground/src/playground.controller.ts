@@ -5,12 +5,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PlaygroundService } from './playground.service';
-import { ApiResBody } from '@app/core/ApiResBody';
+import { ApiResBody } from '@thomas/nestjs/core/ApiResBody';
 import { ConfigService } from '@nestjs/config';
-import { BizError } from '@app/core/BizError';
-import { DataSourceConfig } from '@app/common/config/config.interface';
-import { ThreadLocal } from '@app/core/nest/als/thread-local';
-import { RedisService } from '@app/core/nest/redis/redis.service';
+import { BizError } from '@thomas/nestjs/core/BizError';
+import { DataSourceConfig } from '@thomas/nestjs/common/config/config.interface';
+import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
+import { RedisService } from '@thomas/nestjs/core/nest/redis/redis.service';
 
 @Controller()
 export class PlaygroundController {

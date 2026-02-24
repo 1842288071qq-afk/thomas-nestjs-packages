@@ -1,10 +1,26 @@
 {
-  "name": "wjy2026-api",
+  "name": "@thomas/nestjs/nestjs",
   "version": "0.0.1",
-  "description": "",
+  "description": "thomas NestJS Boilerplate & Shared Libraries",
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "peerDependencies": {
+    "@nestjs/bullmq": "^11.0.0",
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/config": "^4.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/mapped-types": "^2.0.0",
+    "@nestjs/microservices": "^11.0.0",
+    "@nestjs/passport": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/schedule": "^6.0.0",
+    "@nestjs/typeorm": "^11.0.0",
+    "bullmq": "^5.0.0",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.0",
+    "typeorm": "^0.3.0"
+  },
   "scripts": {
     "build": "npm run build:play",
     "build:play": "nest build playground --webpack",
@@ -15,7 +31,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./apps/wjy2026-api/test/jest-e2e.json"
+    "test:e2e": "jest --config ./apps/playground/test/jest-e2e.json"
   },
   "dependencies": {
     "@nestjs/bullmq": "^11.0.4",
@@ -103,9 +119,9 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
-      "^@app/core(|/.*)$": "<rootDir>/libs/core/src/$1",
-      "^@app/entities(|/.*)$": "<rootDir>/libs/entities/src/$1"
+      "^@thomas/nestjs/common(|/.*)$": "<rootDir>/libs/common/src/$1",
+      "^@thomas/nestjs/core(|/.*)$": "<rootDir>/libs/core/src/$1",
+      "^@thomas/nestjs/entities(|/.*)$": "<rootDir>/libs/entities/src/$1"
     }
   }
 }

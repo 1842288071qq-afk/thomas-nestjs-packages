@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { PlaygroundModule } from './playground.module';
-import { MqModule } from '@app/core/nest/mq/mq.module';
+import { MqModule } from '@thomas/nestjs/core/nest/mq/mq.module';
 import 'source-map-support/register';
-import { JwtAuthGuard } from '@app/core/nest/jwt-auth';
+import { JwtAuthGuard } from '@thomas/nestjs/core/nest/jwt-auth';
 import { Logger } from '@nestjs/common';
 
 // declare const module: any;

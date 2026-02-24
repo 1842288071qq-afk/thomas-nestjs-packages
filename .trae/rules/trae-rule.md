@@ -1,4 +1,3 @@
-
 # Implementation Rules
 
 本文件用于指导 trae 进行代码实现时的规范和行为准则。
@@ -10,7 +9,7 @@
 - **[docs/development/intro.md](../../docs/development/intro.md:0:0-0:0)**: 了解工程整体架构、libs/apps 划分、全局基础设施（Filter/Pipe/Interceptor）及请求生命周期。
 - **[docs/development/guide-line.md](../../docs/development/guide-line.md:0:0-0:0)**: 掌握最佳实践，核心包括：
   - **Context (ALS)**: 线程隔离的上下文获取。
-  - **身份拦截**: `@IdentityRequired` 的使用。import { IdentityRequired } from '@app/common/shared/guards/identity-required/identity-required.decorator';
+  - **身份拦截**: `@IdentityRequired` 的使用。import { IdentityRequired } from '@thomas/nestjs/common/shared/guards/identity-required/identity-required.decorator';
   - **DTO与转换**: `class-validator`/`class-transform` 规范。
   - **响应与异常**: [ApiResBody](../../libs/core/src/ApiResBody.ts:15:0-76:1) 和 [BizError](../../libs/core/src/BizError.ts:2:0-21:1) 的使用。
   - **服务层范式**: 保持 Service 上下文无关。
@@ -36,12 +35,14 @@
 ## 5. 生成代码严格遵循ESLint规范
 
 ## 6. 生成接口文档
- - 不需要改动代码
- - 接口文档采用OpenAPI规范
- - 接口文档适配apifox
- - 需要在代码中添加注释，注释中包含接口路径、请求方法、请求参数、响应参数、响应示例等
- - 接口文档必须包含接口路径、请求方法、请求参数、响应参数、响应示例等
- - 有JSON Schema格式的请求参数和响应参数
+
+- 不需要改动代码
+- 接口文档采用OpenAPI规范
+- 接口文档适配apifox
+- 需要在代码中添加注释，注释中包含接口路径、请求方法、请求参数、响应参数、响应示例等
+- 接口文档必须包含接口路径、请求方法、请求参数、响应参数、响应示例等
+- 有JSON Schema格式的请求参数和响应参数
+
 ## 7. 修改处写明注释
 
 ## This Rule

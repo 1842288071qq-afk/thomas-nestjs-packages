@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { MqModule } from '@app/core/nest/mq/mq.module';
+import { MqModule } from '@thomas/nestjs/core/nest/mq/mq.module';
 import { MqTestController } from './mq-test.controller';
 
 @Module({
