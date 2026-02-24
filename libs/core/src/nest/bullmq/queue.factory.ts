@@ -29,7 +29,11 @@ export class QueueFactory implements OnModuleDestroy {
   ) {
     const appConfig = this.configService.get<AppConfig>('app');
     const appName = appConfig?.name || 'nestjs-app';
-    const devName = appConfig?.devName || os.hostname();
+    const devName = (appConfig?.devName || os.hostname())
+      .toLowerCase()
+      .replace(/[^a-z0-9-_]/g, '-') // 只保留字母、数字、- 和 _
+      .replace(/-+/g, '-') // 将连续的 - 替换为单个 -
+      .replace(/^-+|-+$/g, ''); // 移除首尾的 -
 
     // 构建队列前缀：bullmq:{appName}:{devName}
     this.prefix = `bullmq:${appName}:${devName}`;

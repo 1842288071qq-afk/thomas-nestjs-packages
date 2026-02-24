@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { Partitioners } from 'kafkajs';
 import { KafkaEventPublisher } from './kafka-publisher.service';
 import { RabbitEventPublisher } from './rabbit-publisher.service';
 import { MqConfig } from './mq.types';
@@ -39,6 +40,9 @@ export class MqModule {
                     sessionTimeout: kafkaConfig?.consumer?.sessionTimeout,
                     heartbeatInterval: kafkaConfig?.consumer?.heartbeatInterval,
                     rebalanceTimeout: kafkaConfig?.consumer?.rebalanceTimeout,
+                  },
+                  producer: {
+                    createPartitioner: Partitioners.DefaultPartitioner,
                   },
                 },
               };
@@ -107,6 +111,9 @@ export class MqModule {
             sessionTimeout: mqConfig.kafka.consumer?.sessionTimeout,
             heartbeatInterval: mqConfig.kafka.consumer?.heartbeatInterval,
             rebalanceTimeout: mqConfig.kafka.consumer?.rebalanceTimeout,
+          },
+          producer: {
+            createPartitioner: Partitioners.DefaultPartitioner,
           },
         },
       });
