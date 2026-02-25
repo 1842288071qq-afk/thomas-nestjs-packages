@@ -1,6 +1,10 @@
 import { Column, Entity, Index } from 'typeorm';
 import { WithSoftDelete, WithTimeTrace, WithId } from './extendable';
-import { AccountSource, IdentityType } from '../identity/constants';
+import {
+  AccountSource,
+  IdentityType,
+  ObjectActiveStatus,
+} from '../identity/constants';
 
 class BaseIdentityRoot {}
 
@@ -28,8 +32,8 @@ export class BaseIdentity extends WithSoftDelete(
   @Column({ name: 'account_id' })
   accountId: string;
 
-  @Column({ length: 16, default: 'active' })
-  status: string;
+  @Column({ length: 16, default: ObjectActiveStatus.ACTIVE })
+  status: ObjectActiveStatus;
 
   @Column({ name: 'last_login_at', type: 'timestamptz', nullable: true })
   lastLoginAt?: Date;
