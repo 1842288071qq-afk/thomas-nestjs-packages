@@ -32,7 +32,7 @@ import {
 } from '@thomas/nestjs/entities';
 
 @IdentityRequired(IdentityType.OP_USER)
-@Controller('role')
+@Controller('o-role')
 export class OpRoleController {
   constructor(
     private readonly opRoleSharedService: OpRoleSharedService,

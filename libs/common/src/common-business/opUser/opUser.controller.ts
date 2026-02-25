@@ -41,7 +41,7 @@ import {
 import { Job } from 'bullmq';
 
 @IdentityRequired(IdentityType.OP_USER)
-@Controller('user')
+@Controller('op-user')
 export class OpUserController implements OnModuleInit {
   private readonly logger = new Logger(OpUserController.name);
 

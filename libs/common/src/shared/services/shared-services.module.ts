@@ -8,6 +8,7 @@ import { OpUserSharedService } from './op-user-shared.service';
 import { OpRoleSharedService } from './op-role-shared.service';
 import { OpDeptSharedService } from './op-dept-shared.service';
 import { IdentityActiveService } from './identity-active.service';
+import { UserSharedService } from './user-shared.service';
 
 import { PasswordUtil } from '../../utils/password';
 import { DataScopeEngine } from '../../utils/dataScopeEngine';
@@ -22,6 +23,7 @@ import { DataScopeEngine } from '../../utils/dataScopeEngine';
   providers: [
     FindAccountService,
     OpUserSharedService,
+    UserSharedService,
     OpRoleSharedService,
     OpDeptSharedService,
     IdentityActiveService,
@@ -31,6 +33,7 @@ import { DataScopeEngine } from '../../utils/dataScopeEngine';
   exports: [
     FindAccountService,
     OpUserSharedService,
+    UserSharedService,
     OpRoleSharedService,
     OpDeptSharedService,
     IdentityActiveService,

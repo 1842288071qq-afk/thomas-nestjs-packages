@@ -23,7 +23,7 @@ import {
 } from './dto/dept.dto';
 
 @IdentityRequired(IdentityType.OP_USER)
-@Controller('dept')
+@Controller('op-dept')
 export class OpDeptController {
   constructor(
     private readonly opDeptService: OpDeptService,

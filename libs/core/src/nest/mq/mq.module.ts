@@ -31,11 +31,12 @@ export class MqModule {
                 transport: Transport.KAFKA,
                 options: {
                   client: {
-                    clientId: kafkaConfig?.clientId || 'wjy-api',
+                    clientId: kafkaConfig?.clientId || 'nestjs-app-kafka',
                     brokers: kafkaConfig?.brokers || ['kafka:9092'],
                   },
                   consumer: {
-                    groupId: kafkaConfig?.groupId || 'wjy-consumer-group',
+                    groupId:
+                      kafkaConfig?.groupId || 'nestjs-app-consumer-group',
                     allowAutoCommit: false,
                     sessionTimeout: kafkaConfig?.consumer?.sessionTimeout,
                     heartbeatInterval: kafkaConfig?.consumer?.heartbeatInterval,

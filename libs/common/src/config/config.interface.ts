@@ -1,7 +1,9 @@
 export interface AppConfig {
   port: number;
-  name?: string;
-  devName?: string;
+  name: string;
+  devName: string;
+  apiPrefix: string;
+  host?: string;
 }
 export interface QuestionBankConfig {
   baseUrl: string;
