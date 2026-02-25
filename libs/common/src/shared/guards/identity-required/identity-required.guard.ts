@@ -9,6 +9,7 @@ import {
 } from './identity-required.decorator';
 import { BizError } from '@thomas/nestjs/core/BizError';
 import { IdentityActiveService } from '../../services/identity-active.service';
+import { ObjectActiveStatus } from '@thomas/nestjs/entities';
 
 @Injectable()
 export class IdentityRequiredGuard implements CanActivate {
@@ -38,7 +39,7 @@ export class IdentityRequiredGuard implements CanActivate {
         const identity = account.identities?.find((i) => i.id === identityId);
         if (identity) {
           // 检查身份是否被冻结（即使没有 @IdentityRequired 装饰器也要检查）
-          if (identity.status !== 'active') {
+          if (identity.status !== ObjectActiveStatus.ACTIVE) {
             throw new BizError('身份已冻结，请联系管理员')
               .codeAs(40301)
               .httpStatusAs(403);
@@ -68,7 +69,7 @@ export class IdentityRequiredGuard implements CanActivate {
     }
 
     // 检查身份是否被冻结
-    if (identity.status !== 'active') {
+    if (identity.status !== ObjectActiveStatus.ACTIVE) {
       throw new BizError('身份已冻结，请联系管理员')
         .codeAs(40301)
         .httpStatusAs(403);

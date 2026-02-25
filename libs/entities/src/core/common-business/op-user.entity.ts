@@ -18,6 +18,7 @@ import {
 import { Identity } from '../identity/identity.entity';
 import { OpUserRole } from './op-user-role.entity';
 import { OpDept } from './op-dept.entity';
+import { ObjectActiveStatus } from '../identity/constants';
 
 class OpUserRoot {}
 
@@ -38,8 +39,8 @@ export class OpUser extends WithSoftDelete(
   @Column({ length: 32, nullable: true })
   phone?: string;
 
-  @Column({ length: 16, default: 'active' })
-  status: string;
+  @Column({ length: 16, default: ObjectActiveStatus.ACTIVE })
+  status: ObjectActiveStatus;
 
   @Column({ name: 'dept_id', nullable: true })
   deptId?: string | null;

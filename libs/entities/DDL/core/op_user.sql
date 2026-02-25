@@ -18,7 +18,7 @@ COMMENT ON COLUMN op_permission.code IS '权限唯一标识，作为主键使用
 COMMENT ON COLUMN op_permission.type IS '权限类型，示例值 menu|biz';
 COMMENT ON COLUMN op_permission.display_name IS '权限名称，展示使用';
 COMMENT ON COLUMN op_permission.description IS '权限说明';
-COMMENT ON COLUMN op_permission.status IS '状态，示例值 active|deprecated';
+COMMENT ON COLUMN op_permission.status IS '状态，示例值 active|disabled';
 COMMENT ON COLUMN op_permission.created_at IS '创建时间';
 COMMENT ON COLUMN op_permission.updated_at IS '更新时间';
 
@@ -70,7 +70,42 @@ COMMENT ON COLUMN op_role_permission.created_at IS '分配权限时间';
 CREATE INDEX idx_op_role_permission_code ON op_role_permission (permission_code);
 
 
--- 4. 运营用户与角色绑定表 (User-Role Junction)
+-- 4. 运营用户表
+CREATE TABLE op_user (
+    id BIGINT PRIMARY KEY,
+    identity_id BIGINT NOT NULL,
+    is_super BOOLEAN NOT NULL DEFAULT false,
+    name VARCHAR(64),
+    phone VARCHAR(32),
+    status VARCHAR(16) NOT NULL DEFAULT 'active',
+    dept_id BIGINT,
+    created_by BIGINT,
+    updated_by BIGINT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ,
+    UNIQUE (identity_id)
+);
+
+COMMENT ON TABLE op_user IS '运营平台用户表';
+COMMENT ON COLUMN op_user.id IS '主键（雪花ID）';
+COMMENT ON COLUMN op_user.identity_id IS '身份ID，关联 identity.id（唯一）';
+COMMENT ON COLUMN op_user.is_super IS '是否超级管理员';
+COMMENT ON COLUMN op_user.name IS '姓名';
+COMMENT ON COLUMN op_user.phone IS '手机号';
+COMMENT ON COLUMN op_user.status IS '状态，active|disabled';
+COMMENT ON COLUMN op_user.dept_id IS '部门ID，关联 op_dept.id';
+COMMENT ON COLUMN op_user.created_by IS '创建人 identity.id';
+COMMENT ON COLUMN op_user.updated_by IS '更新人 identity.id';
+COMMENT ON COLUMN op_user.created_at IS '创建时间';
+COMMENT ON COLUMN op_user.updated_at IS '更新时间';
+COMMENT ON COLUMN op_user.deleted_at IS '逻辑删除时间';
+
+CREATE INDEX idx_op_user_dept ON op_user (dept_id);
+CREATE INDEX idx_op_user_status ON op_user (status);
+
+
+-- 5. 运营用户与角色绑定表 (User-Role Junction)
 CREATE TABLE op_user_role (
   id BIGSERIAL PRIMARY KEY,
   op_user_id BIGINT NOT NULL,

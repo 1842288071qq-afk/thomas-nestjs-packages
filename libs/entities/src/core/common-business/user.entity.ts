@@ -14,6 +14,7 @@ import {
 } from 'typeorm';
 
 import { Identity } from '../identity/identity.entity';
+import { ObjectActiveStatus } from '../identity/constants';
 class UserRoot {}
 
 @Entity({ name: 'user' })
@@ -30,8 +31,8 @@ export class User extends WithSoftDelete(
   @Column({ length: 32, nullable: true })
   phone?: string;
 
-  @Column({ length: 16, default: 'active' })
-  status: string;
+  @Column({ length: 16, default: ObjectActiveStatus.ACTIVE })
+  status: ObjectActiveStatus;
 
   @OneToOne(() => Identity, {
     onDelete: 'CASCADE',

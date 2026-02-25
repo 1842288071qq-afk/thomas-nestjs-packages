@@ -12,6 +12,7 @@ import {
   AccountSource,
   Identity,
   IdentityType,
+  ObjectActiveStatus,
   OpUser,
 } from '@thomas/nestjs/entities';
 import { PermissionService } from '../guards/permission/permission.service';
@@ -47,6 +48,11 @@ export interface IOpUserQueryParams {
 export class OpUserSharedService {
   private readonly logger = new Logger(OpUserSharedService.name);
 
+  private readonly bootstrapOpUserId = '1';
+  private readonly bootstrapOpAccountId = '1';
+  private readonly bootstrapUsername = 'admin';
+  private readonly bootstrapPassword = 'admin';
+
   constructor(
     @InjectRepository(OpUser)
     private readonly opUserRepository: Repository<OpUser>,
@@ -56,14 +62,115 @@ export class OpUserSharedService {
     private readonly opAccountRepository: Repository<OpAccount>,
     @InjectRepository(Identity)
     private readonly identityRepository: Repository<Identity>,
-    @InjectRepository(OpAccountCredential)
-    private readonly opAccountCredentialRepository: Repository<OpAccountCredential>,
     @InjectRepository(OpDept)
     private readonly opDeptRepository: Repository<OpDept>,
     private readonly dataSource: DataSource,
     private readonly passwordUtil: PasswordUtil,
     private readonly permissionService: PermissionService,
   ) {}
+
+  /**
+   * 确保内置管理员存在（opUser.id=1, opAccount.id=1）
+   * - 不存在时创建账号、身份、密码凭证、用户
+   * - 存在则忽略
+   */
+  async ensureBootstrapAdminUser(): Promise<void> {
+    const existing = await this.opUserRepository.findOne({
+      where: { id: this.bootstrapOpUserId },
+      withDeleted: true,
+      relations: ['identity'],
+    });
+
+    if (existing && !existing.deletedAt) {
+      return;
+    }
+
+    await this.dataSource.transaction(async (manager) => {
+      if (existing?.deletedAt) {
+        await manager.restore(OpUser, this.bootstrapOpUserId);
+        return;
+      }
+
+      let account = await manager.findOne(OpAccount, {
+        where: { id: this.bootstrapOpAccountId },
+      });
+
+      if (!account) {
+        const existingAdmin = await manager.findOne(OpAccount, {
+          where: { username: this.bootstrapUsername },
+        });
+        const username = existingAdmin
+          ? `${this.bootstrapUsername}_${this.bootstrapOpAccountId}`
+          : this.bootstrapUsername;
+
+        account = manager.create(OpAccount, {
+          id: this.bootstrapOpAccountId,
+          username,
+          phone: undefined,
+          nickname: '超级管理员',
+          realName: '超级管理员',
+          status: ObjectActiveStatus.ACTIVE,
+        });
+        account = await manager.save(account);
+      }
+
+      let identity = await manager.findOne(Identity, {
+        where: {
+          accountId: account.id,
+          accountSource: AccountSource.OP_ACCOUNT,
+          identityType: IdentityType.OP_USER,
+        },
+      });
+
+      if (!identity) {
+        identity = manager.create(Identity, {
+          id: account.id,
+          accountId: account.id,
+          accountSource: AccountSource.OP_ACCOUNT,
+          identityType: IdentityType.OP_USER,
+          status: ObjectActiveStatus.ACTIVE,
+        });
+        identity = await manager.save(identity);
+      }
+
+      const passwordCredential = await manager.findOne(OpAccountCredential, {
+        where: {
+          opAccountId: account.id,
+          type: 'password',
+          isPrimary: true,
+        },
+      });
+
+      if (!passwordCredential) {
+        const { hash, salt } = this.passwordUtil.hashPassword(
+          this.bootstrapPassword,
+        );
+
+        const credential = manager.create(OpAccountCredential, {
+          opAccountId: account.id,
+          type: 'password',
+          identifier: account.username,
+          secret: hash,
+          salt,
+          isPrimary: true,
+          status: ObjectActiveStatus.ACTIVE,
+        });
+        await manager.save(credential);
+      }
+
+      const opUser = manager.create(OpUser, {
+        id: this.bootstrapOpUserId,
+        identityId: identity.id,
+        name: '系统管理员',
+        deptId: null,
+        isSuper: true,
+        status: ObjectActiveStatus.ACTIVE,
+      });
+      await manager.save(opUser);
+    });
+
+    this.logger.log('内置运营管理员检测完成（opUser.id=1）');
+  }
 
   /**
    * 创建运营用户（包含账号、身份、凭证、用户记录）
@@ -102,7 +209,7 @@ export class OpUserSharedService {
         phone: undefined,
         nickname: name,
         realName: name,
-        status: 'active',
+        status: ObjectActiveStatus.ACTIVE,
       });
       const savedAccount = await manager.save(account);
 
@@ -111,7 +218,7 @@ export class OpUserSharedService {
         accountId: savedAccount.id,
         accountSource: AccountSource.OP_ACCOUNT,
         identityType: IdentityType.OP_USER,
-        status: 'active',
+        status: ObjectActiveStatus.ACTIVE,
       });
       const savedIdentity = await manager.save(identity);
 
@@ -124,7 +231,7 @@ export class OpUserSharedService {
         secret: hash,
         salt,
         isPrimary: true,
-        status: 'active',
+        status: ObjectActiveStatus.ACTIVE,
       });
       await manager.save(credential);
 
@@ -145,7 +252,10 @@ export class OpUserSharedService {
         phone,
         deptId: finalDeptId,
         isSuper: isSuper || false,
-        enable: enable || 'enabled',
+        status:
+          enable === 'disabled'
+            ? ObjectActiveStatus.DISABLED
+            : ObjectActiveStatus.ACTIVE,
         createdBy: operatorId,
       });
       const savedUser = await manager.save(opUser);
@@ -198,10 +308,16 @@ export class OpUserSharedService {
     }
     if (isSuper !== undefined) user.isSuper = isSuper;
     if (enable !== undefined) {
-      user.status = enable;
+      user.status =
+        enable === 'disabled'
+          ? ObjectActiveStatus.DISABLED
+          : ObjectActiveStatus.ACTIVE;
       // 同步禁用状态到 identity.status
       if (user.identity) {
-        user.identity.status = enable === 'disabled' ? 'disabled' : 'active';
+        user.identity.status =
+          enable === 'disabled'
+            ? ObjectActiveStatus.DISABLED
+            : ObjectActiveStatus.ACTIVE;
       }
     }
     if (operatorId) user.updatedBy = operatorId;
@@ -280,7 +396,12 @@ export class OpUserSharedService {
       qb.andWhere('user.deptId = :deptId', { deptId });
     }
     if (enable) {
-      qb.andWhere('user.enable = :enable', { enable });
+      qb.andWhere('user.status = :status', {
+        status:
+          enable === 'disabled'
+            ? ObjectActiveStatus.DISABLED
+            : ObjectActiveStatus.ACTIVE,
+      });
     }
 
     const [rows, total] = await qb
@@ -407,8 +528,10 @@ export class OpUserSharedService {
     }
 
     // 2. 如果没有标记的默认部门,返回创建时间最早的部门
-    return await this.opDeptRepository.findOne({
+    const depts = await this.opDeptRepository.find({
       order: { createdAt: 'ASC' },
+      take: 1,
     });
+    return depts[0] || null;
   }
 }

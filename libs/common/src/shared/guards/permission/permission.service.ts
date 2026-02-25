@@ -7,6 +7,7 @@ import { OpPermission } from '@thomas/nestjs/entities/core/common-business/op-pe
 import { OpRolePermission } from '@thomas/nestjs/entities/core/common-business/op-role-permission.entity';
 import { OpRole } from '@thomas/nestjs/entities/core/common-business/op-role.entity';
 import { OpUserRole } from '@thomas/nestjs/entities/core/common-business/op-user-role.entity';
+import { ObjectActiveStatus } from '@thomas/nestjs/entities';
 import { UserRoleData } from './permission.types';
 
 /**
@@ -124,11 +125,14 @@ export class PermissionService {
 
         const roleCodes = userRoles
           .map((ur) => ur.role)
-          .filter((role): role is OpRole => !!role && role.status === 'active')
+          .filter(
+            (role): role is OpRole =>
+              !!role && role.status === ObjectActiveStatus.ACTIVE,
+          )
           .map((role) => role.code);
 
         const roleIds = userRoles
-          .filter((ur) => ur.role?.status === 'active')
+          .filter((ur) => ur.role?.status === ObjectActiveStatus.ACTIVE)
           .map((ur) => ur.roleId);
 
         if (roleIds.length === 0) {

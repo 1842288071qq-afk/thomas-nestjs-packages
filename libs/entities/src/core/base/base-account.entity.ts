@@ -1,5 +1,6 @@
 import { Column, Index } from 'typeorm';
 import { WithId, WithTimeTrace } from './extendable';
+import { ObjectActiveStatus } from '../identity/constants';
 
 class BaseAccountRoot {}
 
@@ -20,8 +21,8 @@ export abstract class BaseAccount extends WithTimeTrace(
   @Column({ name: 'real_name', length: 64, nullable: true })
   realName?: string;
 
-  @Column({ length: 16, default: 'active' })
-  status: string;
+  @Column({ length: 16, default: ObjectActiveStatus.ACTIVE })
+  status: ObjectActiveStatus;
 
   @Column({ name: 'last_login_at', type: 'timestamptz', nullable: true })
   lastLoginAt?: Date;

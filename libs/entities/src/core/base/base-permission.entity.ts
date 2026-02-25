@@ -1,4 +1,5 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { ObjectActiveStatus } from '../identity/constants';
 
 /**
  * 权限基类
@@ -18,8 +19,12 @@ export class BasePermission {
   @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @Column({ type: 'varchar', length: 16, default: 'active' })
-  status: string;
+  @Column({
+    type: 'varchar',
+    length: 16,
+    default: ObjectActiveStatus.ACTIVE,
+  })
+  status: ObjectActiveStatus;
 
   @Column({
     name: 'created_at',

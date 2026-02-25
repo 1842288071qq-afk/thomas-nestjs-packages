@@ -6,6 +6,7 @@ import { PermissionModule } from '../guards/permission/permission.module';
 import { FindAccountService } from './find-account.service';
 import { OpUserSharedService } from './op-user-shared.service';
 import { OpRoleSharedService } from './op-role-shared.service';
+import { OpDeptSharedService } from './op-dept-shared.service';
 import { IdentityActiveService } from './identity-active.service';
 
 import { PasswordUtil } from '../../utils/password';
@@ -22,6 +23,7 @@ import { DataScopeEngine } from '../../utils/dataScopeEngine';
     FindAccountService,
     OpUserSharedService,
     OpRoleSharedService,
+    OpDeptSharedService,
     IdentityActiveService,
     PasswordUtil,
     DataScopeEngine,
@@ -30,6 +32,7 @@ import { DataScopeEngine } from '../../utils/dataScopeEngine';
     FindAccountService,
     OpUserSharedService,
     OpRoleSharedService,
+    OpDeptSharedService,
     IdentityActiveService,
     PasswordUtil,
     DataScopeEngine,

@@ -1,0 +1,96 @@
+import { IsChinaPhoneNumber } from '@thomas/nestjs/core';
+import {
+  ICreateOpUserParams,
+  IOpUserQueryParams,
+  IUpdateOpUserParams,
+} from '../../../shared/services/op-user-shared.service';
+import { EnsureNotBlank } from '@thomas/nestjs/core/nest/composition/ensure-not-blank.decorator';
+import {
+  IsArray,
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
+
+export class CreateUserDTO implements ICreateOpUserParams {
+  @EnsureNotBlank({ message: '用户名不能为空' })
+  username: string;
+
+  @IsNotEmpty({ message: '密码不能为空' })
+  @IsString()
+  @MinLength(6, { message: '密码长度至少6位' })
+  password: string;
+
+  @EnsureNotBlank()
+  name: string;
+
+  @IsOptional()
+  @IsChinaPhoneNumber()
+  @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
+  deptId?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isSuper?: boolean;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  roleIds?: string[];
+
+  @IsOptional()
+  @IsString()
+  enable?: string;
+}
+
+export class UpdateUserDTO implements IUpdateOpUserParams {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
+  deptId?: string | null;
+
+  @IsOptional()
+  @IsBoolean()
+  isSuper?: boolean;
+
+  @IsOptional()
+  @IsString()
+  enable?: string;
+}
+
+export class UserQueryDTO implements IOpUserQueryParams {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
+  deptId?: string;
+
+  @IsOptional()
+  @IsString()
+  enable?: string;
+}
+
+export class BindUserRolesDTO {
+  @IsArray()
+  @IsString({ each: true })
+  roleIds: string[];
+}

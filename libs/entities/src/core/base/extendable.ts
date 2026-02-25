@@ -7,6 +7,7 @@ import {
   DeleteDateColumn,
   Column,
 } from 'typeorm';
+import { ObjectActiveStatus } from '../identity/constants';
 
 /**
  * 通用的构造函数类型，用于 Mixin 模式
@@ -104,9 +105,9 @@ export function WithStatus<TBase extends Constructor>(Base: TBase) {
     @Column({
       type: 'varchar',
       length: 16,
-      default: 'active',
+      default: ObjectActiveStatus.ACTIVE,
     })
-    status: string;
+    status: ObjectActiveStatus;
   }
   return Trait;
 }

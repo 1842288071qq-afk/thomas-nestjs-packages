@@ -7,6 +7,7 @@ CREATE TABLE identity (
   status VARCHAR(16) NOT NULL DEFAULT 'active',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMPTZ,
   last_login_at TIMESTAMPTZ,
   last_active_at TIMESTAMPTZ
 );
@@ -19,6 +20,7 @@ COMMENT ON COLUMN identity.identity_type IS '身份类型，根据业务用户�
 COMMENT ON COLUMN identity.status IS '身份状态，示例值 active|disabled';
 COMMENT ON COLUMN identity.created_at IS '创建时间';
 COMMENT ON COLUMN identity.updated_at IS '更新时间';
+COMMENT ON COLUMN identity.deleted_at IS '逻辑删除时间';
 COMMENT ON COLUMN identity.last_login_at IS '最后登录时间';
 COMMENT ON COLUMN identity.last_active_at IS '最后活跃时间';
 

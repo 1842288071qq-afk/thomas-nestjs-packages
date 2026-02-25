@@ -1,5 +1,6 @@
 import { Column, Index } from 'typeorm';
 import { WithId, WithTimeTrace } from './extendable';
+import { ObjectActiveStatus } from '../identity/constants';
 
 class BaseAccountCredentialRoot {}
 
@@ -28,6 +29,6 @@ export abstract class BaseAccountCredential extends WithTimeTrace(
   @Column({ name: 'is_primary', type: 'boolean', default: false })
   isPrimary: boolean;
 
-  @Column({ length: 16, default: 'active' })
-  status: string;
+  @Column({ length: 16, default: ObjectActiveStatus.ACTIVE })
+  status: ObjectActiveStatus;
 }

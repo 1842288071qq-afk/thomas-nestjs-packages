@@ -8,6 +8,7 @@ import { OpUserRole } from '@thomas/nestjs/entities/core/common-business/op-user
 import { OpUser } from '@thomas/nestjs/entities/core/common-business/op-user.entity';
 import { IPageData } from '@thomas/nestjs/core/Pagination';
 import { PermissionService } from '../guards/permission/permission.service';
+import { ObjectActiveStatus } from '@thomas/nestjs/entities';
 
 /**
  * 创建角色的参数
@@ -16,6 +17,7 @@ export interface ICreateRoleParams {
   code: string;
   name: string;
   description?: string;
+  status?: ObjectActiveStatus;
 }
 
 /**
@@ -24,6 +26,7 @@ export interface ICreateRoleParams {
 export interface IUpdateRoleParams {
   name?: string;
   description?: string;
+  status?: ObjectActiveStatus;
 }
 
 /**
@@ -31,6 +34,7 @@ export interface IUpdateRoleParams {
  */
 export interface IRoleQueryParams {
   name?: string;
+  status?: ObjectActiveStatus;
 }
 
 /**
@@ -67,7 +71,7 @@ export class OpRoleSharedService {
     params: ICreateRoleParams,
     operatorId: string,
   ): Promise<OpRole> {
-    const { code, name, description } = params;
+    const { code, name, description, status } = params;
 
     // 检查代码是否已存在
     const existingCode = await this.roleRepository.findOne({
@@ -89,7 +93,7 @@ export class OpRoleSharedService {
       code,
       name,
       description,
-      status: 'active',
+      status: status || ObjectActiveStatus.ACTIVE,
       createdAdminId: operatorId,
     });
 
@@ -122,6 +126,9 @@ export class OpRoleSharedService {
     if (params.description !== undefined) {
       role.description = params.description;
     }
+    if (params.status !== undefined) {
+      role.status = params.status;
+    }
 
     const saved = await this.roleRepository.save(role);
     await this.clearRoleCaches(saved);
@@ -131,10 +138,7 @@ export class OpRoleSharedService {
   /**
    * 更新角色状态
    */
-  async updateStatus(
-    id: string,
-    status: 'active' | 'inactive',
-  ): Promise<OpRole> {
+  async updateStatus(id: string, status: ObjectActiveStatus): Promise<OpRole> {
     const role = await this.roleRepository.findOne({ where: { id } });
     if (!role) {
       throw new BizError('角色不存在').httpStatusAs(404).codeAs(40401);
@@ -215,13 +219,16 @@ export class OpRoleSharedService {
    * 列出所有角色（用于下拉选择）
    */
   async listRoles(queryParams: IRoleQueryParams): Promise<OpRole[]> {
-    const { name } = queryParams;
+    const { name, status } = queryParams;
     const qb = this.roleRepository.createQueryBuilder('role');
 
     qb.orderBy('role.createdAt', 'DESC');
 
     if (name) {
       qb.andWhere('role.name LIKE :name', { name: `%${name}%` });
+    }
+    if (status) {
+      qb.andWhere('role.status = :status', { status });
     }
 
     return await qb.getMany();
@@ -235,7 +242,7 @@ export class OpRoleSharedService {
     page: number,
     pageSize: number,
   ): Promise<IPageData<OpRole>> {
-    const { name } = queryParams;
+    const { name, status } = queryParams;
 
     const qb = this.roleRepository
       .createQueryBuilder('role')
@@ -243,6 +250,9 @@ export class OpRoleSharedService {
 
     if (name) {
       qb.andWhere('role.name LIKE :name', { name: `%${name}%` });
+    }
+    if (status) {
+      qb.andWhere('role.status = :status', { status });
     }
 
     const [rows, total] = await qb
