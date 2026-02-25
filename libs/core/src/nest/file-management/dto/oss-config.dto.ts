@@ -1,4 +1,48 @@
-import { IsNotEmpty, IsOptional, IsString, IsObject } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsObject,
+  IsOptional,
+  IsString,
+  IsNumber,
+  ValidateNested,
+} from 'class-validator';
+import { OssS3Config } from '@thomas/nestjs/entities/core/sys/oss-s3-config.interface';
+
+export class OssS3ConfigDto implements OssS3Config {
+  @IsNotEmpty({ message: 'accessKeyId 不能为空' })
+  @IsString()
+  accessKeyId: string;
+
+  @IsNotEmpty({ message: 'secretAccessKey 不能为空' })
+  @IsString()
+  secretAccessKey: string;
+
+  @IsNotEmpty({ message: 'region 不能为空' })
+  @IsString()
+  region: string;
+
+  @IsOptional()
+  @IsString()
+  sessionToken?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  forcePathStyle?: boolean;
+
+  @IsOptional()
+  @IsString()
+  domain?: string;
+
+  @IsOptional()
+  @IsNumber()
+  signingExpiresIn?: number;
+
+  @IsOptional()
+  @IsObject()
+  extensions?: Record<string, unknown>;
+}
 
 export class CreateOssConfigDto {
   @IsNotEmpty({ message: '名称不能为空' })
@@ -21,9 +65,9 @@ export class CreateOssConfigDto {
   @IsString()
   endpoint: string;
 
-  @IsOptional()
-  @IsObject()
-  config?: Record<string, any>;
+  @ValidateNested()
+  @Type(() => OssS3ConfigDto)
+  config: OssS3ConfigDto;
 }
 
 export class UpdateOssConfigDto extends CreateOssConfigDto {}

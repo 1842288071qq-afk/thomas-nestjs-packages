@@ -1,5 +1,6 @@
 import { Entity, Column } from 'typeorm';
 import { WithAuditor, WithTimeTrace, WithId } from '../base/extendable';
+import type { OssS3Config } from './oss-s3-config.interface';
 
 @Entity('sys_oss_config')
 class SysOssConfigEntityRoot {}
@@ -21,6 +22,6 @@ export class SysOssConfigEntity extends WithAuditor(
   @Column({ comment: 'OSS 端点地址' })
   endpoint: string;
 
-  @Column({ type: 'jsonb', default: {}, comment: '自由配置 (AK/SK/Region等)' })
-  config: Record<string, any>;
+  @Column({ type: 'jsonb', default: {}, comment: 'S3 协议配置' })
+  config: OssS3Config;
 }

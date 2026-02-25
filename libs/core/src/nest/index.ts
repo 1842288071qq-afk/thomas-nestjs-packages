@@ -12,6 +12,7 @@ export * from './file-management/index';
 export * from './jwt-auth/index';
 export * from './mq/index';
 export * from './redis/index';
+export * from './s3-storage/index';
 export * from './session/index';
 export * from './transform/index';
 export * from './validation/index';
