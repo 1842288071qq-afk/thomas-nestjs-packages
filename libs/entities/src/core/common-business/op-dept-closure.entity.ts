@@ -10,6 +10,10 @@ import { OpDept } from './op-dept.entity';
 
 @Entity({ name: 'op_dept_closure' })
 @Index('idx_op_dept_closure_descendant', ['descendantDeptId'])
+@Index('idx_op_dept_closure_ancestor_descendant', [
+  'ancestorDeptId',
+  'descendantDeptId',
+])
 export class OpDeptClosure {
   @PrimaryColumn({ name: 'ancestor_dept_id' })
   ancestorDeptId: string;
