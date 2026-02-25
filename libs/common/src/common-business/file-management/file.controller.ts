@@ -14,11 +14,11 @@ import { CreateFileDto } from '@thomas/nestjs/core/nest/file-management/dto/file
 import { ApiResBody } from '@thomas/nestjs/core/ApiResBody';
 import { BizError } from '@thomas/nestjs/core/BizError';
 import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
-import { IdentityRequired } from '../guards/identity-required/identity-required.decorator';
+import { IdentityRequired } from '../../shared/guards/identity-required/identity-required.decorator';
 import { ParseCsvArrayPipe } from '@thomas/nestjs/core/nest/transform/ParseCsvArray.pipe';
 import { IdentityType } from '@thomas/nestjs/entities/core/identity/constants';
 
-@IdentityRequired(IdentityType.OP_USER, IdentityType.User)
+@IdentityRequired(IdentityType.OP_USER)
 @Controller('files')
 export class FileController {
   constructor(

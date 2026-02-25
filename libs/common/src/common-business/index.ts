@@ -10,3 +10,4 @@ export * from './opDept/opDept.service';
 export * from './opDept/dto/dept.dto';
 export * from './user/user.controller';
 export * from './user/dto/user.dto';
+export * from './file-management/index';

@@ -49,6 +49,32 @@ export class FindAccountService {
   }
 
   /**
+   * 根据 username 查询账号信息（优先查询 Account，不存在则查询 OpAccount）
+   * @param username 用户名
+   * @returns Account | OpAccount | null
+   */
+  async findAccountByUsername(username: string): Promise<AccountType | null> {
+    const account = await this.findAccountByTypeAndWhere<Account>(
+      'account',
+      `username:${username}`,
+      { username } as unknown as FindOptionsWhere<Account>,
+      this.accountRepository,
+      ACCOUNT_RELATIONS,
+    );
+    if (account) {
+      return account;
+    }
+
+    return this.findAccountByTypeAndWhere<OpAccount>(
+      'opAccount',
+      `username:${username}`,
+      { username } as unknown as FindOptionsWhere<OpAccount>,
+      this.opAccountRepository,
+      OP_ACCOUNT_RELATIONS,
+    );
+  }
+
+  /**
    * 根据账号类型查询账号
    */
   private async findAccountByType<T extends AccountType>(
@@ -57,7 +83,23 @@ export class FindAccountService {
     repository: Repository<T>,
     relations: string[],
   ): Promise<T | null> {
-    const cacheKey = this.getAccountCacheKey(id, type);
+    return this.findAccountByTypeAndWhere<T>(
+      type,
+      `id:${id}`,
+      { id } as unknown as FindOptionsWhere<T>,
+      repository,
+      relations,
+    );
+  }
+
+  private async findAccountByTypeAndWhere<T extends AccountType>(
+    type: 'account' | 'opAccount',
+    query: string,
+    where: FindOptionsWhere<T>,
+    repository: Repository<T>,
+    relations: string[],
+  ): Promise<T | null> {
+    const cacheKey = this.getAccountCacheKey(query, type);
     return this.cacheService.wrap(
       {
         key: cacheKey,
@@ -65,7 +107,7 @@ export class FindAccountService {
       },
       () =>
         repository.findOne({
-          where: { id } as unknown as FindOptionsWhere<T>,
+          where,
           relations,
         }),
     );

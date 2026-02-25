@@ -10,9 +10,13 @@ import { LocalUploadService } from '@thomas/nestjs/core/nest/file-management/loc
 import { ApiResBody } from '@thomas/nestjs/core/ApiResBody';
 import { BizError } from '@thomas/nestjs/core/BizError';
 import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
-import { IdentityRequired } from '../guards/identity-required/identity-required.decorator';
+import { IdentityRequired } from '../../shared/guards/identity-required/identity-required.decorator';
 import { IdentityType } from '@thomas/nestjs/entities/core/identity/constants';
 import { AvatarUploadDto } from './dto/business-file.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Account } from '@thomas/nestjs/entities/core/account/account.entity';
+import { OpAccount } from '@thomas/nestjs/entities/core/account/op-account.entity';
 
 /**
  * 业务相关的特定路径文件上传控制器
@@ -24,6 +28,10 @@ export class BusinessFileController {
   constructor(
     private readonly localUploadService: LocalUploadService,
     private readonly threadLocal: ThreadLocal,
+    @InjectRepository(Account)
+    private readonly accountRepository: Repository<Account>,
+    @InjectRepository(OpAccount)
+    private readonly opAccountRepository: Repository<OpAccount>,
   ) {}
 
   private getIdentityOrFail() {
@@ -36,7 +44,7 @@ export class BusinessFileController {
   }
 
   /**
-   * khy和yypt账号的头像上传
+   * 账号的头像上传
    * 预设路径: /{username}/avatar/{filename}
    */
   @Post('upload/avatar')
@@ -47,6 +55,17 @@ export class BusinessFileController {
   ) {
     if (!file) throw new BizError('未检测到上传文件').codeAs(400);
     const identity = this.getIdentityOrFail();
+    const account = await this.accountRepository.findOne({
+      where: { username: dto.username },
+    });
+    const opAccount = account
+      ? null
+      : await this.opAccountRepository.findOne({
+          where: { username: dto.username },
+        });
+    if (!account && !opAccount) {
+      throw new BizError('账号不存在').codeAs(404);
+    }
 
     const object = `${dto.username}/avatar/${Date.now()}_${file.originalname}`;
     const record = await this.localUploadService.saveLocalFile(
