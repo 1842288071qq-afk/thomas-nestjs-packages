@@ -67,7 +67,7 @@ export class BusinessFileController {
       throw new BizError('账号不存在').codeAs(404);
     }
 
-    const object = `${dto.username}/avatar/${Date.now()}_${file.originalname}`;
+    const object = `/avatar/${dto.username}/${Date.now()}_${file.originalname}`;
     const record = await this.localUploadService.saveLocalFile(
       file,
       object,
