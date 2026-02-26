@@ -38,6 +38,17 @@ export interface OssS3Config {
   signingExpiresIn?: number;
 
   /**
+   * 分片上传默认分片大小（字节）。
+   * 客户端未传 chunkSize 时使用。
+   */
+  multipartChunkSize?: number;
+
+  /**
+   * 分片上传默认分片大小（字节），兼容旧字段名。
+   */
+  chunkSize?: number;
+
+  /**
    * 扩展配置（预留字段）。
    * 后续新增供应商差异化参数时统一放在该对象内。
    */

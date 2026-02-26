@@ -23,6 +23,8 @@ import {
   S3StorageListPartsOptions,
   S3StorageMultipartInitOptions,
   S3StorageSignOptions,
+  S3StorageSignPutOptions,
+  S3StorageSignUploadPartOptions,
   S3StorageUploadOptions,
   S3StorageUploadPartOptions,
 } from './s3-storage.types';
@@ -33,13 +35,64 @@ interface CachedS3ClientContext {
   bucket: string;
   endpoint?: string;
   domain?: string;
+  signingExpiresIn?: number;
 }
 
 @Injectable()
 export class S3StorageService {
   private readonly clientCache = new Map<string, CachedS3ClientContext>();
+  private readonly DEFAULT_MULTIPART_CHUNK_SIZE = 8 * 1024 * 1024;
 
   constructor(private readonly ossConfigService: OssConfigService) {}
+
+  private resolveExpiresIn(
+    requestedExpiresIn?: number,
+    configDefaultExpiresIn?: number,
+  ) {
+    if (requestedExpiresIn != null && requestedExpiresIn > 0) {
+      return requestedExpiresIn;
+    }
+    if (configDefaultExpiresIn != null && configDefaultExpiresIn > 0) {
+      return configDefaultExpiresIn;
+    }
+    return 900;
+  }
+
+  async resolveMultipartChunkSize(
+    ossConfigCode: string,
+    requestedChunkSize?: number,
+  ) {
+    if (requestedChunkSize != null) {
+      if (!Number.isInteger(requestedChunkSize) || requestedChunkSize <= 0) {
+        throw new BizError('chunkSize 必须为正整数').codeAs(400);
+      }
+      return requestedChunkSize;
+    }
+
+    const ossConfig = await this.ossConfigService.findByCode(ossConfigCode);
+    if (!ossConfig) {
+      throw new BizError(`OSS 配置不存在: ${ossConfigCode}`).codeAs(404);
+    }
+
+    const configRecord = ossConfig.config as {
+      multipartChunkSize?: unknown;
+      chunkSize?: unknown;
+    };
+    const configChunkSize =
+      configRecord.multipartChunkSize ?? configRecord.chunkSize;
+
+    if (configChunkSize == null) {
+      return this.DEFAULT_MULTIPART_CHUNK_SIZE;
+    }
+
+    const normalized = Number(configChunkSize);
+    if (!Number.isInteger(normalized) || normalized <= 0) {
+      throw new BizError(
+        'OSS 配置中的 chunkSize/multipartChunkSize 非法',
+      ).codeAs(400);
+    }
+    return normalized;
+  }
 
   /**
    * 基于 OSS 配置 code 解析并缓存 S3 客户端上下文。
@@ -60,6 +113,7 @@ export class S3StorageService {
     const endpoint = ossConfig.endpoint;
     const forcePathStyle = freeConfig?.forcePathStyle ?? false;
     const domain = freeConfig?.domain;
+    const signingExpiresIn = freeConfig?.signingExpiresIn;
 
     const fingerprint = JSON.stringify({
       endpoint,
@@ -70,6 +124,7 @@ export class S3StorageService {
       forcePathStyle,
       bucket: ossConfig.bucket,
       domain,
+      signingExpiresIn,
     });
 
     const cached = this.clientCache.get(ossConfigCode);
@@ -100,6 +155,7 @@ export class S3StorageService {
       bucket: ossConfig.bucket,
       endpoint,
       domain,
+      signingExpiresIn,
     };
     this.clientCache.set(ossConfigCode, context);
     return context;
@@ -237,10 +293,13 @@ export class S3StorageService {
    * 支持 `getObject` 与 `putObject` 两种操作。
    */
   async signObject(options: S3StorageSignOptions) {
-    const { client, bucket } = await this.getClientContext(
+    const { client, bucket, signingExpiresIn } = await this.getClientContext(
       options.ossConfigCode,
     );
-    const expiresIn = options.expiresIn ?? 900;
+    const expiresIn = this.resolveExpiresIn(
+      options.expiresIn,
+      signingExpiresIn,
+    );
 
     const commandMap = {
       getObject: () =>
@@ -265,6 +324,81 @@ export class S3StorageService {
       bucket,
       key: options.key,
       operation: options.operation,
+      expiresIn,
+      url,
+    };
+  }
+
+  /**
+   * 生成 PUT 直传预签名 URL，供客户端直接上传对象。
+   */
+  async generatePresignedPutUrl(options: S3StorageSignPutOptions) {
+    const { client, bucket, signingExpiresIn } = await this.getClientContext(
+      options.ossConfigCode,
+    );
+    const expiresIn = this.resolveExpiresIn(
+      options.expiresIn,
+      signingExpiresIn,
+    );
+
+    const command = new PutObjectCommand({
+      Bucket: bucket,
+      Key: options.key,
+      ContentType: options.contentType,
+      CacheControl: options.cacheControl,
+      ContentDisposition: options.contentDisposition,
+      Metadata: options.metadata,
+      ACL: options.acl,
+    });
+
+    const url = await getSignedUrl(client, command, { expiresIn });
+
+    return {
+      bucket,
+      key: options.key,
+      operation: 'putObject' as const,
+      expiresIn,
+      url,
+    };
+  }
+
+  /**
+   * 生成 UploadPart 分片预签名 URL，供客户端分片直传。
+   */
+  async generatePresignedUploadPartUrl(
+    options: S3StorageSignUploadPartOptions,
+  ) {
+    if (!options.uploadId) {
+      throw new BizError('uploadId 不能为空').codeAs(400);
+    }
+    if (options.partNumber <= 0) {
+      throw new BizError('partNumber 必须大于 0').codeAs(400);
+    }
+
+    const { client, bucket, signingExpiresIn } = await this.getClientContext(
+      options.ossConfigCode,
+    );
+    const expiresIn = this.resolveExpiresIn(
+      options.expiresIn,
+      signingExpiresIn,
+    );
+
+    const command = new UploadPartCommand({
+      Bucket: bucket,
+      Key: options.key,
+      UploadId: options.uploadId,
+      PartNumber: options.partNumber,
+      ContentLength: options.contentLength,
+    });
+
+    const url = await getSignedUrl(client, command, { expiresIn });
+
+    return {
+      bucket,
+      key: options.key,
+      uploadId: options.uploadId,
+      partNumber: options.partNumber,
+      operation: 'uploadPart' as const,
       expiresIn,
       url,
     };
@@ -338,10 +472,7 @@ export class S3StorageService {
         Bucket: bucket,
         Key: options.key,
         UploadId: options.uploadId,
-        PartNumberMarker:
-          options.partNumberMarker == null
-            ? undefined
-            : `${options.partNumberMarker}`,
+        PartNumberMarker: options.partNumberMarker,
         MaxParts: options.maxParts,
       }),
     );
@@ -350,7 +481,10 @@ export class S3StorageService {
       bucket,
       key: options.key,
       uploadId: options.uploadId,
-      nextPartNumberMarker: output.NextPartNumberMarker,
+      nextPartNumberMarker:
+        output.NextPartNumberMarker == null
+          ? undefined
+          : `${output.NextPartNumberMarker}`,
       isTruncated: output.IsTruncated,
       parts:
         output.Parts?.map((part) => ({

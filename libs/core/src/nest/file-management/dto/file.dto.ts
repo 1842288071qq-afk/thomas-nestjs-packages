@@ -1,4 +1,12 @@
-import { IsNotEmpty, IsOptional, IsString, IsObject } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsObject,
+  IsBoolean,
+  IsInt,
+  Min,
+} from 'class-validator';
 
 export class CreateFileDto {
   @IsNotEmpty()
@@ -23,6 +31,10 @@ export class CreateFileDto {
 
   @IsOptional()
   @IsString()
+  hash?: string;
+
+  @IsOptional()
+  @IsString()
   domain?: string;
 
   @IsOptional()
@@ -35,7 +47,20 @@ export class CreateFileDto {
 
   @IsOptional()
   @IsString()
-  ossConfigId?: string;
+  uploadId?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  chunkSize?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  completed?: boolean;
+
+  @IsOptional()
+  @IsString()
+  ossConfigCode?: string;
 
   @IsOptional()
   @IsString()

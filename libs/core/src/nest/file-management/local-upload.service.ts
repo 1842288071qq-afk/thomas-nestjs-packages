@@ -50,6 +50,7 @@ export class LocalUploadService {
         mimeType: file.mimetype,
         suffix: suffix,
         object: object,
+        completed: true,
         storageType: 'local',
         fullUrl: `${this.serveRoot}/${object}`,
         size: file.size.toString(),

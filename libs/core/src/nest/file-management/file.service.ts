@@ -80,20 +80,29 @@ export class FileService {
         where: { object: dto.object, storageType: 'local' },
         withDeleted: true,
       });
-    } else if (dto.storageType === 'oss') {
+    }
+
+    if (dto.storageType === 'oss') {
+      const where: Record<string, any> = {
+        object: dto.object,
+        storageType: 'oss',
+        ossConfigCode: dto.ossConfigCode,
+      };
+      if (dto.hash) {
+        where.hash = dto.hash;
+      }
       file = await this.fileRepo.findOne({
-        where: {
-          object: dto.object,
-          storageType: 'oss',
-          ossConfigId: dto.ossConfigId,
-        },
+        where,
         withDeleted: true,
       });
     }
 
     if (file) {
       // 相同的变为更新
-      Object.assign(file, dto);
+      const updatePayload = Object.fromEntries(
+        Object.entries(dto).filter(([, value]) => value !== undefined),
+      );
+      Object.assign(file, updatePayload);
       file.createdAt = new Date();
       file.updatedAt = new Date();
       // 如果被软删除了，则恢复。在 TypeORM save 中必须设为 null 才能恢复
@@ -112,6 +121,36 @@ export class FileService {
     // 同步更新缓存 (使用 RedisService.hset 自动处理序列化)
     await this.redisService.hset(this.REDIS_CACHE_KEY, saved.id, saved);
     return saved;
+  }
+
+  async save(file: SysFileEntity) {
+    const saved = await this.fileRepo.save(file);
+    await this.redisService.hset(this.REDIS_CACHE_KEY, saved.id, saved);
+    return saved;
+  }
+
+  async findByObjectHash(
+    object: string,
+    hash: string,
+    options?: {
+      ossConfigCode?: string;
+      withDeleted?: boolean;
+    },
+  ) {
+    const where: Record<string, any> = {
+      object,
+      hash,
+    };
+
+    if (options?.ossConfigCode) {
+      where.ossConfigCode = options.ossConfigCode;
+      where.storageType = 'oss';
+    }
+
+    return await this.fileRepo.findOne({
+      where,
+      withDeleted: options?.withDeleted ?? false,
+    });
   }
 
   async findPage(

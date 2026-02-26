@@ -43,6 +43,24 @@ export interface S3StorageSignOptions extends S3StorageBaseOptions {
   responseContentDisposition?: string;
 }
 
+export interface S3StorageSignPutOptions extends S3StorageBaseOptions {
+  key: string;
+  expiresIn?: number;
+  contentType?: string;
+  cacheControl?: string;
+  contentDisposition?: string;
+  metadata?: Record<string, string>;
+  acl?: ObjectCannedACL;
+}
+
+export interface S3StorageSignUploadPartOptions extends S3StorageBaseOptions {
+  key: string;
+  uploadId: string;
+  partNumber: number;
+  expiresIn?: number;
+  contentLength?: number;
+}
+
 export interface S3StorageMultipartInitOptions extends S3StorageBaseOptions {
   key: string;
   contentType?: string;
@@ -78,6 +96,6 @@ export interface S3StorageAbortMultipartOptions extends S3StorageBaseOptions {
 export interface S3StorageListPartsOptions extends S3StorageBaseOptions {
   key: string;
   uploadId: string;
-  partNumberMarker?: number;
+  partNumberMarker?: string;
   maxParts?: number;
 }

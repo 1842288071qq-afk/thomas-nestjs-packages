@@ -19,15 +19,14 @@ export class OssConfigService {
     private readonly redisService: RedisService,
   ) {}
 
-  private getCacheKeys(id?: string, code?: string) {
+  private getCacheKeys(code?: string) {
     const keys: string[] = [];
-    if (id) keys.push(`${this.CACHE_PREFIX}id:${id}`);
     if (code) keys.push(`${this.CACHE_PREFIX}code:${code}`);
     return keys;
   }
 
-  private async clearCache(id?: string, code?: string) {
-    const keys = this.getCacheKeys(id, code);
+  private async clearCache(code?: string) {
+    const keys = this.getCacheKeys(code);
     if (keys.length > 0) {
       await this.redisService.del(...keys);
     }
@@ -49,15 +48,17 @@ export class OssConfigService {
     }
 
     const result = await this.ossConfigRepo.save(config);
-    await this.clearCache(result.id, result.code);
+    await this.clearCache(result.code);
     return result;
   }
 
-  async update(id: string, dto: UpdateOssConfigDto) {
-    const config = await this.ossConfigRepo.findOne({ where: { id } });
+  async update(code: string, dto: UpdateOssConfigDto) {
+    const config = await this.ossConfigRepo.findOne({ where: { code } });
     if (!config) {
       throw new BizError('配置不存在').codeAs(404);
     }
+
+    const originalCode = config.code;
 
     Object.assign(config, dto);
     const store = this.threadLocal.getStore();
@@ -66,29 +67,24 @@ export class OssConfigService {
     }
 
     const result = await this.ossConfigRepo.save(config);
-    await this.clearCache(result.id, result.code);
+    await this.clearCache(originalCode);
+    if (result.code !== originalCode) {
+      await this.clearCache(result.code);
+    }
     return result;
   }
 
-  async findOne(id: string) {
-    const cacheKey = `${this.CACHE_PREFIX}id:${id}`;
+  async findOne(code: string) {
+    const cacheKey = `${this.CACHE_PREFIX}code:${code}`;
     const cached = await this.redisService.get<SysOssConfigEntity>(cacheKey);
     if (cached) return cached;
 
-    const config = await this.ossConfigRepo.findOne({ where: { id } });
+    const config = await this.ossConfigRepo.findOne({ where: { code } });
     if (!config) {
       throw new BizError('配置不存在').codeAs(404);
     }
 
     await this.redisService.set(cacheKey, config, this.CACHE_TTL);
-    if (config.code) {
-      // 同时缓存 code 映射
-      await this.redisService.set(
-        `${this.CACHE_PREFIX}code:${config.code}`,
-        config,
-        this.CACHE_TTL,
-      );
-    }
 
     return config;
   }
@@ -101,11 +97,6 @@ export class OssConfigService {
     const config = await this.ossConfigRepo.findOne({ where: { code } });
     if (config) {
       await this.redisService.set(cacheKey, config, this.CACHE_TTL);
-      await this.redisService.set(
-        `${this.CACHE_PREFIX}id:${config.id}`,
-        config,
-        this.CACHE_TTL,
-      );
     }
     return config;
   }
@@ -114,12 +105,12 @@ export class OssConfigService {
     return await this.ossConfigRepo.find();
   }
 
-  async delete(id: string) {
-    const config = await this.ossConfigRepo.findOne({ where: { id } });
+  async delete(code: string) {
+    const config = await this.ossConfigRepo.findOne({ where: { code } });
     if (config) {
-      await this.clearCache(id, config.code);
+      await this.clearCache(config.code);
     }
-    const result = await this.ossConfigRepo.delete(id);
+    const result = await this.ossConfigRepo.delete(code);
     return !!result.affected && result.affected > 0;
   }
 }

@@ -27,6 +27,9 @@ export class SysFileEntity extends WithSoftDelete(
   @Column({ comment: '文件对象描述 (本地相对路径或 OSS Key)' })
   object: string;
 
+  @Column({ nullable: true, comment: '文件哈希 (用于去重/校验)' })
+  hash?: string;
+
   @Column({ nullable: true, comment: '访问域名' })
   domain?: string;
 
@@ -41,6 +44,15 @@ export class SysFileEntity extends WithSoftDelete(
   @Column({ name: 'storage_type', comment: '存储类型: local, oss' })
   storageType: string;
 
+  @Column({ name: 'upload_id', nullable: true, comment: '分片上传 ID' })
+  uploadId?: string;
+
+  @Column({ name: 'chunk_size', nullable: true, comment: '分片大小 (字节)' })
+  chunkSize?: number;
+
+  @Column({ default: false, comment: '是否完成上传合并' })
+  completed: boolean;
+
   @Column({ nullable: true, comment: '文件大小 (字节)' })
   size?: string;
 
@@ -52,14 +64,15 @@ export class SysFileEntity extends WithSoftDelete(
   authorType?: string;
 
   @Column({
-    name: 'oss_config_id',
+    name: 'oss_config_code',
     nullable: true,
-    type: 'bigint',
-    comment: '关联的 OSS 配置 ID',
+    type: 'varchar',
+    length: 64,
+    comment: '关联的 OSS 配置 Code',
   })
-  ossConfigId?: string;
+  ossConfigCode?: string;
 
   @ManyToOne(() => SysOssConfigEntity)
-  @JoinColumn({ name: 'oss_config_id' })
+  @JoinColumn({ name: 'oss_config_code', referencedColumnName: 'code' })
   ossConfig?: SysOssConfigEntity;
 }

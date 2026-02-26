@@ -1,16 +1,16 @@
-import { Entity, Column } from 'typeorm';
-import { WithAuditor, WithTimeTrace, WithId } from '../base/extendable';
+import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { WithAuditor, WithTimeTrace } from '../base/extendable';
 import type { OssS3Config } from './oss-s3-config.interface';
 
 @Entity('sys_oss_config')
 class SysOssConfigEntityRoot {}
 export class SysOssConfigEntity extends WithAuditor(
-  WithTimeTrace(WithId(SysOssConfigEntityRoot)),
+  WithTimeTrace(SysOssConfigEntityRoot),
 ) {
   @Column({ comment: '配置描述名称' })
   name: string;
 
-  @Column({ unique: true, comment: '业务识别码' })
+  @PrimaryColumn({ comment: '业务识别码（主键）' })
   code: string;
 
   @Column({ nullable: true, comment: '备注说明' })

@@ -75,10 +75,40 @@ export class DemoService {
       expiresIn: 600,
     });
   }
+
+  async signPutUrl() {
+    return await this.s3StorageService.generatePresignedPutUrl({
+      ossConfigCode: 'minio_prod',
+      key: 'demo/client-upload.txt',
+      contentType: 'text/plain',
+      expiresIn: 600,
+    });
+  }
 }
 ```
 
 ## 4. 分片上传流程
+
+1. `initMultipartUpload` 获取 `uploadId`
+2. 客户端场景：服务端调用 `generatePresignedUploadPartUrl` 为每个分片生成 URL
+3. 客户端按分片 URL 直接上传到 OSS
+4. 服务端收集每个分片的 `partNumber + eTag`
+5. 调用 `completeMultipartUpload` 合并
+6. 失败时调用 `abortMultipartUpload` 终止
+
+服务端生成分片预签名示例：
+
+```typescript
+const signedPart = await this.s3StorageService.generatePresignedUploadPartUrl({
+  ossConfigCode: 'minio_prod',
+  key: 'big/lesson.mp4',
+  uploadId,
+  partNumber: 1,
+  expiresIn: 600,
+});
+```
+
+传统服务端直传分片（可选）：
 
 1. `initMultipartUpload` 获取 `uploadId`
 2. 多次调用 `uploadPart` 上传分片
