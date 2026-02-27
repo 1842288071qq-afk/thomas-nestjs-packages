@@ -8,6 +8,7 @@ CREATE TABLE "user" (
   identity_id BIGINT NOT NULL UNIQUE,
   name VARCHAR(64),
   phone VARCHAR(32),
+  avatar_url VARCHAR(255),
   status VARCHAR(16) NOT NULL DEFAULT 'active',
   created_by BIGINT,
   updated_by BIGINT,
@@ -21,6 +22,7 @@ COMMENT ON COLUMN "user".id IS '主键，自增';
 COMMENT ON COLUMN "user".identity_id IS '关联 identity.id，唯一约束，删除 identity 时级联删除';
 COMMENT ON COLUMN "user".name IS '用户名称';
 COMMENT ON COLUMN "user".phone IS '用户电话';
+COMMENT ON COLUMN "user".avatar_url IS '头像地址';
 COMMENT ON COLUMN "user".status IS '是否启用，active: 启用, disabled: 禁用';
 COMMENT ON COLUMN "user".created_by IS '创建人 ID，关联 identity.id';
 COMMENT ON COLUMN "user".updated_by IS '更新人 ID，关联 identity.id';

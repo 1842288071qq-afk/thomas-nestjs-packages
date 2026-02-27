@@ -74,7 +74,6 @@ export class OpUserController implements OnModuleInit {
 
   private async handleBootstrapOpUser(_job: Job): Promise<void> {
     await this.opUserSharedService.ensureBootstrapAdminUser();
-    this.logger.log('已处理内置管理员检测任务');
   }
 
   private getCurrentIdentityId(): string {

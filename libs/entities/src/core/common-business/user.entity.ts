@@ -31,6 +31,9 @@ export class User extends WithSoftDelete(
   @Column({ length: 32, nullable: true })
   phone?: string;
 
+  @Column({ name: 'avatar_url', length: 255, nullable: true })
+  avatarUrl?: string;
+
   @Column({ length: 16, default: ObjectActiveStatus.ACTIVE })
   status: ObjectActiveStatus;
 

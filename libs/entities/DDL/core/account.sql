@@ -2,8 +2,6 @@ CREATE TABLE account (
   id BIGSERIAL PRIMARY KEY,
   username VARCHAR(64) NOT NULL,
   phone VARCHAR(32),
-  nickname VARCHAR(64),
-  real_name VARCHAR(64),
   status VARCHAR(16) NOT NULL DEFAULT 'active',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -15,8 +13,6 @@ COMMENT ON TABLE account IS '统一账号主表';
 COMMENT ON COLUMN account.id IS '账号主键，自增';
 COMMENT ON COLUMN account.username IS '账号登录名，用于用户名登录';
 COMMENT ON COLUMN account.phone IS '手机号，支持短信登录';
-COMMENT ON COLUMN account.nickname IS '昵称，用于展示';
-COMMENT ON COLUMN account.real_name IS '实名信息，可选';
 COMMENT ON COLUMN account.status IS '账号状态，示例值 active|frozen|disabled';
 COMMENT ON COLUMN account.created_at IS '创建时间';
 COMMENT ON COLUMN account.updated_at IS '更新时间';
@@ -26,6 +22,8 @@ COMMENT ON COLUMN account.last_login_at IS '最后登录时间';
 CREATE TABLE account_profile (
   id BIGSERIAL PRIMARY KEY,
   account_id BIGINT NOT NULL,
+  nickname VARCHAR(64),
+  real_name VARCHAR(64),
   avatar_url VARCHAR(255),
   gender VARCHAR(16),
   birth_date DATE,
@@ -40,6 +38,8 @@ CREATE TABLE account_profile (
 COMMENT ON TABLE account_profile IS '账号附加资料表';
 COMMENT ON COLUMN account_profile.id IS '资料主键，自增';
 COMMENT ON COLUMN account_profile.account_id IS '关联 account.id，保持一对一';
+COMMENT ON COLUMN account_profile.nickname IS '昵称，用于展示';
+COMMENT ON COLUMN account_profile.real_name IS '实名信息，可选';
 COMMENT ON COLUMN account_profile.avatar_url IS '头像链接';
 COMMENT ON COLUMN account_profile.gender IS '性别，示例值 male|female|unknown';
 COMMENT ON COLUMN account_profile.birth_date IS '生日';

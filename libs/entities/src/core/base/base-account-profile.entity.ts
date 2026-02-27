@@ -6,6 +6,12 @@ class BaseAccountProfileRoot {}
 export abstract class BaseAccountProfile extends WithTimeTrace(
   WithId(BaseAccountProfileRoot),
 ) {
+  @Column({ length: 64, nullable: true })
+  nickname?: string;
+
+  @Column({ name: 'real_name', length: 64, nullable: true })
+  realName?: string;
+
   @Column({ name: 'avatar_url', length: 255, nullable: true })
   avatarUrl?: string;
 

@@ -1,4 +1,6 @@
 export * from './account-relations.config';
+export * from './account-avatar.events';
+export * from './account-avatar-updated.listener';
 export * from './find-account.service';
 export * from './identity-active.service';
 export * from './op-dept-shared.service';

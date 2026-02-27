@@ -77,6 +77,7 @@ CREATE TABLE op_user (
     is_super BOOLEAN NOT NULL DEFAULT false,
     name VARCHAR(64),
     phone VARCHAR(32),
+    avatar_url VARCHAR(255),
     status VARCHAR(16) NOT NULL DEFAULT 'active',
     dept_id BIGINT,
     created_by BIGINT,
@@ -93,6 +94,7 @@ COMMENT ON COLUMN op_user.identity_id IS '身份ID，关联 identity.id（唯一
 COMMENT ON COLUMN op_user.is_super IS '是否超级管理员';
 COMMENT ON COLUMN op_user.name IS '姓名';
 COMMENT ON COLUMN op_user.phone IS '手机号';
+COMMENT ON COLUMN op_user.avatar_url IS '头像地址';
 COMMENT ON COLUMN op_user.status IS '状态，active|disabled';
 COMMENT ON COLUMN op_user.dept_id IS '部门ID，关联 op_dept.id';
 COMMENT ON COLUMN op_user.created_by IS '创建人 identity.id';

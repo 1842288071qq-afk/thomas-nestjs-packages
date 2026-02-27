@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { CacheModule } from '@thomas/nestjs/core/nest/cache/cache.module';
 import { BullMQModule } from '@thomas/nestjs/core/nest/bullmq';
 import { CoreEntityFeatureModule } from '../CoreEntityFeature.module';
@@ -9,6 +10,7 @@ import { OpRoleSharedService } from './op-role-shared.service';
 import { OpDeptSharedService } from './op-dept-shared.service';
 import { IdentityActiveService } from './identity-active.service';
 import { UserSharedService } from './user-shared.service';
+import { AccountAvatarUpdatedListener } from './account-avatar-updated.listener';
 
 import { PasswordUtil } from '../../utils/password';
 import { DataScopeEngine } from '../../utils/dataScopeEngine';
@@ -17,6 +19,7 @@ import { DataScopeEngine } from '../../utils/dataScopeEngine';
   imports: [
     CoreEntityFeatureModule,
     CacheModule,
+    EventEmitterModule.forRoot(),
     BullMQModule.forRootFromConfig(),
     PermissionModule,
   ],
@@ -27,6 +30,7 @@ import { DataScopeEngine } from '../../utils/dataScopeEngine';
     OpRoleSharedService,
     OpDeptSharedService,
     IdentityActiveService,
+    AccountAvatarUpdatedListener,
     PasswordUtil,
     DataScopeEngine,
   ],

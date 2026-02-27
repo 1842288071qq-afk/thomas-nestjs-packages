@@ -153,11 +153,19 @@ export class FindAccountService {
   /**
    * 清除指定账号的缓存
    */
-  async clearAccountCache(accountId: string): Promise<void> {
+  async clearAccountCache(accountId: string, username?: string): Promise<void> {
     const keys = [
-      this.getAccountCacheKey(accountId, 'account'),
-      this.getAccountCacheKey(accountId, 'opAccount'),
+      this.getAccountCacheKey(`id:${accountId}`, 'account'),
+      this.getAccountCacheKey(`id:${accountId}`, 'opAccount'),
     ];
+
+    if (username) {
+      keys.push(
+        this.getAccountCacheKey(`username:${username}`, 'account'),
+        this.getAccountCacheKey(`username:${username}`, 'opAccount'),
+      );
+    }
+
     await this.cacheService.evictMany(keys);
   }
 }

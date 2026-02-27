@@ -17,12 +17,6 @@ export abstract class BaseAccount extends WithSoftDelete(
   @Column({ length: 32, nullable: true })
   phone?: string;
 
-  @Column({ length: 64, nullable: true })
-  nickname?: string;
-
-  @Column({ name: 'real_name', length: 64, nullable: true })
-  realName?: string;
-
   @Column({ length: 16, default: ObjectActiveStatus.ACTIVE })
   status: ObjectActiveStatus;
 

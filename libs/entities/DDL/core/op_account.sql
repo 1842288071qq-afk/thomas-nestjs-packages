@@ -2,8 +2,6 @@ CREATE TABLE op_account (
   id BIGSERIAL PRIMARY KEY,
   username VARCHAR(64) NOT NULL,
   phone VARCHAR(32),
-  nickname VARCHAR(64),
-  real_name VARCHAR(64),
   status VARCHAR(16) NOT NULL DEFAULT 'active',
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -15,8 +13,6 @@ COMMENT ON TABLE op_account IS '运营用户统一账号主表';
 COMMENT ON COLUMN op_account.id IS '运营用户账号主键，自增';
 COMMENT ON COLUMN op_account.username IS '运营用户账号登录名，用于用户名登录';
 COMMENT ON COLUMN op_account.phone IS '运营用户手机号，支持短信登录';
-COMMENT ON COLUMN op_account.nickname IS '运营用户昵称，用于展示';
-COMMENT ON COLUMN op_account.real_name IS '运营用户实名信息，可选';
 COMMENT ON COLUMN op_account.status IS '运营用户账号状态，示例值 active|frozen|disabled';
 COMMENT ON COLUMN op_account.created_at IS '创建时间';
 COMMENT ON COLUMN op_account.updated_at IS '更新时间';
@@ -26,6 +22,8 @@ COMMENT ON COLUMN op_account.last_login_at IS '运营用户最后登录时间';
 CREATE TABLE op_account_profile (
   id BIGSERIAL PRIMARY KEY,
   op_account_id BIGINT NOT NULL,
+  nickname VARCHAR(64),
+  real_name VARCHAR(64),
   avatar_url VARCHAR(255),
   gender VARCHAR(16),
   birth_date DATE,
@@ -40,6 +38,8 @@ CREATE TABLE op_account_profile (
 COMMENT ON TABLE op_account_profile IS '运营用户账号附加资料表';
 COMMENT ON COLUMN op_account_profile.id IS '运营用户资料主键，自增';
 COMMENT ON COLUMN op_account_profile.op_account_id IS '关联 op_account.id，保持一对一';
+COMMENT ON COLUMN op_account_profile.nickname IS '运营用户昵称，用于展示';
+COMMENT ON COLUMN op_account_profile.real_name IS '运营用户实名信息，可选';
 COMMENT ON COLUMN op_account_profile.avatar_url IS '运营用户头像链接';
 COMMENT ON COLUMN op_account_profile.gender IS '运营用户性别，示例值 male|female|unknown';
 COMMENT ON COLUMN op_account_profile.birth_date IS '运营用户生日';

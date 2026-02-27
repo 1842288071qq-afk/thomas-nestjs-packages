@@ -1,11 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { BizError } from '@thomas/nestjs/core/BizError';
 import { IPageData } from '@thomas/nestjs/core/Pagination';
 import { PasswordUtil } from '@thomas/nestjs/common/utils/password';
 import {
   Account,
+  AccountProfile,
   AccountCredential,
   AccountSource,
   Identity,
@@ -13,6 +14,7 @@ import {
   ObjectActiveStatus,
   User,
 } from '@thomas/nestjs/entities';
+import { FindAccountService } from './find-account.service';
 
 export interface ICreateUserParams {
   username: string;
@@ -42,13 +44,29 @@ export class UserSharedService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(Account)
-    private readonly accountRepository: Repository<Account>,
     @InjectRepository(Identity)
     private readonly identityRepository: Repository<Identity>,
     private readonly dataSource: DataSource,
     private readonly passwordUtil: PasswordUtil,
+    private readonly findAccountService: FindAccountService,
   ) {}
+
+  private async upsertAccountProfileName(
+    manager: EntityManager,
+    accountId: string,
+    name?: string,
+  ): Promise<void> {
+    if (!name) {
+      return;
+    }
+
+    const profile =
+      (await manager.findOne(AccountProfile, { where: { accountId } })) ??
+      manager.create(AccountProfile, { accountId });
+    profile.nickname = name;
+    profile.realName = name;
+    await manager.save(AccountProfile, profile);
+  }
 
   async createUser(
     params: ICreateUserParams,
@@ -80,15 +98,19 @@ export class UserSharedService {
         }
 
         savedAccount = existingAccount;
+        await this.upsertAccountProfileName(manager, savedAccount.id, name);
       } else {
         const account = manager.create(Account, {
           username,
           phone: undefined,
-          nickname: name,
-          realName: name,
           status: ObjectActiveStatus.ACTIVE,
         });
         savedAccount = await manager.save(account);
+        await this.upsertAccountProfileName(
+          manager,
+          savedAccount.id,
+          name || username,
+        );
 
         const { hash, salt } = this.passwordUtil.hashPassword(password);
         const credential = manager.create(AccountCredential, {
@@ -133,7 +155,7 @@ export class UserSharedService {
 
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ['identity'],
+      relations: ['identity', 'identity.account'],
     });
     if (!user) {
       throw new BizError('用户不存在').httpStatusAs(404).codeAs(40401);
@@ -204,6 +226,15 @@ export class UserSharedService {
         await manager.softDelete(Account, accountId);
       }
     });
+
+    const accountId = user.identity?.accountId;
+    const accountUsername = user.identity?.account?.username;
+    if (accountId) {
+      await this.findAccountService.clearAccountCache(
+        accountId,
+        accountUsername,
+      );
+    }
 
     this.logger.log(`删除普通用户: ID: ${id}`);
   }

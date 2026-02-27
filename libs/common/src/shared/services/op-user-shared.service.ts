@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { OpUserRole } from '@thomas/nestjs/entities/core/common-business/op-user-role.entity';
 import { OpAccount } from '@thomas/nestjs/entities/core/account/op-account.entity';
 import { OpAccountCredential } from '@thomas/nestjs/entities/core/account/op-account-credential.entity';
+import { OpAccountProfile } from '@thomas/nestjs/entities/core/account/op-account-profile.entity';
 import { BizError } from '@thomas/nestjs/core/BizError';
 import { IPageData } from '@thomas/nestjs/core/Pagination';
 import { PasswordUtil } from '@thomas/nestjs/common/utils/password';
@@ -16,6 +17,7 @@ import {
   OpUser,
 } from '@thomas/nestjs/entities';
 import { PermissionService } from '../guards/permission/permission.service';
+import { FindAccountService } from './find-account.service';
 
 export interface ICreateOpUserParams {
   username: string;
@@ -67,7 +69,25 @@ export class OpUserSharedService {
     private readonly dataSource: DataSource,
     private readonly passwordUtil: PasswordUtil,
     private readonly permissionService: PermissionService,
+    private readonly findAccountService: FindAccountService,
   ) {}
+
+  private async upsertOpAccountProfileName(
+    manager: EntityManager,
+    opAccountId: string,
+    name?: string,
+  ): Promise<void> {
+    if (!name) {
+      return;
+    }
+
+    const profile =
+      (await manager.findOne(OpAccountProfile, { where: { opAccountId } })) ??
+      manager.create(OpAccountProfile, { opAccountId });
+    profile.nickname = name;
+    profile.realName = name;
+    await manager.save(OpAccountProfile, profile);
+  }
 
   /**
    * 确保内置管理员存在（opUser.id=1, opAccount.id=1）
@@ -108,11 +128,14 @@ export class OpUserSharedService {
           id: this.bootstrapOpAccountId,
           username,
           phone: undefined,
-          nickname: '超级管理员',
-          realName: '超级管理员',
           status: ObjectActiveStatus.ACTIVE,
         });
         account = await manager.save(account);
+        await this.upsertOpAccountProfileName(
+          manager,
+          account.id,
+          '超级管理员',
+        );
       }
 
       let identity = await manager.findOne(Identity, {
@@ -215,17 +238,21 @@ export class OpUserSharedService {
         }
 
         savedAccount = existingAccount;
+        await this.upsertOpAccountProfileName(manager, savedAccount.id, name);
       } else {
         // 1. 创建账号
         const account = manager.create(OpAccount, {
           username,
           // 固定不维护账号的phone，单独由账号身份维护自己的手机号
           phone: undefined,
-          nickname: name,
-          realName: name,
           status: ObjectActiveStatus.ACTIVE,
         });
         savedAccount = await manager.save(account);
+        await this.upsertOpAccountProfileName(
+          manager,
+          savedAccount.id,
+          name || username,
+        );
 
         // 2. 新账号创建密码凭证
         const { hash, salt } = this.passwordUtil.hashPassword(password);
@@ -300,7 +327,7 @@ export class OpUserSharedService {
 
     const user = await this.opUserRepository.findOne({
       where: { id },
-      relations: ['identity'],
+      relations: ['identity', 'identity.opAccount'],
     });
     if (!user) {
       throw new BizError('用户不存在').httpStatusAs(404).codeAs(40401);
@@ -394,6 +421,17 @@ export class OpUserSharedService {
         await manager.softDelete(OpAccount, accountId);
       }
     });
+
+    await this.permissionService.clearUserPermissionCache(id);
+
+    const accountId = user.identity?.accountId;
+    const accountUsername = user.identity?.opAccount?.username;
+    if (accountId) {
+      await this.findAccountService.clearAccountCache(
+        accountId,
+        accountUsername,
+      );
+    }
 
     this.logger.log(`删除运营用户: ID: ${id}`);
   }
