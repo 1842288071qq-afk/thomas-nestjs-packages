@@ -59,22 +59,49 @@ export class UserSharedService {
     if (!username) throw new BizError('用户名不能为空').codeAs(40001);
     if (!password) throw new BizError('密码不能为空').codeAs(40002);
 
-    const existingAccount = await this.accountRepository.findOne({
-      where: { username },
-    });
-    if (existingAccount) {
-      throw new BizError('用户名已存在').httpStatusAs(409).codeAs(40901);
-    }
-
     return await this.dataSource.transaction(async (manager) => {
-      const account = manager.create(Account, {
-        username,
-        phone: undefined,
-        nickname: name,
-        realName: name,
-        status: ObjectActiveStatus.ACTIVE,
+      const existingAccount = await manager.findOne(Account, {
+        where: { username },
+        order: { createdAt: 'DESC' },
       });
-      const savedAccount = await manager.save(account);
+
+      let savedAccount: Account;
+      if (existingAccount) {
+        const existingSameIdentityType = await manager.findOne(Identity, {
+          where: {
+            accountId: existingAccount.id,
+            accountSource: AccountSource.ACCOUNT,
+            identityType: IdentityType.User,
+          },
+        });
+
+        if (existingSameIdentityType) {
+          throw new BizError('用户名已存在').httpStatusAs(409).codeAs(40901);
+        }
+
+        savedAccount = existingAccount;
+      } else {
+        const account = manager.create(Account, {
+          username,
+          phone: undefined,
+          nickname: name,
+          realName: name,
+          status: ObjectActiveStatus.ACTIVE,
+        });
+        savedAccount = await manager.save(account);
+
+        const { hash, salt } = this.passwordUtil.hashPassword(password);
+        const credential = manager.create(AccountCredential, {
+          accountId: savedAccount.id,
+          type: 'password',
+          identifier: username,
+          secret: hash,
+          salt,
+          isPrimary: true,
+          status: ObjectActiveStatus.ACTIVE,
+        });
+        await manager.save(credential);
+      }
 
       const identity = manager.create(Identity, {
         accountId: savedAccount.id,
@@ -83,18 +110,6 @@ export class UserSharedService {
         status: ObjectActiveStatus.ACTIVE,
       });
       const savedIdentity = await manager.save(identity);
-
-      const { hash, salt } = this.passwordUtil.hashPassword(password);
-      const credential = manager.create(AccountCredential, {
-        accountId: savedAccount.id,
-        type: 'password',
-        identifier: username,
-        secret: hash,
-        salt,
-        isPrimary: true,
-        status: ObjectActiveStatus.ACTIVE,
-      });
-      await manager.save(credential);
 
       const user = manager.create(User, {
         identityId: savedIdentity.id,
@@ -160,15 +175,35 @@ export class UserSharedService {
       throw new BizError('用户不存在').httpStatusAs(404).codeAs(40401);
     }
 
-    if (operatorId) {
-      user.updatedBy = operatorId;
-      await this.userRepository.save(user);
-    }
+    await this.dataSource.transaction(async (manager) => {
+      if (operatorId) {
+        user.updatedBy = operatorId;
+        await manager.save(User, user);
+      }
 
-    await this.userRepository.softDelete(id);
-    if (user.identityId) {
-      await this.identityRepository.softDelete(user.identityId);
-    }
+      await manager.softDelete(User, id);
+      if (!user.identityId) {
+        return;
+      }
+
+      await manager.softDelete(Identity, user.identityId);
+
+      const accountId = user.identity?.accountId;
+      if (!accountId) {
+        return;
+      }
+
+      const activeIdentityCount = await manager.count(Identity, {
+        where: {
+          accountId,
+          accountSource: AccountSource.ACCOUNT,
+        },
+      });
+
+      if (activeIdentityCount === 0) {
+        await manager.softDelete(Account, accountId);
+      }
+    });
 
     this.logger.log(`删除普通用户: ID: ${id}`);
   }
@@ -185,8 +220,8 @@ export class UserSharedService {
       .leftJoinAndSelect('user.identity', 'identity')
       .leftJoinAndSelect('identity.account', 'account')
       .leftJoinAndSelect('user.creator', 'creator')
-      .leftJoinAndSelect('creator.account', 'creatorAccount')
-      .leftJoinAndSelect('creator.opAccount', 'creatorOpAccount')
+      .leftJoinAndSelect('creator.user', 'creatorUser')
+      .leftJoinAndSelect('creator.opUser', 'creatorOpUser')
       .orderBy('user.createdAt', 'DESC');
 
     if (name) {

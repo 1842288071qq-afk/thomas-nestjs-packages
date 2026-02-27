@@ -8,14 +8,12 @@ CREATE TABLE op_account (
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   deleted_at TIMESTAMPTZ,
-  last_login_at TIMESTAMPTZ,
-  UNIQUE (username),
-  UNIQUE (phone)
+  last_login_at TIMESTAMPTZ
 );
 
 COMMENT ON TABLE op_account IS '运营用户统一账号主表';
 COMMENT ON COLUMN op_account.id IS '运营用户账号主键，自增';
-COMMENT ON COLUMN op_account.username IS '运营用户账号登录名，唯一，用于用户名登录';
+COMMENT ON COLUMN op_account.username IS '运营用户账号登录名，用于用户名登录';
 COMMENT ON COLUMN op_account.phone IS '运营用户手机号，支持短信登录';
 COMMENT ON COLUMN op_account.nickname IS '运营用户昵称，用于展示';
 COMMENT ON COLUMN op_account.real_name IS '运营用户实名信息，可选';

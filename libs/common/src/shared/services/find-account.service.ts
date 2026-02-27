@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere } from 'typeorm';
+import { Repository, FindOptionsOrder, FindOptionsWhere } from 'typeorm';
 import { CacheService } from '@thomas/nestjs/core/nest/cache/cache.service';
 
 import { Account } from '@thomas/nestjs/entities/core/account/account.entity';
@@ -54,10 +54,10 @@ export class FindAccountService {
    * @returns Account | OpAccount | null
    */
   async findAccountByUsername(username: string): Promise<AccountType | null> {
-    const account = await this.findAccountByTypeAndWhere<Account>(
+    const account = await this.findLatestActiveAccountByUsername<Account>(
       'account',
       `username:${username}`,
-      { username } as unknown as FindOptionsWhere<Account>,
+      username,
       this.accountRepository,
       ACCOUNT_RELATIONS,
     );
@@ -65,10 +65,10 @@ export class FindAccountService {
       return account;
     }
 
-    return this.findAccountByTypeAndWhere<OpAccount>(
+    return this.findLatestActiveAccountByUsername<OpAccount>(
       'opAccount',
       `username:${username}`,
-      { username } as unknown as FindOptionsWhere<OpAccount>,
+      username,
       this.opAccountRepository,
       OP_ACCOUNT_RELATIONS,
     );
@@ -110,6 +110,33 @@ export class FindAccountService {
           where,
           relations,
         }),
+    );
+  }
+
+  private async findLatestActiveAccountByUsername<T extends AccountType>(
+    type: 'account' | 'opAccount',
+    query: string,
+    username: string,
+    repository: Repository<T>,
+    relations: string[],
+  ): Promise<T | null> {
+    const cacheKey = this.getAccountCacheKey(query, type);
+    return this.cacheService.wrap(
+      {
+        key: cacheKey,
+        unless: (r) => !r,
+      },
+      async () => {
+        const rows = await repository.find({
+          where: {
+            username,
+          } as unknown as FindOptionsWhere<T>,
+          relations,
+          order: { createdAt: 'DESC' } as FindOptionsOrder<T>,
+          take: 1,
+        });
+        return rows[0] ?? null;
+      },
     );
   }
 

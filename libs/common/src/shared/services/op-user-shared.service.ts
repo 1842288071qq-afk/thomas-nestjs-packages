@@ -96,12 +96,13 @@ export class OpUserSharedService {
       });
 
       if (!account) {
-        const existingAdmin = await manager.findOne(OpAccount, {
+        const existingAdminCount = await manager.count(OpAccount, {
           where: { username: this.bootstrapUsername },
         });
-        const username = existingAdmin
-          ? `${this.bootstrapUsername}_${this.bootstrapOpAccountId}`
-          : this.bootstrapUsername;
+        const username =
+          existingAdminCount > 0
+            ? `${this.bootstrapUsername}_${this.bootstrapOpAccountId}`
+            : this.bootstrapUsername;
 
         account = manager.create(OpAccount, {
           id: this.bootstrapOpAccountId,
@@ -193,27 +194,54 @@ export class OpUserSharedService {
     if (!username) throw new BizError('用户名不能为空').codeAs(40001);
     if (!password) throw new BizError('密码不能为空').codeAs(40002);
 
-    // 检查用户名是否已存在
-    const existingAccount = await this.opAccountRepository.findOne({
-      where: { username },
-    });
-    if (existingAccount) {
-      throw new BizError('用户名已存在').httpStatusAs(409).codeAs(40901);
-    }
-
     return await this.dataSource.transaction(async (manager) => {
-      // 1. 创建账号
-      const account = manager.create(OpAccount, {
-        username,
-        // 固定不维护账号的phone，单独由账号身份维护自己的手机号
-        phone: undefined,
-        nickname: name,
-        realName: name,
-        status: ObjectActiveStatus.ACTIVE,
+      const existingAccount = await manager.findOne(OpAccount, {
+        where: { username },
+        order: { createdAt: 'DESC' },
       });
-      const savedAccount = await manager.save(account);
 
-      // 2. 创建身份
+      let savedAccount: OpAccount;
+      if (existingAccount) {
+        const existingSameIdentityType = await manager.findOne(Identity, {
+          where: {
+            accountId: existingAccount.id,
+            accountSource: AccountSource.OP_ACCOUNT,
+            identityType: IdentityType.OP_USER,
+          },
+        });
+
+        if (existingSameIdentityType) {
+          throw new BizError('用户名已存在').httpStatusAs(409).codeAs(40901);
+        }
+
+        savedAccount = existingAccount;
+      } else {
+        // 1. 创建账号
+        const account = manager.create(OpAccount, {
+          username,
+          // 固定不维护账号的phone，单独由账号身份维护自己的手机号
+          phone: undefined,
+          nickname: name,
+          realName: name,
+          status: ObjectActiveStatus.ACTIVE,
+        });
+        savedAccount = await manager.save(account);
+
+        // 2. 新账号创建密码凭证
+        const { hash, salt } = this.passwordUtil.hashPassword(password);
+        const credential = manager.create(OpAccountCredential, {
+          opAccountId: savedAccount.id,
+          type: 'password',
+          identifier: username,
+          secret: hash,
+          salt,
+          isPrimary: true,
+          status: ObjectActiveStatus.ACTIVE,
+        });
+        await manager.save(credential);
+      }
+
+      // 3. 创建身份
       const identity = manager.create(Identity, {
         accountId: savedAccount.id,
         accountSource: AccountSource.OP_ACCOUNT,
@@ -221,19 +249,6 @@ export class OpUserSharedService {
         status: ObjectActiveStatus.ACTIVE,
       });
       const savedIdentity = await manager.save(identity);
-
-      // 3. 创建密码凭证
-      const { hash, salt } = this.passwordUtil.hashPassword(password);
-      const credential = manager.create(OpAccountCredential, {
-        opAccountId: savedAccount.id,
-        type: 'password',
-        identifier: username,
-        secret: hash,
-        salt,
-        isPrimary: true,
-        status: ObjectActiveStatus.ACTIVE,
-      });
-      await manager.save(credential);
 
       // 处理空字符串 deptId,设置为默认部门
       let finalDeptId = deptId;
@@ -348,17 +363,37 @@ export class OpUserSharedService {
       throw new BizError('用户不存在').httpStatusAs(404).codeAs(40401);
     }
 
-    // 记录删除人并保存
-    if (operatorId) {
-      user.updatedBy = operatorId;
-      await this.opUserRepository.save(user);
-    }
+    await this.dataSource.transaction(async (manager) => {
+      // 记录删除人并保存
+      if (operatorId) {
+        user.updatedBy = operatorId;
+        await manager.save(OpUser, user);
+      }
 
-    // 使用软删除
-    await this.opUserRepository.softDelete(id);
-    if (user.identityId) {
-      await this.identityRepository.softDelete(user.identityId);
-    }
+      // 使用软删除
+      await manager.softDelete(OpUser, id);
+      if (!user.identityId) {
+        return;
+      }
+
+      await manager.softDelete(Identity, user.identityId);
+
+      const accountId = user.identity?.accountId;
+      if (!accountId) {
+        return;
+      }
+
+      const activeIdentityCount = await manager.count(Identity, {
+        where: {
+          accountId,
+          accountSource: AccountSource.OP_ACCOUNT,
+        },
+      });
+
+      if (activeIdentityCount === 0) {
+        await manager.softDelete(OpAccount, accountId);
+      }
+    });
 
     this.logger.log(`删除运营用户: ID: ${id}`);
   }
@@ -379,11 +414,11 @@ export class OpUserSharedService {
       .leftJoinAndSelect('identity.opAccount', 'opAccount')
       .leftJoinAndSelect('user.dept', 'dept')
       .leftJoinAndSelect('user.creator', 'creator')
-      .leftJoinAndSelect('creator.opAccount', 'creatorAccount')
+      .leftJoinAndSelect('creator.opUser', 'creatorOpUser')
       .leftJoinAndSelect('user.roles', 'userRoles')
       .leftJoinAndSelect('userRoles.role', 'role')
       .leftJoinAndSelect('userRoles.assignedBy', 'assignedBy')
-      .leftJoinAndSelect('assignedBy.opAccount', 'assignedByAccount')
+      .leftJoinAndSelect('assignedBy.opUser', 'assignedByOpUser')
       .orderBy('user.createdAt', 'DESC');
 
     if (name) {

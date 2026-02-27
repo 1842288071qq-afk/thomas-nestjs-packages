@@ -1,5 +1,5 @@
 import { BaseAccount } from '@thomas/nestjs/entities/core/base/base-account.entity';
-import { Entity, OneToMany, OneToOne, DeleteDateColumn } from 'typeorm';
+import { Entity, OneToMany, OneToOne } from 'typeorm';
 
 import { OpAccountCredential } from './op-account-credential.entity';
 import { OpAccountChannelBinding } from './op-account-channel-binding.entity';
@@ -9,12 +9,6 @@ import { Identity } from '@thomas/nestjs/entities/core/identity/identity.entity'
 
 @Entity({ name: 'op_account' })
 export class OpAccount extends BaseAccount {
-  @DeleteDateColumn({
-    name: 'deleted_at',
-    type: 'timestamptz',
-    nullable: true,
-  })
-  deletedAt?: Date;
   @OneToOne(() => OpAccountProfile, (profile) => profile.account, {
     cascade: false,
   })

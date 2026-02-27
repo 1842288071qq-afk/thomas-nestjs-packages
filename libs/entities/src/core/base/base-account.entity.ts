@@ -1,12 +1,15 @@
-import { Column, Index } from 'typeorm';
-import { ObjectActiveStatus, WithId, WithTimeTrace } from './extendable';
+import { Column } from 'typeorm';
+import {
+  ObjectActiveStatus,
+  WithId,
+  WithSoftDelete,
+  WithTimeTrace,
+} from './extendable';
 
 class BaseAccountRoot {}
 
-@Index('uq_account_username', ['username'], { unique: true })
-@Index('uq_account_phone', ['phone'], { unique: true })
-export abstract class BaseAccount extends WithTimeTrace(
-  WithId(BaseAccountRoot),
+export abstract class BaseAccount extends WithSoftDelete(
+  WithTimeTrace(WithId(BaseAccountRoot)),
 ) {
   @Column({ length: 64 })
   username: string;

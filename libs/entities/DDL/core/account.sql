@@ -7,20 +7,20 @@ CREATE TABLE account (
   status VARCHAR(16) NOT NULL DEFAULT 'active',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  last_login_at TIMESTAMPTZ,
-  UNIQUE (username),
-  UNIQUE (phone)
+  deleted_at TIMESTAMPTZ,
+  last_login_at TIMESTAMPTZ
 );
 
 COMMENT ON TABLE account IS '统一账号主表';
 COMMENT ON COLUMN account.id IS '账号主键，自增';
-COMMENT ON COLUMN account.username IS '账号登录名，唯一，用于用户名登录';
+COMMENT ON COLUMN account.username IS '账号登录名，用于用户名登录';
 COMMENT ON COLUMN account.phone IS '手机号，支持短信登录';
 COMMENT ON COLUMN account.nickname IS '昵称，用于展示';
 COMMENT ON COLUMN account.real_name IS '实名信息，可选';
 COMMENT ON COLUMN account.status IS '账号状态，示例值 active|frozen|disabled';
 COMMENT ON COLUMN account.created_at IS '创建时间';
 COMMENT ON COLUMN account.updated_at IS '更新时间';
+COMMENT ON COLUMN account.deleted_at IS '逻辑删除时间';
 COMMENT ON COLUMN account.last_login_at IS '最后登录时间';
 
 CREATE TABLE account_profile (
