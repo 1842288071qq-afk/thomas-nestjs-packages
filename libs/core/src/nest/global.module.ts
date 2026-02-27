@@ -4,6 +4,7 @@ import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ValidationPipeWithTransform } from './validate.pipe';
 import { ThreadLocalModule } from './als/thread-local.module';
 import { DateSerializeInterceptor } from './transform/DateSerialize.interceptor';
+import { ClassSerializeInterceptor } from './transform/ClassSerialize.interceptor';
 import { CacheModule } from './cache/cache.module';
 import { DictionaryModule } from './dictionary/dictionary.module';
 import { CityModule } from './city/city.module';
@@ -34,7 +35,12 @@ import { FileManagementModule } from './file-management/file-management.module';
       provide: APP_INTERCEPTOR,
       useClass: DateSerializeInterceptor,
     },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ClassSerializeInterceptor,
+    },
     DateSerializeInterceptor,
+    ClassSerializeInterceptor,
     // 全局JSON序列化
   ],
   exports: [

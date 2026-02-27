@@ -906,3 +906,51 @@ async getDetail(id: string) {
 
 - `file.local.storageRoot`: `./uploads`（物理根目录）
 - `file.local.serveRoot`: `/files`（访问 URL 前缀）
+
+## 15. 数据序列化与 VO (Serialization & VO)
+
+> **⚠️ Best Practice**
+
+工程全局启用了 `ClassSerializeInterceptor`，它会在响应返回前端前，根据类定义的装饰器对数据进行处理（利用 `class-transformer`）。
+
+### 15.1 常用装饰器
+
+- **`@Exclude()`**: 隐藏字段。标记在属性上，使其不出现在接口产生的 JSON 中。
+- **`@Expose()`**: 显式暴露。通常用于标记 `get` 访问器（虚拟属性），使其出现在 JSON 中。
+- **`@Transform()`**: 自定义转换逻辑。
+
+### 15.2 Entity-Extension VO 模式
+
+当某个接口需要特殊的展现逻辑（例如：隐藏敏感字段、合并虚拟属性）而又不希望污染底层的 Entity 时，推荐使用“继承实体”的序列化扩展模式。
+
+**代码示例:**
+
+1. **定义 VO (Value Object):**
+
+```typescript
+// libs/entities/src/op-account/vo/agent-detail.vo.ts
+import { Exclude, Expose } from 'class-transformer';
+import { OpAgent } from '../op-agent.entity';
+
+export class AgentDetailVO extends OpAgent {
+  @Exclude() // 覆写父类属性，在该接口中隐藏
+  users: any;
+
+  @Expose() // 暴露该接口特有的虚拟属性
+  get agentAccount() {
+    return this.users?.[0]?.identity?.opAccount;
+  }
+}
+```
+
+2. **在 Controller 中应用:**
+
+```typescript
+@Get('detail')
+async getDetail(@Query('id') id: string) {
+  const data = await this.service.getDetail(id);
+  // 使用 plainToInstance 将实体实例“转型”为 VO 实例
+  // 拦截器会自动按 VO 的装饰器规则进行渲染
+  return plainToInstance(AgentDetailVO, data);
+}
+```
