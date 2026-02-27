@@ -1,4 +1,5 @@
 import {
+  ObjectActiveStatus,
   WithSoftDelete,
   WithAuditor,
   WithTimeTrace,
@@ -18,7 +19,6 @@ import {
 import { Identity } from '../identity/identity.entity';
 import { OpUserRole } from './op-user-role.entity';
 import { OpDept } from './op-dept.entity';
-import { ObjectActiveStatus } from '../identity/constants';
 
 class OpUserRoot {}
 

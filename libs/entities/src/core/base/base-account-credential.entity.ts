@@ -1,6 +1,5 @@
 import { Column, Index } from 'typeorm';
-import { WithId, WithTimeTrace } from './extendable';
-import { ObjectActiveStatus } from '../identity/constants';
+import { ObjectActiveStatus, WithId, WithTimeTrace } from './extendable';
 
 class BaseAccountCredentialRoot {}
 

@@ -1,4 +1,5 @@
 import {
+  ObjectActiveStatus,
   WithSoftDelete,
   WithAuditor,
   WithTimeTrace,
@@ -14,7 +15,6 @@ import {
 } from 'typeorm';
 
 import { Identity } from '../identity/identity.entity';
-import { ObjectActiveStatus } from '../identity/constants';
 class UserRoot {}
 
 @Entity({ name: 'user' })

@@ -7,7 +7,6 @@ import {
   DeleteDateColumn,
   Column,
 } from 'typeorm';
-import { ObjectActiveStatus } from '../identity/constants';
 
 /**
  * 通用的构造函数类型，用于 Mixin 模式
@@ -94,6 +93,11 @@ export function WithSoftDelete<TBase extends Constructor>(Base: TBase) {
     deletedAt?: Date | null;
   }
   return Trait;
+}
+
+export enum ObjectActiveStatus {
+  ACTIVE = 'active',
+  DISABLED = 'disabled',
 }
 
 /**

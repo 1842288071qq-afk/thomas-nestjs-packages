@@ -19,8 +19,3 @@ export const IdentityTypeNameMap: Record<IdentityType, string> = {
   [IdentityType.User]: '普通用户',
   [IdentityType.OP_USER]: '运营平台用户',
 };
-
-export enum ObjectActiveStatus {
-  ACTIVE = 'active',
-  DISABLED = 'disabled',
-}

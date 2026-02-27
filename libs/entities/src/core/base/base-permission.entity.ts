@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
-import { ObjectActiveStatus } from '../identity/constants';
+import { ObjectActiveStatus } from './extendable';
 
 /**
  * 权限基类

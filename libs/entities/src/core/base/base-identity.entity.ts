@@ -1,10 +1,11 @@
 import { Column, Entity, Index } from 'typeorm';
-import { WithSoftDelete, WithTimeTrace, WithId } from './extendable';
 import {
-  AccountSource,
-  IdentityType,
   ObjectActiveStatus,
-} from '../identity/constants';
+  WithSoftDelete,
+  WithTimeTrace,
+  WithId,
+} from './extendable';
+import { AccountSource, IdentityType } from '../identity/constants';
 
 class BaseIdentityRoot {}
 
