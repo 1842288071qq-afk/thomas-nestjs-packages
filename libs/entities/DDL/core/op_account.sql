@@ -19,6 +19,8 @@ COMMENT ON COLUMN op_account.updated_at IS '更新时间';
 COMMENT ON COLUMN op_account.deleted_at IS '逻辑删除时间';
 COMMENT ON COLUMN op_account.last_login_at IS '运营用户最后登录时间';
 
+CREATE INDEX idx_op_account_username ON op_account (username);
+
 CREATE TABLE op_account_profile (
   id BIGSERIAL PRIMARY KEY,
   op_account_id BIGINT NOT NULL,

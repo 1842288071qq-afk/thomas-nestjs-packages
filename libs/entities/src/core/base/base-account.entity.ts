@@ -1,4 +1,4 @@
-import { Column } from 'typeorm';
+import { Column, Index } from 'typeorm';
 import {
   ObjectActiveStatus,
   WithId,
@@ -11,6 +11,7 @@ class BaseAccountRoot {}
 export abstract class BaseAccount extends WithSoftDelete(
   WithTimeTrace(WithId(BaseAccountRoot)),
 ) {
+  @Index()
   @Column({ length: 64 })
   username: string;
 
