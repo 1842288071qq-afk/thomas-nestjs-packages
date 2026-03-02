@@ -82,3 +82,67 @@ CREATE INDEX idx_sys_file_object_hash ON sys_file (object, hash);
 CREATE INDEX idx_sys_file_oss_config_code ON sys_file (oss_config_code);
 CREATE INDEX idx_sys_file_created_at ON sys_file (created_at);
 CREATE INDEX idx_sys_file_deleted_at ON sys_file (deleted_at);
+
+
+-- 3. 全局请求日志表
+CREATE TABLE core_request_log (
+  id BIGINT PRIMARY KEY,
+  system_type VARCHAR(32) NOT NULL,
+  account_id VARCHAR(64),
+  account_source VARCHAR(64),
+  identity_id VARCHAR(64),
+  request_id VARCHAR(64),
+  method VARCHAR(16) NOT NULL,
+  request_at TIMESTAMPTZ NOT NULL,
+  full_path TEXT NOT NULL,
+  path TEXT NOT NULL,
+  query JSONB,
+  params JSONB,
+  request_body JSONB,
+  response_body JSONB,
+  headers JSONB,
+  ip VARCHAR(64),
+  user_agent VARCHAR(512),
+  cost_ms INT NOT NULL,
+  http_status INT NOT NULL,
+  biz_code INT,
+  success BOOLEAN NOT NULL DEFAULT TRUE,
+  error_message TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+COMMENT ON TABLE core_request_log IS '全局请求日志表，统一记录 ykl/khy/yypt 三个进程请求日志';
+COMMENT ON COLUMN core_request_log.id IS '主键（雪花ID）';
+COMMENT ON COLUMN core_request_log.system_type IS '系统类型：ykl/khy/yypt';
+COMMENT ON COLUMN core_request_log.account_id IS '账号ID';
+COMMENT ON COLUMN core_request_log.account_source IS '账号来源';
+COMMENT ON COLUMN core_request_log.identity_id IS '身份ID';
+COMMENT ON COLUMN core_request_log.request_id IS '请求链路ID';
+COMMENT ON COLUMN core_request_log.method IS 'HTTP方法';
+COMMENT ON COLUMN core_request_log.request_at IS '请求发起时间';
+COMMENT ON COLUMN core_request_log.full_path IS '完整路径';
+COMMENT ON COLUMN core_request_log.path IS '路径（不含query）';
+COMMENT ON COLUMN core_request_log.query IS 'query参数';
+COMMENT ON COLUMN core_request_log.params IS 'path参数';
+COMMENT ON COLUMN core_request_log.request_body IS '请求体（按需存储）';
+COMMENT ON COLUMN core_request_log.response_body IS '响应体（按需存储）';
+COMMENT ON COLUMN core_request_log.headers IS '请求头';
+COMMENT ON COLUMN core_request_log.ip IS '客户端IP';
+COMMENT ON COLUMN core_request_log.user_agent IS '客户端UA';
+COMMENT ON COLUMN core_request_log.cost_ms IS '请求耗时ms';
+COMMENT ON COLUMN core_request_log.http_status IS 'HTTP状态码';
+COMMENT ON COLUMN core_request_log.biz_code IS '业务码（自动识别，可为空）';
+COMMENT ON COLUMN core_request_log.success IS '是否成功';
+COMMENT ON COLUMN core_request_log.error_message IS '错误信息';
+COMMENT ON COLUMN core_request_log.created_at IS '创建时间';
+
+CREATE INDEX idx_core_request_log_system_created_at
+  ON core_request_log (system_type, created_at DESC);
+CREATE INDEX idx_core_request_log_account_created_at
+  ON core_request_log (account_id, created_at DESC);
+CREATE INDEX idx_core_request_log_identity_created_at
+  ON core_request_log (identity_id, created_at DESC);
+CREATE INDEX idx_core_request_log_request_id
+  ON core_request_log (request_id);
+CREATE INDEX idx_core_request_log_http_status_created_at
+  ON core_request_log (http_status, created_at DESC);
