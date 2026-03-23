@@ -21,7 +21,7 @@ COMMENT ON COLUMN sys_oss_config.code IS '配置唯一标识（主键）';
 COMMENT ON COLUMN sys_oss_config.name IS '配置描述名称';
 COMMENT ON COLUMN sys_oss_config.bucket IS '存储桶名称';
 COMMENT ON COLUMN sys_oss_config.endpoint IS 'OSS 端点地址';
-COMMENT ON COLUMN sys_oss_config.config IS '自由配置，JSON 格式，存储 AK/SK/Region 等';
+COMMENT ON COLUMN sys_oss_config.config IS '字面配置，JSON 格式，存储 AK/SK/Region 等';
 COMMENT ON COLUMN sys_oss_config.remark IS '备注说明';
 COMMENT ON COLUMN sys_oss_config.created_by IS '创建人 ID';
 COMMENT ON COLUMN sys_oss_config.updated_by IS '更新人 ID';
@@ -111,9 +111,9 @@ CREATE TABLE core_request_log (
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-COMMENT ON TABLE core_request_log IS '全局请求日志表，统一记录 ykl/khy/yypt 三个进程请求日志';
+COMMENT ON TABLE core_request_log IS '全局请求日志表，统一记录各系统请求日志';
 COMMENT ON COLUMN core_request_log.id IS '主键（雪花ID）';
-COMMENT ON COLUMN core_request_log.system_type IS '系统类型：ykl/khy/yypt';
+COMMENT ON COLUMN core_request_log.system_type IS '系统类型：';
 COMMENT ON COLUMN core_request_log.account_id IS '账号ID';
 COMMENT ON COLUMN core_request_log.account_source IS '账号来源';
 COMMENT ON COLUMN core_request_log.identity_id IS '身份ID';

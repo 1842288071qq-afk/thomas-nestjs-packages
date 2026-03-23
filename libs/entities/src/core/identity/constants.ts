@@ -1,6 +1,6 @@
 /**
  * 账号来源映射
- * 目前分为普通账号系统和运营平台账号系统
+ * 目前分为普通账号系统和后台账号系统
  */
 export enum AccountSource {
   ACCOUNT = 'account',
@@ -17,5 +17,5 @@ export enum IdentityType {
 
 export const IdentityTypeNameMap: Record<IdentityType, string> = {
   [IdentityType.User]: '普通用户',
-  [IdentityType.OP_USER]: '运营平台用户',
+  [IdentityType.OP_USER]: '后台用户',
 };

@@ -1,8 +1,8 @@
 -- =============================================================================
--- 运营平台 (OP) 权限与角色系统
+-- 后台 (OP) 权限与角色系统
 -- =============================================================================
 
--- 1. 运营平台权限表
+-- 1. 后台权限表
 CREATE TABLE op_permission (
   code VARCHAR(64) PRIMARY KEY,
   type VARCHAR(16) NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE op_permission (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-COMMENT ON TABLE op_permission IS '运营平台权限表，使用 code 作为主键';
+COMMENT ON TABLE op_permission IS '后台权限表，使用 code 作为主键';
 COMMENT ON COLUMN op_permission.code IS '权限唯一标识，作为主键使用';
 COMMENT ON COLUMN op_permission.type IS '权限类型，示例值 menu|biz';
 COMMENT ON COLUMN op_permission.display_name IS '权限名称，展示使用';
@@ -26,7 +26,7 @@ CREATE INDEX idx_op_permission_type ON op_permission (type);
 CREATE INDEX idx_op_permission_status ON op_permission (status);
 
 
--- 2. 运营平台角色表
+-- 2. 后台角色表
 CREATE TABLE op_role (
   id BIGSERIAL PRIMARY KEY,
   code VARCHAR(64) NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE op_role (
   UNIQUE (name)
 );
 
-COMMENT ON TABLE op_role IS '运营平台角色表';
+COMMENT ON TABLE op_role IS '后台角色表';
 COMMENT ON COLUMN op_role.id IS '主键，自增';
 COMMENT ON COLUMN op_role.code IS '角色编码';
 COMMENT ON COLUMN op_role.name IS '角色名称，唯一';
@@ -89,7 +89,7 @@ CREATE TABLE op_user (
     UNIQUE (identity_id)
 );
 
-COMMENT ON TABLE op_user IS '运营平台用户表';
+COMMENT ON TABLE op_user IS '后台用户表';
 COMMENT ON COLUMN op_user.id IS '主键（雪花ID）';
 COMMENT ON COLUMN op_user.account_id IS '关联 op_account.id，便于直接查询账号';
 COMMENT ON COLUMN op_user.identity_id IS '身份ID，关联 identity.id（唯一）';
@@ -133,10 +133,10 @@ CREATE INDEX idx_op_user_role_role ON op_user_role (role_id);
 
 
 -- =============================================================================
--- 运营平台 (OP) 部门管理系统
+-- 后台 (OP) 部门管理系统
 -- =============================================================================
 
--- 1. 运营平台部门表
+-- 1. 后台部门表
 create table op_dept
 (
     id             bigserial
@@ -153,7 +153,7 @@ create table op_dept
     is_default     boolean                  default false
 );
 
-comment on table op_dept is '运营平台部门表';
+comment on table op_dept is '后台部门表';
 
 comment on column op_dept.id is '部门主键';
 
@@ -191,7 +191,7 @@ grant delete, insert, references, select, trigger, truncate, update on op_dept t
 
 
 
--- 2. 运营平台部门闭包表 (用于快速查询祖先/后代关系)
+-- 2. 后台部门闭包表 (用于快速查询祖先/后代关系)
 create table op_dept_closure
 (
     ancestor_dept_id   bigint  not null,
@@ -200,7 +200,7 @@ create table op_dept_closure
     primary key (ancestor_dept_id, descendant_dept_id)
 );
 
-comment on table op_dept_closure is '运营平台部门闭包表，用于快速查询祖先/后代关系';
+comment on table op_dept_closure is '后台部门闭包表，用于快速查询祖先/后代关系';
 
 comment on column op_dept_closure.ancestor_dept_id is '祖先部门ID';
 

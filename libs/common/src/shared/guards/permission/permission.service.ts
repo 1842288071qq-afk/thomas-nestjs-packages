@@ -23,7 +23,7 @@ export const cacheKeys = {
 };
 
 /**
- * OpUser 权限服务 - 仅支持运营平台超级管理员和普通用户的角色权限管理
+ * OpUser 权限服务 - 仅支持后台超级管理员和普通用户的角色权限管理
  *
  * 后续如需支持其他身份类型的权限管理，应：
  * 1. 在对应的 Module 中创建新的 xxxPermissionService
@@ -44,7 +44,7 @@ export class PermissionService {
   ) {}
 
   /**
-   * 获取所有运营平台权限
+   * 获取所有后台权限
    */
   async getPermissions() {
     return this.cacheService.wrap(

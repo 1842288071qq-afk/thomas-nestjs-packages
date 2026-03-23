@@ -20,7 +20,7 @@ import {
  * 权限检查卫兵
  *
  * 支持的身份类型：
- * - OP_USER: 运营平台用户（拥有角色和权限）
+ * - OP_USER: 后台用户（拥有角色和权限）
  *
  * 后续扩展其他身份类型时：
  * 1. 在 Identity 实体中添加新的关联关系
@@ -77,7 +77,7 @@ export class PermissionGuard implements CanActivate {
   }
 
   /**
-   * 检查运营平台用户的权限
+   * 检查后台用户的权限
    */
   private async checkOpUserPermissions(
     identity: Identity,
@@ -88,7 +88,7 @@ export class PermissionGuard implements CanActivate {
       throw new UnauthorizedException('OpUser not found in identity');
     }
 
-    // 运营平台超级管理员直接放行
+    // 后台超级管理员直接放行
     if (opUser.isSuper) {
       return true;
     }

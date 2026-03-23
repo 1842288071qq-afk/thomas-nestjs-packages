@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 import { ScopeStrategy } from '@thomas/nestjs/entities/core/base/extendable';
 
-const DEFAULT_CLOSURE_TABLE_NAME = 'hospital_dept_closure';
+const DEFAULT_CLOSURE_TABLE_NAME = 'op_dept_closure';
 
 /**
  * 数据范围引擎，通过挂载到现有queryBuilder上使用

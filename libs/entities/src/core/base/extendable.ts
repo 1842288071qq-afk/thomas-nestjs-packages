@@ -69,7 +69,7 @@ export function WithAuditor<TBase extends Constructor>(Base: TBase) {
     @Column({ name: 'updated_by', nullable: true })
     updatedBy?: string;
 
-    // // 运营平台
+    // // 后台
     // @Column({ name: 'created_by_op', nullable: true })
     // createdByOp?: string;
 
