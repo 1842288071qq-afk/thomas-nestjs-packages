@@ -129,11 +129,13 @@ export class UserSharedService {
         accountId: savedAccount.id,
         accountSource: AccountSource.ACCOUNT,
         identityType: IdentityType.User,
+        name: name || username,
         status: ObjectActiveStatus.ACTIVE,
       });
       const savedIdentity = await manager.save(identity);
 
       const user = manager.create(User, {
+        accountId: savedAccount.id,
         identityId: savedIdentity.id,
         name: name || username,
         phone,
@@ -163,7 +165,12 @@ export class UserSharedService {
 
     const { name, phone, enable, operatorId } = params;
 
-    if (name !== undefined) user.name = name;
+    if (name !== undefined) {
+      user.name = name;
+      if (user.identity) {
+        user.identity.name = name;
+      }
+    }
     if (phone !== undefined) user.phone = phone;
     if (enable !== undefined) {
       user.status =

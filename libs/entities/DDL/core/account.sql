@@ -13,7 +13,7 @@ COMMENT ON TABLE account IS '统一账号主表';
 COMMENT ON COLUMN account.id IS '账号主键，自增';
 COMMENT ON COLUMN account.username IS '账号登录名，用于用户名登录';
 COMMENT ON COLUMN account.phone IS '手机号，支持短信登录';
-COMMENT ON COLUMN account.status IS '账号状态，示例值 active|frozen|disabled';
+COMMENT ON COLUMN account.status IS '账号状态，示例值 active|disabled';
 COMMENT ON COLUMN account.created_at IS '创建时间';
 COMMENT ON COLUMN account.updated_at IS '更新时间';
 COMMENT ON COLUMN account.deleted_at IS '逻辑删除时间';

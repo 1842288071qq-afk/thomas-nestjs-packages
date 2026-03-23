@@ -152,8 +152,12 @@ export class OpUserSharedService {
           accountId: account.id,
           accountSource: AccountSource.OP_ACCOUNT,
           identityType: IdentityType.OP_USER,
+          name: '超级管理员',
           status: ObjectActiveStatus.ACTIVE,
         });
+        identity = await manager.save(identity);
+      } else if (!identity.name) {
+        identity.name = '超级管理员';
         identity = await manager.save(identity);
       }
 
@@ -184,8 +188,9 @@ export class OpUserSharedService {
 
       const opUser = manager.create(OpUser, {
         id: this.bootstrapOpUserId,
+        accountId: account.id,
         identityId: identity.id,
-        name: '系统管理员',
+        name: '超级管理员',
         deptId: null,
         isSuper: true,
         status: ObjectActiveStatus.ACTIVE,
@@ -193,7 +198,7 @@ export class OpUserSharedService {
       await manager.save(opUser);
     });
 
-    this.logger.log('内置运营管理员检测完成（opUser.id=1）');
+    this.logger.log('内置超级管理员检测完成（opUser.id=1）');
   }
 
   /**
@@ -273,6 +278,7 @@ export class OpUserSharedService {
         accountId: savedAccount.id,
         accountSource: AccountSource.OP_ACCOUNT,
         identityType: IdentityType.OP_USER,
+        name: name || username,
         status: ObjectActiveStatus.ACTIVE,
       });
       const savedIdentity = await manager.save(identity);
@@ -289,6 +295,7 @@ export class OpUserSharedService {
 
       // 4. 创建用户记录
       const opUser = manager.create(OpUser, {
+        accountId: savedAccount.id,
         identityId: savedIdentity.id,
         name: name || username,
         phone,
@@ -335,7 +342,12 @@ export class OpUserSharedService {
 
     const { name, phone, deptId, isSuper, enable, operatorId } = params;
 
-    if (name !== undefined) user.name = name;
+    if (name !== undefined) {
+      user.name = name;
+      if (user.identity) {
+        user.identity.name = name;
+      }
+    }
     if (phone !== undefined) user.phone = phone;
     if (deptId !== undefined) {
       if (deptId === '') {

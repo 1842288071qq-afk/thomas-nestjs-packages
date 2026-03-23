@@ -17,6 +17,7 @@ import {
 } from 'typeorm';
 
 import { Identity } from '../identity/identity.entity';
+import { OpAccount } from '../account/op-account.entity';
 import { OpUserRole } from './op-user-role.entity';
 import { OpDept } from './op-dept.entity';
 
@@ -27,6 +28,9 @@ class OpUserRoot {}
 export class OpUser extends WithSoftDelete(
   WithAuditor(WithTimeTrace(WithId(OpUserRoot))),
 ) {
+  @Column({ name: 'account_id' })
+  accountId: string;
+
   @Column({ name: 'identity_id' })
   identityId: string;
 
@@ -53,6 +57,10 @@ export class OpUser extends WithSoftDelete(
   })
   @JoinColumn({ name: 'identity_id' })
   identity: Identity;
+
+  @ManyToOne(() => OpAccount, { createForeignKeyConstraints: false })
+  @JoinColumn({ name: 'account_id' })
+  account: OpAccount;
 
   @ManyToOne(() => OpDept, { createForeignKeyConstraints: false })
   @JoinColumn({ name: 'dept_id' })

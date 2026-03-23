@@ -4,6 +4,7 @@ CREATE TABLE identity (
   account_id BIGINT NOT NULL,
   account_source VARCHAR(32) NOT NULL,
   identity_type VARCHAR(32) NOT NULL,
+  name VARCHAR(64),
   status VARCHAR(16) NOT NULL DEFAULT 'active',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -17,6 +18,7 @@ COMMENT ON COLUMN identity.id IS '身份主键，自增';
 COMMENT ON COLUMN identity.account_id IS '关联 account.id，一个账号多身份';
 COMMENT ON COLUMN identity.account_source IS '账号来源，示例值 internal|op_system|third_party';
 COMMENT ON COLUMN identity.identity_type IS '身份类型，根据业务用户类型定义';
+COMMENT ON COLUMN identity.name IS '身份显示名称，通常与业务用户名称同步';
 COMMENT ON COLUMN identity.status IS '身份状态，示例值 active|disabled';
 COMMENT ON COLUMN identity.created_at IS '创建时间';
 COMMENT ON COLUMN identity.updated_at IS '更新时间';

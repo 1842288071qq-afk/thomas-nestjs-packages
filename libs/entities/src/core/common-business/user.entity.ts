@@ -15,6 +15,7 @@ import {
 } from 'typeorm';
 
 import { Identity } from '../identity/identity.entity';
+import { Account } from '../account/account.entity';
 class UserRoot {}
 
 @Entity({ name: 'user' })
@@ -22,6 +23,9 @@ class UserRoot {}
 export class User extends WithSoftDelete(
   WithAuditor(WithTimeTrace(WithId(UserRoot))),
 ) {
+  @Column({ name: 'account_id', nullable: true })
+  accountId?: string;
+
   @Column({ name: 'identity_id' })
   identityId: string;
 
@@ -42,6 +46,13 @@ export class User extends WithSoftDelete(
   })
   @JoinColumn({ name: 'identity_id' })
   identity: Identity;
+
+  @ManyToOne(() => Account, {
+    nullable: true,
+    createForeignKeyConstraints: false,
+  })
+  @JoinColumn({ name: 'account_id' })
+  account?: Account;
 
   @ManyToOne(() => Identity, { createForeignKeyConstraints: false })
   @JoinColumn({ name: 'created_by' })

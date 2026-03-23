@@ -5,6 +5,7 @@
 -- 通用业务用户表
 CREATE TABLE "user" (
   id BIGSERIAL PRIMARY KEY,
+  account_id BIGINT,
   identity_id BIGINT NOT NULL UNIQUE,
   name VARCHAR(64),
   phone VARCHAR(32),
@@ -19,7 +20,8 @@ CREATE TABLE "user" (
 
 COMMENT ON TABLE "user" IS '通用业务用户表，跨项目通用，绑定 identity';
 COMMENT ON COLUMN "user".id IS '主键，自增';
-COMMENT ON COLUMN "user".identity_id IS '关联 identity.id，唯一约束，删除 identity 时级联删除';
+COMMENT ON COLUMN "user".account_id IS '关联 account.id，便于直接查询账号';
+COMMENT ON COLUMN "user".identity_id IS '关联 identity.id，唯一约束';
 COMMENT ON COLUMN "user".name IS '用户名称';
 COMMENT ON COLUMN "user".phone IS '用户电话';
 COMMENT ON COLUMN "user".avatar_url IS '头像地址';
@@ -31,6 +33,7 @@ COMMENT ON COLUMN "user".updated_at IS '更新时间';
 COMMENT ON COLUMN "user".deleted_at IS '逻辑删除时间';
 
 CREATE UNIQUE INDEX uq_user_identity ON "user" (identity_id);
+CREATE INDEX idx_user_account_id ON "user" (account_id);
 CREATE INDEX idx_user_status ON "user" (status);
 CREATE INDEX idx_user_created_at ON "user" (created_at);
 CREATE INDEX idx_user_deleted_at ON "user" (deleted_at);

@@ -9,7 +9,7 @@ declare global {
     T = Account | OpAccount,
     // 身份类型，统一为Identity
     I = Identity,
-    // 业务角色，默认为 OpRole (只有运营平台有角色概念)
+    // 业务角色，默认为 OpRole (只有后台有角色概念)
     R = OpRole,
   > {
     // 账号信息

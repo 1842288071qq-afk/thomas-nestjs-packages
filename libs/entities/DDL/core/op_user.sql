@@ -73,6 +73,7 @@ CREATE INDEX idx_op_role_permission_code ON op_role_permission (permission_code)
 -- 4. 运营用户表
 CREATE TABLE op_user (
     id BIGINT PRIMARY KEY,
+    account_id BIGINT NOT NULL,
     identity_id BIGINT NOT NULL,
     is_super BOOLEAN NOT NULL DEFAULT false,
     name VARCHAR(64),
@@ -90,6 +91,7 @@ CREATE TABLE op_user (
 
 COMMENT ON TABLE op_user IS '运营平台用户表';
 COMMENT ON COLUMN op_user.id IS '主键（雪花ID）';
+COMMENT ON COLUMN op_user.account_id IS '关联 op_account.id，便于直接查询账号';
 COMMENT ON COLUMN op_user.identity_id IS '身份ID，关联 identity.id（唯一）';
 COMMENT ON COLUMN op_user.is_super IS '是否超级管理员';
 COMMENT ON COLUMN op_user.name IS '姓名';
@@ -104,6 +106,7 @@ COMMENT ON COLUMN op_user.updated_at IS '更新时间';
 COMMENT ON COLUMN op_user.deleted_at IS '逻辑删除时间';
 
 CREATE INDEX idx_op_user_dept ON op_user (dept_id);
+CREATE INDEX idx_op_user_account ON op_user (account_id);
 CREATE INDEX idx_op_user_status ON op_user (status);
 
 

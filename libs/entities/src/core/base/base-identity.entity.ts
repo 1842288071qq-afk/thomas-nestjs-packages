@@ -30,6 +30,9 @@ export class BaseIdentity extends WithSoftDelete(
   })
   identityType: IdentityType;
 
+  @Column({ length: 64, nullable: true })
+  name?: string;
+
   @Column({ name: 'account_id' })
   accountId: string;
 

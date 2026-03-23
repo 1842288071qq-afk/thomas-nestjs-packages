@@ -13,7 +13,7 @@ COMMENT ON TABLE op_account IS '运营用户统一账号主表';
 COMMENT ON COLUMN op_account.id IS '运营用户账号主键，自增';
 COMMENT ON COLUMN op_account.username IS '运营用户账号登录名，用于用户名登录';
 COMMENT ON COLUMN op_account.phone IS '运营用户手机号，支持短信登录';
-COMMENT ON COLUMN op_account.status IS '运营用户账号状态，示例值 active|frozen|disabled';
+COMMENT ON COLUMN op_account.status IS '运营用户账号状态，示例值 active|disabled';
 COMMENT ON COLUMN op_account.created_at IS '创建时间';
 COMMENT ON COLUMN op_account.updated_at IS '更新时间';
 COMMENT ON COLUMN op_account.deleted_at IS '逻辑删除时间';
