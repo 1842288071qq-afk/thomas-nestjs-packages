@@ -2,6 +2,7 @@ CREATE TABLE account (
   id BIGSERIAL PRIMARY KEY,
   username VARCHAR(64) NOT NULL,
   phone VARCHAR(32),
+  email VARCHAR(128),
   status VARCHAR(16) NOT NULL DEFAULT 'active',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -13,6 +14,7 @@ COMMENT ON TABLE account IS '统一账号主表';
 COMMENT ON COLUMN account.id IS '账号主键，自增';
 COMMENT ON COLUMN account.username IS '账号登录名，用于用户名登录';
 COMMENT ON COLUMN account.phone IS '手机号，支持短信登录';
+COMMENT ON COLUMN account.email IS '邮箱，支持邮箱登录';
 COMMENT ON COLUMN account.status IS '账号状态，示例值 active|disabled';
 COMMENT ON COLUMN account.created_at IS '创建时间';
 COMMENT ON COLUMN account.updated_at IS '更新时间';
@@ -20,6 +22,8 @@ COMMENT ON COLUMN account.deleted_at IS '逻辑删除时间';
 COMMENT ON COLUMN account.last_login_at IS '最后登录时间';
 
 CREATE INDEX idx_account_username ON account (username);
+CREATE INDEX idx_account_phone ON account (phone);
+CREATE INDEX idx_account_email ON account (email);
 
 CREATE TABLE account_profile (
   id BIGSERIAL PRIMARY KEY,

@@ -2,6 +2,7 @@ CREATE TABLE op_account (
   id BIGSERIAL PRIMARY KEY,
   username VARCHAR(64) NOT NULL,
   phone VARCHAR(32),
+  email VARCHAR(128),
   status VARCHAR(16) NOT NULL DEFAULT 'active',
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -13,6 +14,7 @@ COMMENT ON TABLE op_account IS '运营用户统一账号主表';
 COMMENT ON COLUMN op_account.id IS '运营用户账号主键，自增';
 COMMENT ON COLUMN op_account.username IS '运营用户账号登录名，用于用户名登录';
 COMMENT ON COLUMN op_account.phone IS '运营用户手机号，支持短信登录';
+COMMENT ON COLUMN op_account.email IS '运营用户邮箱，支持邮箱登录';
 COMMENT ON COLUMN op_account.status IS '运营用户账号状态，示例值 active|disabled';
 COMMENT ON COLUMN op_account.created_at IS '创建时间';
 COMMENT ON COLUMN op_account.updated_at IS '更新时间';
@@ -20,6 +22,8 @@ COMMENT ON COLUMN op_account.deleted_at IS '逻辑删除时间';
 COMMENT ON COLUMN op_account.last_login_at IS '运营用户最后登录时间';
 
 CREATE INDEX idx_op_account_username ON op_account (username);
+CREATE INDEX idx_op_account_phone ON op_account (phone);
+CREATE INDEX idx_op_account_email ON op_account (email);
 
 CREATE TABLE op_account_profile (
   id BIGSERIAL PRIMARY KEY,
