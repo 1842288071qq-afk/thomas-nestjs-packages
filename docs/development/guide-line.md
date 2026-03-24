@@ -958,3 +958,74 @@ async getDetail(@Query('id') id: string) {
   return plainToInstance(AgentDetailVO, data);
 }
 ```
+
+### 15.3 Controller DTO/VO 分层规范（推荐默认）
+
+> **⚠️ strict rule**
+
+针对每个 NestJS 业务模块（可包含一个或多个 Controller），应按以下方式组织与实现：
+
+1. 请求参数 DTO、Controller 到 Service 的调用参数，统一使用 DTO 定义。
+2. DTO 文件统一放在模块内 `dto/` 文件夹。
+3. HTTP 接口返回结构默认使用 VO（View Object）定义。
+4. VO 文件统一放在模块内 `vo/` 文件夹。
+5. 每个模块维护一个 `{moduleName}.vo-transform.ts`，用于将 Service 查询结果（DTO）转换为接口 VO。
+6. Service 层禁止依赖 `vo-transform`，保持纯净，Service 仅返回 DTO（或实体 / 领域对象）。
+7. 简单数据结构场景可直接返回 Service DTO，但应谨慎使用，避免滥用。
+8. Controller 方法必须显式声明返回类型（VO 或 DTO），保证代码可读性与可维护性。
+9. 接口结构调整后，应同步更新 `docs/api-schema/` 文档（若已建设），并遵循根目录 `docs/doc-guide.md` 的规范。
+
+推荐目录结构：
+
+```text
+apps/{app}/src/{module}/
+├── dto/
+│   └── {module}.dto.ts
+├── vo/
+│   └── {module}.types.ts
+├── {module}.controller.ts
+├── {module}.service.ts
+└── {module}.vo-transform.ts
+```
+
+### 15.4 代码示例（DTO -> VO）
+
+```typescript
+// user.service.ts
+export interface UserDetailDTO {
+  id: string;
+  name: string;
+  internalStatus: number;
+}
+
+@Injectable()
+export class UserService {
+  async getDetail(id: string): Promise<UserDetailDTO> {
+    // service 保持纯净，不做 VO 转换
+    return { id, name: 'Tom', internalStatus: 1 };
+  }
+}
+
+// vo/user.types.ts
+export interface UserDetailVO {
+  id: string;
+  name: string;
+  statusText: string;
+}
+
+// user.vo-transform.ts
+export function toUserDetailVO(dto: UserDetailDTO): UserDetailVO {
+  return {
+    id: dto.id,
+    name: dto.name,
+    statusText: dto.internalStatus === 1 ? '启用' : '禁用',
+  };
+}
+
+// user.controller.ts
+@Get('detail')
+async detail(@Query('id') id: string): Promise<UserDetailVO> {
+  const dto = await this.userService.getDetail(id);
+  return toUserDetailVO(dto);
+}
+```

@@ -11,6 +11,8 @@ import { BizError } from '@thomas/nestjs/core/BizError';
 import { DataSourceConfig } from '@thomas/nestjs/common/config/config.interface';
 import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
 import { RedisService } from '@thomas/nestjs/core/nest/redis/redis.service';
+import { transformHelloResultToVO } from './playground.vo-transform';
+import { HelloResultVO } from './vo/playground.types';
 
 @Controller()
 export class PlaygroundController {
@@ -22,11 +24,11 @@ export class PlaygroundController {
   ) {}
 
   @Get()
-  getHello(): string {
+  getHello(): HelloResultVO {
     const requestId = this.threadLocal.get('requestId');
     const store = this.threadLocal.getStore();
     console.log('Request ID from ThreadLocal:', requestId, store?.identity);
-    return this.playgroundService.getHello();
+    return transformHelloResultToVO(this.playgroundService.getHello());
   }
 
   @Get('config')
