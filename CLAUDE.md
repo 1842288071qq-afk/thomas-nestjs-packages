@@ -27,12 +27,29 @@
 - **第三方库集成** (TypeORM, Redis, BullMQ 等)
 - **工程特定库调用** (libs/core, libs/common)
 
-**Agent 必须优先使用 MCP 工具 `context7` 获取相关文档和上下文信息**。
+**Agent 优先使用 MCP 工具 `context7` 获取第三方库或框架相关文档和上下文信息**。
 通过 `context7` 获取的信息通常比通用训练数据更准确、更贴合当前工程上下文。
 
 ## 3. 不需要Automated Tests
 
 ## 4. Plan模式下请使用中文输出
+
+## 工作偏好
+- 请尽量使用中文进行回答
+- 每次修改至少需要使用git创建新分支进行修改，分支命名格式为：`claude/feat/xxx` 或 `claude/fix/xxx`，完成后commit并推送至远端
+- 如果用户要求使用worktree，修改变动请使用`worktree`创建新的分支进行修改，分支命名格式为：`claude/feat/xxx` 或 `claude/fix/xxx`，并复制对应env的本地文件，完成后推送至远端并，销毁worktree。
+- 代码修改后先运行测试再确认结果，测试不通过则回滚所有修改
+- 对所有find操作自动同意
+- 对所有grep操作自动同意
+- 对所有ls操作自动同意
+- 对所有read操作自动同意
+- 对所有bash操作自动同意
+- 对所有task操作自动同意
+- 对所有edit操作自动同意，但重要修改前请先说明修改内容
+- 对所有write操作自动同意，但仅用于更新已有文件
+- 对所有glob操作自动同意
+- 对所有todowrite和todoread操作自动同意
+- 对所有multiedit操作自动同意，但重要修改前请先说明修改内容
 
 ## This Rule
 

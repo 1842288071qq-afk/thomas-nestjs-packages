@@ -2,6 +2,10 @@
 
 本指南介绍工程中既定的最佳实践和工具使用方法。
 
+## 关键限制
+
+进行业务实现时，应注意用户需求，本公共子模块的逻辑不应被外层应用修改，仅在用户指定进行公共子模块时才进行修改。
+
 ## 1. Context / ThreadLocal (ALS)
 
 使用 `ThreadLocal` 获取当前请求上下文（如用户信息），无需层层传递 Request 对象。
@@ -393,7 +397,7 @@ private async syncEntities(repo, sourceList, uniqueKey, mapper, scope) { ... }
 
 ## 10. 权限控制 (Permission & RBAC)
 
-系统提供了基于角色(Role)的权限控制机制，支持医院端(`hospital_admin`)和运营端(`op_user`)。
+系统提供了基于角色(Role)的权限控制机制，是通过`role`，`permission`两个概念实现的
 
 ### 核心机制
 
