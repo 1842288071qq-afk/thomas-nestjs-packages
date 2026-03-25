@@ -2,6 +2,41 @@
 
 本指南介绍工程中既定的最佳实践和工具使用方法。
 
+## 目录
+
+> AI Agent 快速检索导航：直接跳转对应章节，避免通读全文。
+> ⚠️ 标记的章节为**严格约束**，实现时必须遵守。
+
+| 章节 | 核心关键词 |
+|------|-----------|
+| [关键限制](#关键限制) | 子模块不可被外层修改 |
+| [1. Context / ThreadLocal (ALS)](#1-context--threadlocal-als) | 获取当前请求上下文、account、identity |
+| [2. 身份拦截](#2-身份拦截-identity-interception) | `@IdentityRequired`、多身份访问控制 |
+| [3. 接口白名单](#3-接口白名单-public-whitelist) | `@Public()`、跳过 JWT 认证 |
+| [4. 配置获取](#4-配置获取-configuration) | `ConfigService`、读取 yaml 配置 |
+| [5. Redis 缓存](#5-redis-缓存-cache-wrap) | `CacheService.wrap`、防止缓存击穿 |
+| [5.1 Redis KV 规范](#51-redis-kv-存储规范-redisservice) | `RedisService`、自动序列化/反序列化 |
+| [6. 统一响应与错误处理](#6-统一响应与错误处理-response--error) | `BizError`、业务异常、统一响应体 |
+| [7. 请求参数规范](#7-请求参数规范-request-dto) | `class-validator`、Boolean 转换、嵌套校验 |
+| [7.2 范围查询规范](#72-范围查询规范-range-query) | `@ParseRange`、`@ParseDateTimeRange`、区间参数 |
+| [8. 数据库实体规范](#8-数据库实体规范-baseentity) | `EntityWithId`、`EntityWithIdAndTimeTrace`、Snowflake ID |
+| [9. 服务层范式 ⚠️](#9-服务层范式-service-paradigm) | Service 上下文无关、禁止在 Service 用 ThreadLocal |
+| [9.1 Service 参数类型规范 ⚠️](#91-service-参数类型規範) | 用 interface 而非 DTO Class、运行时校验 |
+| [9.2 参数模式规范 ⚠️](#92-参数模式規範-parameter-pattern) | 超过 3 个参数用对象参数形式 |
+| [10. 权限控制 (RBAC)](#10-权限控制-permission--rbac) | `@PermissionRequired`、`PermissionGuard`、超管 |
+| [11. 分页与 RESTful 接口规范 ⚠️](#11-分页与-restful-接口规范) | 禁止 Path 参数定位资源、ID 从 Query 获取 |
+| [11.1 分页接口规范 ⚠️](#111-分页接口规范) | `IPageData`、`PaginationDTO`、方法名含 `Page` |
+| [11.2 RESTful 风格规范 ⚠️](#112-restful-风格规范) | 禁止 Path 参数、PATCH 返回完整对象 |
+| [11.3 列表接口规范](#113-列表-list-接口规范) | `ListLimitDto`、`limit`、`IListData` |
+| [11.4 简单列表规范](#114-简单列表-simple-list-接口规范) | `simple-list`、id+name 扁平结构 |
+| [11.5 Page vs List 区别](#115-分页-page-与-列表-list-的区别) | 分页用 `PaginationDTO`，列表用 `ListLimitDto` |
+| [12. 代码质量与类型安全 ⚠️](#12-代码质量与类型安全-quality--type-safety) | 禁止随意 `as any`、敏感信息独立接口 |
+| [13. 数据范围权限规范](#13-数据范围权限规范-data-scope-permissions) | `WithScopeStrategy`、`DataScopeEngine`、数据隔离 |
+| [14. 文件上传与管理](#14-文件上传与管理规范-file-management--upload) | `LocalUploadService`、`FileService`、`translateIds` |
+| [15. 数据序列化与 VO ⚠️](#15-数据序列化与-vo-serialization--vo) | `ClassSerializerInterceptor`、VO 分层、`vo-transform` |
+
+---
+
 ## 关键限制
 
 进行业务实现时，应注意用户需求，本公共子模块的逻辑不应被外层应用修改，仅在用户指定进行公共子模块时才进行修改。
