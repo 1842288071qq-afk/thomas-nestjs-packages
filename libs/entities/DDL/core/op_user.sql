@@ -177,8 +177,6 @@ comment on column op_dept.updated_at is '更新时间';
 
 comment on column op_dept.is_default is '是否默认部门';
 
-alter table op_dept
-    owner to postgres;
 
 create index idx_op_dept_parent
     on op_dept (parent_dept_id);
@@ -186,7 +184,6 @@ create index idx_op_dept_parent
 create unique index uq_op_dept_id_path
     on op_dept (id_path);
 
-grant delete, insert, references, select, trigger, truncate, update on op_dept to wjy2026_user;
 
 
 
@@ -208,8 +205,6 @@ comment on column op_dept_closure.descendant_dept_id is '后代部门ID';
 
 comment on column op_dept_closure.distance is '层级距离，0表示自身';
 
-alter table op_dept_closure
-    owner to postgres;
 
 create index idx_op_dept_closure_descendant
     on op_dept_closure (descendant_dept_id);
@@ -217,5 +212,4 @@ create index idx_op_dept_closure_descendant
 create index idx_op_dept_closure_ancestor_descendant
     on op_dept_closure (ancestor_dept_id, descendant_dept_id);
 
-grant delete, insert, references, select, trigger, truncate, update on op_dept_closure to wjy2026_user;
 
