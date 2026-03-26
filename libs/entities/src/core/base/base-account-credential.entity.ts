@@ -28,6 +28,6 @@ export abstract class BaseAccountCredential extends WithTimeTrace(
   @Column({ name: 'is_primary', type: 'boolean', default: false })
   isPrimary: boolean;
 
-  @Column({ length: 16, default: ObjectActiveStatus.ACTIVE })
+  @Column({ length: 16, type: 'varchar', default: ObjectActiveStatus.ACTIVE })
   status: ObjectActiveStatus;
 }

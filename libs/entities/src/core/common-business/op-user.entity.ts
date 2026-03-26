@@ -46,7 +46,7 @@ export class OpUser extends WithSoftDelete(
   @Column({ name: 'avatar_url', length: 255, nullable: true })
   avatarUrl?: string;
 
-  @Column({ length: 16, default: ObjectActiveStatus.ACTIVE })
+  @Column({ length: 16, type: 'varchar', default: ObjectActiveStatus.ACTIVE })
   status: ObjectActiveStatus;
 
   @Column({ name: 'dept_id', nullable: true })
