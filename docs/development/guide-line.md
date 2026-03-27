@@ -23,6 +23,7 @@
 | [9. 服务层范式 ⚠️](#9-服务层范式-service-paradigm) | Service 上下文无关、禁止在 Service 用 ThreadLocal |
 | [9.1 Service 参数类型规范 ⚠️](#91-service-参数类型規範) | 用 interface 而非 DTO Class、运行时校验 |
 | [9.2 参数模式规范 ⚠️](#92-参数模式規範-parameter-pattern) | 超过 3 个参数用对象参数形式 |
+| [9.3 Service 查询分层规范 ⚠️](#93-service-查询分层规范) | Service 返回实体聚合，VO 层统一转换 |
 | [10. 权限控制 (RBAC)](#10-权限控制-permission--rbac) | `@PermissionRequired`、`PermissionGuard`、超管 |
 | [11. 分页与 RESTful 接口规范 ⚠️](#11-分页与-restful-接口规范) | 禁止 Path 参数定位资源、ID 从 Query 获取 |
 | [11.1 分页接口规范 ⚠️](#111-分页接口规范) | `IPageData`、`PaginationDTO`、方法名含 `Page` |
@@ -246,12 +247,15 @@ if (balance < amount) {
 
 ## 7. 请求参数规范 (Request DTO)
 
-使用 `class-validator` 和 `class-transform` 对请求参数进行更严格、更灵活的校验和转换。
+使用 `class-validator` 和 `class-transform` 对请求参数进行更严格、更灵活的校验和转换。特别需要注意，时间类型的Date请求DTO必须进行转换，否则会被当做字符串处理，导致数据库`timestampz`出错。
 
 ### 常用技巧
 
-1.  **Boolean 转换**: GET 请求的 Query 参数通常是字符串，使用 `@Transform` 转为布尔值。
-2.  **嵌套对象校验**: 使用 `@Type` 和 `@ValidateNested` 校验复杂的嵌套 JSON 结构。
+
+1. **Date 转换**: 对于时间类型的参数，使用`@ToDate`装饰器自动转换为 Date 对象，避免被当做字符串处理。
+2.  **Boolean 转换**: GET 请求的 Query 参数通常是字符串，使用 `@Transform` + `parseBooleanGeneral` 转为布尔值。
+3.  **嵌套对象校验**: 使用 `@Type` 和 `@ValidateNested` 校验复杂的嵌套 JSON 结构。
+4.  **非空校验+trim**: 使用 `@EnsureNotBlank` 确保必填字段不为空, 这个装饰器包含了 `trim`、`@IsNotEmpty` 和 `@IsString` 功能，适用于比如类似`name`等字段，既要保证非空又要去除前后空格。
 
 **代码示例 (UserDTO):**
 
@@ -267,18 +271,24 @@ class MetaData {
 export class CreateUserDTO {
   @IsNotEmpty()
   name: string;
+  //1. 转换为 Date 对象，需要import装饰器工具
+  @ToDate() 
+  createdAt: Date;
 
-  // 1. Boolean 宽松转换 (处理 query param: "true", "1" 等)
-  // 如果是 Query Param 推荐使用 Context7 的 ParseBoolGeneralPipe
-  // 如果是 Body JSON，可以直接使用 Transform
-  @Transform(({ value }) => Boolean(value))
+  // 2. Boolean 宽松转换 (处理 query param: "true", "1" 等)
+  // 需要import parseBooleanGeneral工具函数
+  @Transform(parseBooleanGeneral)
   isActive: boolean;
 
-  // 2. 嵌套对象校验
+  // 3. 嵌套对象校验
   @IsObject()
   @ValidateNested()
   @Type(() => MetaData) // 必须指定 Type 以便正确实例化
   metaData: MetaData;
+
+  // 4. 非空校验 (包含 trim 和 IsNotEmpty)
+  @EnsureNotBlank({ message: '字段 description 不能为空' })
+  description: string;
 }
 ```
 
@@ -428,6 +438,43 @@ await this.syncEntities({
 
 // ❌ 错误: 使用位置参数 (超过3个)
 private async syncEntities(repo, sourceList, uniqueKey, mapper, scope) { ... }
+```
+
+### 9.3 Service 查询分层规范
+
+> **⚠️ strict rule**
+
+**Service 层负责业务查询与实体聚合，不负责面向接口输出的结构裁剪。**
+
+1. **优先基于 Entity Relation 查询**: 能通过实体关系 `leftJoinAndSelect`、关系字段、Repository/QueryBuilder 默认能力拿到的数据，不要退化成手写 `addSelect` 字段列表、`getRawAndEntities`、`raw -> view` 的映射流程。
+2. **不要在 Service 构造展示态对象**: `Service` 返回值应尽量保持为 Entity 本身，或“Entity 聚合对象”，例如 `{ relation, profile, schedule }` 这类业务对象，而不是为了接口临时定义 `snapshot`、`plain`、`vo-ready` 结构。
+3. **软删除过滤遵循 ORM 默认行为**: 非特殊场景下，不要在 join 条件里手动拼接 `deletedAt IS NULL`。TypeORM 的默认软删除行为已经会在普通查询中排除软删数据；仅在确有需求时显式使用 `withDeleted()`。
+4. **字段派生放在 VO Transform**: 诸如 `hasXxx`、`supportsXxx`、拼接展示文案、格式转换、空值归一等接口展示逻辑，应在 `vo-transform` 或序列化阶段统一处理。
+
+**推荐模式：**
+
+```typescript
+// Service: 返回实体关系聚合
+async findPage(query: QueryDto, page: number, pageSize: number) {
+  const qb = this.repo
+    .createQueryBuilder('relation')
+    .leftJoinAndSelect('relation.profile', 'profile')
+    .leftJoinAndSelect('profile.schedule', 'schedule');
+
+  const total = await qb.clone().getCount();
+  const rows = await qb.skip((page - 1) * pageSize).take(pageSize).getMany();
+
+  return { rows, total, page, pageSize };
+}
+
+// vo-transform: 统一做展示态组装
+function transformToVO(relation: RelationEntity) {
+  return plainToInstance(TargetVO, {
+    id: relation.profile?.schedule?.id,
+    name: relation.profile?.name,
+    hasSchedule: hasScheduleContent(relation.profile?.schedule),
+  });
+}
 ```
 
 ## 10. 权限控制 (Permission & RBAC)
