@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, EntityManager, In, Repository } from 'typeorm';
 import { BizError } from '@thomas/nestjs/core/BizError';
 import { OpRole } from '@thomas/nestjs/entities/core/common-business/op-role.entity';
 import { OpRolePermission } from '@thomas/nestjs/entities/core/common-business/op-role-permission.entity';
@@ -33,6 +33,7 @@ export interface IUpdateRoleParams {
  * 角色查询参数
  */
 export interface IRoleQueryParams {
+  keyword?: string;
   name?: string;
   status?: ObjectActiveStatus;
 }
@@ -70,11 +71,14 @@ export class OpRoleSharedService {
   async createRole(
     params: ICreateRoleParams,
     operatorId: string,
+    manager?: EntityManager,
   ): Promise<OpRole> {
     const { code, name, description, status } = params;
+    const roleRepository =
+      manager?.getRepository(OpRole) ?? this.roleRepository;
 
     // 检查代码是否已存在
-    const existingCode = await this.roleRepository.findOne({
+    const existingCode = await roleRepository.findOne({
       where: { code },
     });
     if (existingCode) {
@@ -82,14 +86,14 @@ export class OpRoleSharedService {
     }
 
     // 检查名称是否已存在
-    const existingName = await this.roleRepository.findOne({
+    const existingName = await roleRepository.findOne({
       where: { name },
     });
     if (existingName) {
       throw new BizError('角色名称已存在').httpStatusAs(409).codeAs(40902);
     }
 
-    const role = this.roleRepository.create({
+    const role = roleRepository.create({
       code,
       name,
       description,
@@ -97,7 +101,7 @@ export class OpRoleSharedService {
       createdAdminId: operatorId,
     });
 
-    return await this.roleRepository.save(role);
+    return await roleRepository.save(role);
   }
 
   /**
@@ -172,15 +176,21 @@ export class OpRoleSharedService {
   /**
    * 删除角色
    */
-  async deleteRole(id: string): Promise<void> {
-    const role = await this.roleRepository.findOne({ where: { id } });
+  async deleteRole(id: string, manager?: EntityManager): Promise<void> {
+    const roleRepository =
+      manager?.getRepository(OpRole) ?? this.roleRepository;
+    const rolePermissionRepository =
+      manager?.getRepository(OpRolePermission) ?? this.rolePermissionRepository;
+    const userRoleRepository =
+      manager?.getRepository(OpUserRole) ?? this.userRoleRepository;
+    const role = await roleRepository.findOne({ where: { id } });
 
     if (!role) {
       throw new BizError('角色不存在').httpStatusAs(404).codeAs(40401);
     }
 
     // 检查是否有用户绑定了该角色
-    const userCount = await this.userRoleRepository.count({
+    const userCount = await userRoleRepository.count({
       where: { roleId: id },
     });
     if (userCount > 0) {
@@ -189,12 +199,17 @@ export class OpRoleSharedService {
         .codeAs(40903);
     }
 
-    await this.dataSource.transaction(async (manager) => {
-      // 删除角色关联的权限
-      await manager.delete(OpRolePermission, { roleId: id });
-      // 删除角色
-      await manager.delete(OpRole, { id });
-    });
+    if (manager) {
+      await rolePermissionRepository.delete({ roleId: id });
+      await roleRepository.delete({ id });
+    } else {
+      await this.dataSource.transaction(async (transactionManager) => {
+        await transactionManager.delete(OpRolePermission, { roleId: id });
+        await transactionManager.delete(OpRole, { id });
+      });
+    }
+
+    await this.clearRoleCaches(role);
 
     this.logger.log(`删除角色: ${role.name}`);
   }
@@ -202,8 +217,10 @@ export class OpRoleSharedService {
   /**
    * 查询单个角色
    */
-  async findRole(id: string): Promise<OpRole> {
-    const role = await this.roleRepository.findOne({
+  async findRole(id: string, manager?: EntityManager): Promise<OpRole> {
+    const roleRepository =
+      manager?.getRepository(OpRole) ?? this.roleRepository;
+    const role = await roleRepository.findOne({
       where: { id },
       relations: ['creator', 'creator.account'],
     });
@@ -219,13 +236,16 @@ export class OpRoleSharedService {
    * 列出所有角色（用于下拉选择）
    */
   async listRoles(queryParams: IRoleQueryParams): Promise<OpRole[]> {
-    const { name, status } = queryParams;
+    const keyword = queryParams.keyword ?? queryParams.name;
+    const { status } = queryParams;
     const qb = this.roleRepository.createQueryBuilder('role');
 
     qb.orderBy('role.createdAt', 'DESC');
 
-    if (name) {
-      qb.andWhere('role.name LIKE :name', { name: `%${name}%` });
+    if (keyword) {
+      qb.andWhere('(role.name LIKE :keyword OR role.code LIKE :keyword)', {
+        keyword: `%${keyword}%`,
+      });
     }
     if (status) {
       qb.andWhere('role.status = :status', { status });
@@ -242,14 +262,18 @@ export class OpRoleSharedService {
     page: number,
     pageSize: number,
   ): Promise<IPageData<OpRole>> {
-    const { name, status } = queryParams;
+    const keyword = queryParams.keyword ?? queryParams.name;
+    const { status } = queryParams;
 
     const qb = this.roleRepository
       .createQueryBuilder('role')
+      .leftJoinAndSelect('role.creator', 'creator')
       .orderBy('role.createdAt', 'DESC');
 
-    if (name) {
-      qb.andWhere('role.name LIKE :name', { name: `%${name}%` });
+    if (keyword) {
+      qb.andWhere('(role.name LIKE :keyword OR role.code LIKE :keyword)', {
+        keyword: `%${keyword}%`,
+      });
     }
     if (status) {
       qb.andWhere('role.status = :status', { status });
@@ -289,28 +313,54 @@ export class OpRoleSharedService {
   async setRolePermissions(
     roleId: string,
     permissionCodes: string[],
+    manager?: EntityManager,
   ): Promise<void> {
     // 验证角色是否存在
-    await this.findRole(roleId);
+    await this.findRole(roleId, manager);
 
-    await this.dataSource.transaction(async (manager) => {
-      // 删除现有权限
-      await manager.delete(OpRolePermission, { roleId });
+    const normalizedCodes = Array.from(
+      new Set(permissionCodes.map((code) => code.trim()).filter(Boolean)),
+    );
+    if (normalizedCodes.length > 0) {
+      const permissions =
+        await this.permissionService.getPermissionsByCodes(normalizedCodes);
+      const activePermissions = permissions.filter(
+        (permission) => permission.status === ObjectActiveStatus.ACTIVE,
+      );
+      if (activePermissions.length !== normalizedCodes.length) {
+        throw new BizError('权限码不存在或已停用')
+          .httpStatusAs(400)
+          .codeAs(40004);
+      }
+    }
 
-      // 添加新权限
-      if (permissionCodes.length > 0) {
-        const rolePermissions = permissionCodes.map((code) =>
-          manager.create(OpRolePermission, {
+    const updatePermissions = async (transactionManager: EntityManager) => {
+      await transactionManager.delete(OpRolePermission, { roleId });
+
+      if (normalizedCodes.length > 0) {
+        const rolePermissions = normalizedCodes.map((code) =>
+          transactionManager.create(OpRolePermission, {
             roleId,
             permissionCode: code,
           }),
         );
-        await manager.save(rolePermissions);
+        await transactionManager.save(rolePermissions);
       }
-    });
+    };
+
+    if (manager) {
+      await updatePermissions(manager);
+    } else {
+      await this.dataSource.transaction(updatePermissions);
+    }
+
+    const role = await this.roleRepository.findOne({ where: { id: roleId } });
+    if (role) {
+      await this.clearRoleCaches(role);
+    }
 
     this.logger.log(
-      `角色 ${roleId} 权限已更新，共 ${permissionCodes.length} 个权限`,
+      `角色 ${roleId} 权限已更新，共 ${normalizedCodes.length} 个权限`,
     );
   }
 

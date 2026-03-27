@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager, In, Repository } from 'typeorm';
 import { OpUserRole } from '@thomas/nestjs/entities/core/common-business/op-user-role.entity';
 import { OpAccount } from '@thomas/nestjs/entities/core/account/op-account.entity';
 import { OpAccountCredential } from '@thomas/nestjs/entities/core/account/op-account-credential.entity';
@@ -14,6 +14,7 @@ import {
   Identity,
   IdentityType,
   ObjectActiveStatus,
+  OpRole,
   OpUser,
 } from '@thomas/nestjs/entities';
 import { PermissionService } from '../guards/permission/permission.service';
@@ -24,25 +25,32 @@ export interface ICreateOpUserParams {
   password: string;
   name?: string;
   phone?: string;
+  email?: string;
   deptId?: string;
+  avatarUrl?: string;
   isSuper?: boolean;
   roleIds?: string[];
   enable?: string;
 }
 
 export interface IUpdateOpUserParams {
+  username?: string;
   name?: string;
   phone?: string;
+  email?: string;
   deptId?: string | null;
+  avatarUrl?: string;
   isSuper?: boolean;
   enable?: string;
   operatorId?: string;
 }
 
 export interface IOpUserQueryParams {
+  keyword?: string;
   name?: string;
   phone?: string;
   deptId?: string;
+  roleId?: string;
   enable?: string;
 }
 
@@ -66,6 +74,8 @@ export class OpUserSharedService {
     private readonly identityRepository: Repository<Identity>,
     @InjectRepository(OpDept)
     private readonly opDeptRepository: Repository<OpDept>,
+    @InjectRepository(OpRole)
+    private readonly opRoleRepository: Repository<OpRole>,
     private readonly dataSource: DataSource,
     private readonly passwordUtil: PasswordUtil,
     private readonly permissionService: PermissionService,
@@ -87,6 +97,27 @@ export class OpUserSharedService {
     profile.nickname = name;
     profile.realName = name;
     await manager.save(OpAccountProfile, profile);
+  }
+
+  private normalizeRoleIds(roleIds?: string[]): string[] {
+    return Array.from(
+      new Set((roleIds ?? []).map((id) => id.trim()).filter(Boolean)),
+    );
+  }
+
+  private async validateRoleIds(roleIds: string[]): Promise<void> {
+    if (roleIds.length === 0) {
+      return;
+    }
+
+    const roles = await this.opRoleRepository.find({
+      where: { id: In(roleIds) },
+      select: ['id'],
+    });
+
+    if (roles.length !== roleIds.length) {
+      throw new BizError('角色不存在').httpStatusAs(400).codeAs(40003);
+    }
   }
 
   /**
@@ -213,7 +244,9 @@ export class OpUserSharedService {
       password,
       name,
       phone,
+      email,
       deptId,
+      avatarUrl,
       isSuper,
       roleIds,
       enable,
@@ -222,7 +255,15 @@ export class OpUserSharedService {
     if (!username) throw new BizError('用户名不能为空').codeAs(40001);
     if (!password) throw new BizError('密码不能为空').codeAs(40002);
 
+    const normalizedRoleIds = this.normalizeRoleIds(roleIds);
+    await this.validateRoleIds(normalizedRoleIds);
+
     return await this.dataSource.transaction(async (manager) => {
+      const nextStatus =
+        enable === 'disabled'
+          ? ObjectActiveStatus.DISABLED
+          : ObjectActiveStatus.ACTIVE;
+
       const existingAccount = await manager.findOne(OpAccount, {
         where: { username },
         order: { createdAt: 'DESC' },
@@ -243,14 +284,18 @@ export class OpUserSharedService {
         }
 
         savedAccount = existingAccount;
+        savedAccount.phone = phone;
+        savedAccount.email = email;
+        savedAccount.status = nextStatus;
+        savedAccount = await manager.save(savedAccount);
         await this.upsertOpAccountProfileName(manager, savedAccount.id, name);
       } else {
         // 1. 创建账号
         const account = manager.create(OpAccount, {
           username,
-          // 固定不维护账号的phone，单独由账号身份维护自己的手机号
-          phone: undefined,
-          status: ObjectActiveStatus.ACTIVE,
+          phone,
+          email,
+          status: nextStatus,
         });
         savedAccount = await manager.save(account);
         await this.upsertOpAccountProfileName(
@@ -279,7 +324,7 @@ export class OpUserSharedService {
         accountSource: AccountSource.OP_ACCOUNT,
         identityType: IdentityType.OP_USER,
         name: name || username,
-        status: ObjectActiveStatus.ACTIVE,
+        status: nextStatus,
       });
       const savedIdentity = await manager.save(identity);
 
@@ -299,19 +344,17 @@ export class OpUserSharedService {
         identityId: savedIdentity.id,
         name: name || username,
         phone,
+        avatarUrl,
         deptId: finalDeptId,
         isSuper: isSuper || false,
-        status:
-          enable === 'disabled'
-            ? ObjectActiveStatus.DISABLED
-            : ObjectActiveStatus.ACTIVE,
+        status: nextStatus,
         createdBy: operatorId,
       });
       const savedUser = await manager.save(opUser);
 
       // 5. 如果有角色，绑定角色
-      if (roleIds && roleIds.length > 0) {
-        const userRoles = roleIds.map((roleId) =>
+      if (normalizedRoleIds.length > 0) {
+        const userRoles = normalizedRoleIds.map((roleId) =>
           manager.create(OpUserRole, {
             opUserId: savedUser.id,
             roleId,
@@ -340,7 +383,32 @@ export class OpUserSharedService {
       throw new BizError('用户不存在').httpStatusAs(404).codeAs(40401);
     }
 
-    const { name, phone, deptId, isSuper, enable, operatorId } = params;
+    const {
+      username,
+      name,
+      phone,
+      email,
+      deptId,
+      avatarUrl,
+      isSuper,
+      enable,
+      operatorId,
+    } = params;
+
+    const opAccount = user.identity?.opAccount;
+
+    if (
+      username !== undefined &&
+      opAccount &&
+      username !== opAccount.username
+    ) {
+      const existingAccount =
+        await this.findAccountService.findAccountByUsername(username);
+      if (existingAccount && existingAccount.id !== opAccount.id) {
+        throw new BizError('用户名已存在').httpStatusAs(409).codeAs(40901);
+      }
+      opAccount.username = username;
+    }
 
     if (name !== undefined) {
       user.name = name;
@@ -348,7 +416,15 @@ export class OpUserSharedService {
         user.identity.name = name;
       }
     }
-    if (phone !== undefined) user.phone = phone;
+    if (phone !== undefined) {
+      user.phone = phone;
+      if (opAccount) {
+        opAccount.phone = phone;
+      }
+    }
+    if (email !== undefined && opAccount) {
+      opAccount.email = email;
+    }
     if (deptId !== undefined) {
       if (deptId === '') {
         const defaultDept = await this.findDefaultOpDept();
@@ -361,6 +437,9 @@ export class OpUserSharedService {
       }
     }
     if (isSuper !== undefined) user.isSuper = isSuper;
+    if (avatarUrl !== undefined) {
+      user.avatarUrl = avatarUrl;
+    }
     if (enable !== undefined) {
       user.status =
         enable === 'disabled'
@@ -373,17 +452,41 @@ export class OpUserSharedService {
             ? ObjectActiveStatus.DISABLED
             : ObjectActiveStatus.ACTIVE;
       }
+      if (opAccount) {
+        opAccount.status =
+          enable === 'disabled'
+            ? ObjectActiveStatus.DISABLED
+            : ObjectActiveStatus.ACTIVE;
+      }
     }
     if (operatorId) user.updatedBy = operatorId;
+
+    if (name !== undefined && user.accountId) {
+      await this.upsertOpAccountProfileName(
+        this.dataSource.manager,
+        user.accountId,
+        name,
+      );
+    }
 
     // 先保存 identity（如果存在）
     if (user.identity) {
       await this.identityRepository.save(user.identity);
     }
+    if (opAccount) {
+      await this.opAccountRepository.save(opAccount);
+    }
     const result = await this.opUserRepository.save(user);
 
     // 用户信息变更后清除权限缓存
     await this.permissionService.clearUserPermissionCache(id);
+
+    if (opAccount) {
+      await this.findAccountService.clearAccountCache(
+        opAccount.id,
+        opAccount.username,
+      );
+    }
 
     return result;
   }
@@ -396,7 +499,7 @@ export class OpUserSharedService {
 
     const user = await this.opUserRepository.findOne({
       where: { id },
-      relations: ['identity'],
+      relations: ['identity', 'identity.opAccount'],
     });
     if (!user) {
       throw new BizError('用户不存在').httpStatusAs(404).codeAs(40401);
@@ -456,7 +559,7 @@ export class OpUserSharedService {
     page: number,
     pageSize: number,
   ): Promise<IPageData<OpUser>> {
-    const { name, phone, deptId, enable } = queryParams;
+    const { keyword, name, phone, deptId, roleId, enable } = queryParams;
 
     const qb = this.opUserRepository
       .createQueryBuilder('user')
@@ -469,16 +572,28 @@ export class OpUserSharedService {
       .leftJoinAndSelect('userRoles.role', 'role')
       .leftJoinAndSelect('userRoles.assignedBy', 'assignedBy')
       .leftJoinAndSelect('assignedBy.opUser', 'assignedByOpUser')
-      .orderBy('user.createdAt', 'DESC');
+      .orderBy('user.createdAt', 'DESC')
+      .distinct(true);
 
+    if (keyword) {
+      qb.andWhere(
+        '(user.name LIKE :keyword OR opAccount.username LIKE :keyword OR opAccount.phone LIKE :keyword OR opAccount.email LIKE :keyword)',
+        { keyword: `%${keyword}%` },
+      );
+    }
     if (name) {
       qb.andWhere('user.name LIKE :name', { name: `%${name}%` });
     }
     if (phone) {
-      qb.andWhere('user.phone LIKE :phone', { phone: `%${phone}%` });
+      qb.andWhere('(user.phone LIKE :phone OR opAccount.phone LIKE :phone)', {
+        phone: `%${phone}%`,
+      });
     }
     if (deptId) {
       qb.andWhere('user.deptId = :deptId', { deptId });
+    }
+    if (roleId) {
+      qb.andWhere('userRoles.roleId = :roleId', { roleId });
     }
     if (enable) {
       qb.andWhere('user.status = :status', {
@@ -536,28 +651,31 @@ export class OpUserSharedService {
       throw new BizError('用户不存在').httpStatusAs(404).codeAs(40401);
     }
 
+    const normalizedRoleIds = this.normalizeRoleIds(roleIds);
+    await this.validateRoleIds(normalizedRoleIds);
+
     await this.dataSource.transaction(async (manager) => {
       // 删除现有角色
       await manager.delete(OpUserRole, { opUserId: userId });
 
       // 添加新角色
-      if (roleIds && roleIds.length > 0) {
-        const userRoles = roleIds
-          .filter((id) => !!id) // 过滤掉空的角色ID
-          .map((roleId) =>
-            manager.create(OpUserRole, {
-              opUserId: userId,
-              roleId,
-              assignedAdminId: assignerId,
-            }),
-          );
+      if (normalizedRoleIds.length > 0) {
+        const userRoles = normalizedRoleIds.map((roleId) =>
+          manager.create(OpUserRole, {
+            opUserId: userId,
+            roleId,
+            assignedAdminId: assignerId,
+          }),
+        );
         if (userRoles.length > 0) {
           await manager.save(userRoles);
         }
       }
     });
 
-    this.logger.log(`用户 ${userId} 角色已更新，共 ${roleIds.length} 个角色`);
+    this.logger.log(
+      `用户 ${userId} 角色已更新，共 ${normalizedRoleIds.length} 个角色`,
+    );
 
     // 用户角色变更后清除权限缓存
     await this.permissionService.clearUserPermissionCache(userId);
@@ -581,21 +699,105 @@ export class OpUserSharedService {
   async getOpUserListPublic(
     keyword?: string,
     limit: number = 10,
-  ): Promise<{ id: string; name?: string; phone?: string }[]> {
+    status?: ObjectActiveStatus,
+  ): Promise<
+    { id: string; name?: string; phone?: string; username?: string }[]
+  > {
     const qb = this.opUserRepository
       .createQueryBuilder('user')
-      .select(['user.id', 'user.name', 'user.phone']);
+      .leftJoinAndSelect('user.identity', 'identity')
+      .leftJoinAndSelect('identity.opAccount', 'opAccount')
+      .select([
+        'user.id',
+        'user.name',
+        'user.phone',
+        'identity.id',
+        'opAccount.id',
+        'opAccount.username',
+        'opAccount.phone',
+      ]);
 
     if (keyword) {
-      qb.andWhere('(user.name LIKE :keyword OR user.phone LIKE :keyword)', {
-        keyword: `%${keyword}%`,
-      });
+      qb.andWhere(
+        '(user.name LIKE :keyword OR user.phone LIKE :keyword OR opAccount.username LIKE :keyword)',
+        {
+          keyword: `%${keyword}%`,
+        },
+      );
+    }
+
+    if (status) {
+      qb.andWhere('user.status = :status', { status });
     }
 
     qb.andWhere('user.deletedAt IS NULL');
+    qb.orderBy('user.createdAt', 'DESC');
     qb.take(limit);
 
-    return await qb.getMany();
+    const rows = await qb.getMany();
+
+    return rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      phone: row.identity?.opAccount?.phone ?? row.phone,
+      username: row.identity?.opAccount?.username,
+    }));
+  }
+
+  async resetOpUserPassword(id: string, password: string): Promise<void> {
+    if (!id) {
+      throw new BizError('用户ID不能为空').codeAs(40001);
+    }
+    if (!password) {
+      throw new BizError('密码不能为空').codeAs(40002);
+    }
+
+    const user = await this.opUserRepository.findOne({
+      where: { id },
+      relations: ['identity', 'identity.opAccount'],
+    });
+
+    if (!user?.accountId) {
+      throw new BizError('用户不存在').httpStatusAs(404).codeAs(40401);
+    }
+
+    const identifier = user.identity?.opAccount?.username;
+    if (!identifier) {
+      throw new BizError('后台账号不存在').httpStatusAs(404).codeAs(40405);
+    }
+
+    const { hash, salt } = this.passwordUtil.hashPassword(password);
+
+    await this.dataSource.transaction(async (manager) => {
+      const credential = await manager.findOne(OpAccountCredential, {
+        where: {
+          opAccountId: user.accountId,
+          type: 'password',
+          isPrimary: true,
+        },
+      });
+
+      if (credential) {
+        credential.identifier = identifier;
+        credential.secret = hash;
+        credential.salt = salt;
+        credential.status = ObjectActiveStatus.ACTIVE;
+        await manager.save(credential);
+        return;
+      }
+
+      await manager.save(
+        manager.create(OpAccountCredential, {
+          opAccountId: user.accountId,
+          type: 'password',
+          identifier,
+          secret: hash,
+          salt,
+          isPrimary: true,
+          status: ObjectActiveStatus.ACTIVE,
+        }),
+      );
+    });
   }
 
   /**

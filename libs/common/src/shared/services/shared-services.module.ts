@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Injectable, Module, OnModuleInit, Logger } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { CacheModule } from '@thomas/nestjs/core/nest/cache/cache.module';
 import { BullMQModule } from '@thomas/nestjs/core/nest/bullmq';
@@ -14,6 +14,24 @@ import { AccountAvatarUpdatedListener } from './account-avatar-updated.listener'
 
 import { PasswordUtil } from '../../utils/password';
 import { DataScopeEngine } from '../../utils/dataScopeEngine';
+
+@Injectable()
+class OpUserBootstrapService implements OnModuleInit {
+  private readonly logger = new Logger(OpUserBootstrapService.name);
+
+  constructor(private readonly opUserSharedService: OpUserSharedService) {}
+
+  async onModuleInit(): Promise<void> {
+    try {
+      await this.opUserSharedService.ensureBootstrapAdminUser();
+    } catch (err) {
+      this.logger.error(
+        'OpUser bootstrap failed',
+        err instanceof Error ? err.stack : String(err),
+      );
+    }
+  }
+}
 
 @Module({
   imports: [
@@ -33,6 +51,7 @@ import { DataScopeEngine } from '../../utils/dataScopeEngine';
     AccountAvatarUpdatedListener,
     PasswordUtil,
     DataScopeEngine,
+    OpUserBootstrapService,
   ],
   exports: [
     FindAccountService,
