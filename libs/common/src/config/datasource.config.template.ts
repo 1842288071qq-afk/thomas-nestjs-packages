@@ -34,7 +34,7 @@ export const datasourceConfigObject = (
       database,
       autoLoadEntities: true,
       synchronize: false,
-      logging: process.env.NODE_ENV === 'development' ? true : false,
+      logging: process.env.TYPEORM_LOGGING === 'true' ? true : false,
       namingStrategy: new SnakeNamingStrategy(),
     },
   };
