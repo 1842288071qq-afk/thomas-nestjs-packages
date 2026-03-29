@@ -65,38 +65,32 @@ export class PermissionGuard implements CanActivate {
       throw new UnauthorizedException('Identity not found in context');
     }
 
-    // 仅支持 OP_USER 的权限检查
+    return this.checkPermissions(identity, requirement);
+  }
+
+  /**
+   * 权限检查入口
+   */
+  private async checkPermissions(
+    identity: Identity,
+    requirement: PermissionRequirement,
+  ): Promise<boolean> {
+    // 当前项目仅支持 OP_USER 的权限检查
     if (identity.identityType !== IdentityType.OP_USER) {
-      // 其他身份类型如需权限控制，需在此添加分支处理
       throw new ForbiddenException(
         `Permission check not supported for identity type: ${identity.identityType}`,
       );
     }
 
-    return this.checkOpUserPermissions(identity, requirement);
-  }
+    await this.mountRolesAndPermissions(identity);
 
-  /**
-   * 检查后台用户的权限
-   */
-  private async checkOpUserPermissions(
-    identity: Identity,
-    requirement: PermissionRequirement,
-  ): Promise<boolean> {
-    const opUser = identity.opUser;
-    if (!opUser) {
-      throw new UnauthorizedException('OpUser not found in identity');
-    }
+    const permissionCodes = this.getMountedPermissionCodes();
 
     // 后台超级管理员直接放行
-    if (opUser.isSuper) {
+    if (this.isOpSuper(identity)) {
       return true;
     }
 
-    // 获取并挂载用户权限到 ThreadLocal
-    await this.mountUserPermissions(opUser.id);
-
-    const permissionCodes = this.threadLocal.get('permissionCodes') || [];
     if (!this.checkRequirement(requirement, permissionCodes)) {
       throw new ForbiddenException('Insufficient permissions');
     }
@@ -107,21 +101,57 @@ export class PermissionGuard implements CanActivate {
   /**
    * 将用户权限和角色挂载到 ThreadLocal（避免重复查询）
    */
-  private async mountUserPermissions(userId: string): Promise<void> {
+  private async mountRolesAndPermissions(identity: Identity): Promise<void> {
     // 如果已挂载，直接返回
     if (this.threadLocal.get('permissionCodes')) {
       return;
     }
 
-    const permData = await this.permissionService.getUserPermissionData(userId);
+    const opUser = this.getOpUser(identity);
 
-    // 根据角色代码翻译为角色对象
-    const roleObjects = await this.permissionService.getRoleDataByCodes(
-      permData.roleCodes,
+    const userPermData = await this.permissionService.getUserPermissionData(
+      opUser.id,
     );
 
+    const [roleObjects, allPermissions] = await Promise.all([
+      this.permissionService.getRoleDataByCodes(userPermData.roleCodes),
+      this.isOpSuper(identity)
+        ? this.permissionService.getPermissions()
+        : Promise.resolve(null),
+    ]);
+
+    const permissionCodes = allPermissions
+      ? allPermissions.map((item) => item.code)
+      : userPermData.permissionCodes;
+
     this.threadLocal.set('roles', roleObjects);
-    this.threadLocal.set('permissionCodes', permData.permissionCodes);
+    this.threadLocal.set('permissionCodes', permissionCodes);
+  }
+
+  /**
+   * 获取 OP_USER 业务对象
+   */
+  private getOpUser(identity: Identity) {
+    if (!identity.opUser) {
+      throw new UnauthorizedException('OpUser not found in identity');
+    }
+
+    return identity.opUser;
+  }
+
+  /**
+   * 判断是否为后台超级管理员
+   */
+  private isOpSuper(identity: Identity): boolean {
+    return identity.opUser?.isSuper === true;
+  }
+
+  /**
+   * 获取已经挂载的权限列表
+   */
+  private getMountedPermissionCodes(): string[] {
+    const permissionCodes = this.threadLocal.get('permissionCodes');
+    return Array.isArray(permissionCodes) ? permissionCodes : [];
   }
 
   /**
