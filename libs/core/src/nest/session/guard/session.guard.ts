@@ -10,7 +10,7 @@ import { JwtPayload } from '../../jwt-auth/types/jwt-payload.type';
  *
  * 用于校验当前 JWT 令牌对应的会话是否在 Redis 中仍然有效。
  * ⚠️ 注意：该 Guard 必须在 JwtAuthGuard 之后执行，因为它依赖于 request.user 中的 jti。
- * 目前已在 JwtAuthModule.forRoot() 中全局注册，确保在 JwtAuthGuard 之后运行。
+ * 通常通过 GlobalGuardsModule.connect 按固定顺序注册。
  */
 @Injectable()
 export class SessionGuard implements CanActivate {

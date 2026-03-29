@@ -2,8 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { PlaygroundModule } from './playground.module';
 import { MqModule } from '@thomas/nestjs/core/nest/mq/mq.module';
 import 'source-map-support/register';
-import { JwtAuthGuard } from '@thomas/nestjs/core/nest/jwt-auth';
 import { Logger } from '@nestjs/common';
+import { connectGlobalGuards } from '@thomas/nestjs/common';
 
 // declare const module: any;
 
@@ -14,7 +14,7 @@ async function bootstrap() {
   // 启用关闭钩子监听器，启动这个会有所有的微服务关日志
   // app.enableShutdownHooks();
 
-  app.useGlobalGuards(app.get(JwtAuthGuard));
+  connectGlobalGuards(app);
   const port = process.env.PORT ?? 2500;
   await app.listen(port);
   logger.log(`App HTTP Server is running on: http://localhost:${port} ✅`);
