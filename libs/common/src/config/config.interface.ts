@@ -4,6 +4,7 @@ export interface AppConfig {
   devName: string;
   apiPrefix: string;
   host?: string;
+  sessionKickOutEnable: boolean;
 }
 export interface QuestionBankConfig {
   baseUrl: string;

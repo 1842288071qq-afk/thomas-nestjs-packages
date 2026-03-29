@@ -39,30 +39,36 @@ export class SessionService {
       'session.groupName',
       'account',
     );
+    const sessionKickOutEnable = this.configService.get<boolean>(
+      'app.sessionKickOutEnable',
+      true,
+    );
 
-    // 1. 踢出同系统旧会话
     const lookupKey = getSessionLookupKey(
       groupName,
       data.accountId,
       data.system,
     );
-    const oldJti = await helper.get<string>(lookupKey);
-    if (oldJti) {
-      // 软踢出：不是直接删除，而是标记为 kickedOut，以便下次访问时给出明确提示
-      const oldSessionKey = getSessionDataKey(
-        groupName,
-        data.accountId,
-        oldJti,
-      );
-      const oldSession = await helper.get<SessionData>(oldSessionKey);
-      if (oldSession) {
-        oldSession.kickedOut = true;
-        // 延长一点有效期，确保用户能看到提示
-        await helper.set(oldSessionKey, oldSession, 86400); // 暂定保留 24 小时
+    if (sessionKickOutEnable) {
+      // 1. 踢出同系统旧会话
+      const oldJti = await helper.get<string>(lookupKey);
+      if (oldJti) {
+        // 软踢出：不是直接删除，而是标记为 kickedOut，以便下次访问时给出明确提示
+        const oldSessionKey = getSessionDataKey(
+          groupName,
+          data.accountId,
+          oldJti,
+        );
+        const oldSession = await helper.get<SessionData>(oldSessionKey);
+        if (oldSession) {
+          oldSession.kickedOut = true;
+          // 延长一点有效期，确保用户能看到提示
+          await helper.set(oldSessionKey, oldSession, 86400); // 暂定保留 24 小时
+        }
+        this.logger.log(
+          `Soft kicked out old session: ${oldJti} for account: ${data.accountId}`,
+        );
       }
-      this.logger.log(
-        `Soft kicked out old session: ${oldJti} for account: ${data.accountId}`,
-      );
     }
 
     // 2. 存储新会话
@@ -70,7 +76,9 @@ export class SessionService {
     // Redis 过期时间稍微长一点，以便能在代码中判断出是超时还是被其他设备踢出
     const redisTtl = maxTime + 3600;
     await helper.set(sessionKey, sessionData, redisTtl);
-    await helper.set(lookupKey, data.jti, redisTtl);
+    if (sessionKickOutEnable) {
+      await helper.set(lookupKey, data.jti, redisTtl);
+    }
 
     return sessionData;
   }
@@ -140,7 +148,15 @@ export class SessionService {
         session.accountId,
         session.system,
       );
-      await helper.del(getSessionDataKey(groupName, accountId, jti), lookupKey);
+      const currentLookupJti = await helper.get<string>(lookupKey);
+      if (currentLookupJti === jti) {
+        await helper.del(
+          getSessionDataKey(groupName, accountId, jti),
+          lookupKey,
+        );
+        return;
+      }
+      await helper.del(getSessionDataKey(groupName, accountId, jti));
     }
   }
 
