@@ -10,6 +10,7 @@ import {
 import { BizError } from '@thomas/nestjs/core/BizError';
 import { IdentityActiveService } from '../../services/identity-active.service';
 import { ObjectActiveStatus } from '@thomas/nestjs/entities';
+import { IS_PUBLIC_KEY } from '@thomas/nestjs/core/nest/jwt-auth/decorator/public.decorator';
 
 @Injectable()
 export class IdentityRequiredGuard implements CanActivate {
@@ -20,6 +21,14 @@ export class IdentityRequiredGuard implements CanActivate {
   ) {}
 
   canActivate(context: ExecutionContext): boolean {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) {
+      return true;
+    }
+
     const requiredIdentities = this.reflector.getAllAndOverride<IdentityType[]>(
       IDENTITY_REQUIRED_KEY,
       [context.getHandler(), context.getClass()],
