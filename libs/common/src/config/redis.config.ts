@@ -1,21 +1,35 @@
 import { registerAs } from '@nestjs/config';
 
 export const redisConfig = registerAs('redis', () => {
-  const host = process.env.REDIS_HOST || 'localhost';
-  const port = parseInt(process.env.REDIS_PORT || '6379', 10);
-  const password = process.env.REDIS_PASSWORD || undefined;
-  const db = parseInt(process.env.REDIS_DB || '0', 10);
-  const keyPrefix = process.env.REDIS_KEY_PREFIX || 'nestjs-app';
+  const defaultHost = process.env.REDIS_HOST || 'localhost';
+  const defaultPort = parseInt(process.env.REDIS_PORT || '6379', 10);
+  const defaultPassword = process.env.REDIS_PASSWORD || undefined;
+  const defaultDb = parseInt(process.env.REDIS_DB || '0', 10);
+  const defaultKeyPrefix = process.env.REDIS_KEY_PREFIX || 'nestjs-app';
+
+  const resolveRedisClient = (name: 'bullmq' | 'session', dbOffset: number) => {
+    const prefix = `REDIS_${name.toUpperCase()}`;
+
+    return {
+      host: process.env[`${prefix}_HOST`] || defaultHost,
+      port: parseInt(process.env[`${prefix}_PORT`] || `${defaultPort}`, 10),
+      password: process.env[`${prefix}_PASSWORD`] || defaultPassword,
+      db: parseInt(
+        process.env[`${prefix}_DB`] || `${defaultDb + dbOffset}`,
+        10,
+      ),
+    };
+  };
+
   return {
     default: {
-      host,
-      port,
-      password,
-      db,
-      keyPrefix,
+      host: defaultHost,
+      port: defaultPort,
+      password: defaultPassword,
+      db: defaultDb,
+      keyPrefix: defaultKeyPrefix,
     },
-    bullmq: {
-      db: db + 1,
-    },
+    session: resolveRedisClient('session', 1),
+    bullmq: resolveRedisClient('bullmq', 2),
   };
 });

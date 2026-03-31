@@ -3,8 +3,6 @@ import os from 'os';
 
 export default registerAs('app', () => {
   const host = process.env.APP_HOST?.trim();
-  const sessionKickOutEnable =
-    process.env.SESSION_KICK_OUT_ENABLE?.trim().toLowerCase() !== 'false';
 
   return {
     port: parseInt(process.env.PORT || '3000', 10),
@@ -14,6 +12,5 @@ export default registerAs('app', () => {
     // 默认devName为系统机器名称
     devName: process.env.DEV_NAME || os.hostname(),
     host: host || undefined,
-    sessionKickOutEnable,
   };
 });

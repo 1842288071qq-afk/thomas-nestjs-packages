@@ -8,19 +8,22 @@ export const SESSION_BIZ_CODE = {
 export const SESSION_BASE_PREFIX = 'session';
 
 export const getSessionDataKey = (
-  groupName: string,
+  appName: string,
+  system: string,
   accountId: string | number,
   jti: string,
-) => `${SESSION_BASE_PREFIX}:${groupName}:data:${accountId}:${jti}`;
+) => `${SESSION_BASE_PREFIX}:${appName}:${system}:data:${accountId}:${jti}`;
 
 export const getSessionLookupKey = (
-  groupName: string,
-  accountId: string | number,
+  appName: string,
   system: string,
-) => `${SESSION_BASE_PREFIX}:${groupName}:lookup:${accountId}:${system}`;
+  accountId: string | number,
+) => `${SESSION_BASE_PREFIX}:${appName}:${system}:lookup:${accountId}`;
 
 export const getSessionLockKey = (
-  groupName: string,
+  appName: string,
+  system: string,
   accountId: string | number,
   jti: string,
-) => `${SESSION_BASE_PREFIX}:${groupName}:active_lock:${accountId}:${jti}`;
+) =>
+  `${SESSION_BASE_PREFIX}:${appName}:${system}:active_lock:${accountId}:${jti}`;

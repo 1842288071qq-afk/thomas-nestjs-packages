@@ -3,6 +3,7 @@ import appConfig from './app.config';
 import fileConfig from './file.config';
 import './config.interface';
 import { redisConfig } from './redis.config';
+import { sessionConfig } from './session';
 import { jwtConfig } from './jwt.config';
 
 interface ConfigModuleImportOptions {
@@ -20,7 +21,14 @@ export function configModuleImport(option: ConfigModuleImportOptions) {
   const { configs, envName } = option;
   return ConfigModule.forRoot({
     isGlobal: true,
-    load: [...configs, appConfig, fileConfig, redisConfig, jwtConfig],
+    load: [
+      ...configs,
+      appConfig,
+      fileConfig,
+      redisConfig,
+      sessionConfig,
+      jwtConfig,
+    ],
     // 环境变量文件路径
     envFilePath: [`./env/${envName}.local`, `./env/${envName}.env`],
   });

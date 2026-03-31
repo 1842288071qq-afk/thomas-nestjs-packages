@@ -4,7 +4,12 @@ export interface AppConfig {
   devName: string;
   apiPrefix: string;
   host?: string;
-  sessionKickOutEnable: boolean;
+}
+
+export interface SessionConfig {
+  maxTime: number;
+  debounceTime: number;
+  kickOutEnable: boolean;
 }
 export interface QuestionBankConfig {
   baseUrl: string;
@@ -36,6 +41,7 @@ export interface DataSourceConfig {
 declare global {
   interface AllConfig {
     app: AppConfig;
+    session: SessionConfig;
     datasource: Record<string, DataSourceConfig>;
     questionBank: QuestionBankConfig;
     file: FileConfig;

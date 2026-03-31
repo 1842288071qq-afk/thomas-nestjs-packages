@@ -36,10 +36,18 @@ export class SessionGuard implements CanActivate {
     }
 
     // 3. 验证会话 (内部处理超时检查)
-    await this.sessionService.validateSession(user.accountId, user.jti);
+    await this.sessionService.validateSession(
+      user.accountId,
+      user.system,
+      user.jti,
+    );
 
     // 4. 更新活跃时间 (异步去抖)
-    void this.sessionService.updateLastActivity(user.accountId, user.jti);
+    void this.sessionService.updateLastActivity(
+      user.accountId,
+      user.system,
+      user.jti,
+    );
 
     return true;
   }
