@@ -14,7 +14,6 @@
     "sourceMap": true,
     "inlineSources": true,
     "outDir": "./dist",
-    "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
@@ -24,22 +23,22 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@thomas/nestjs/common": [
-        "libs/common/src"
+        "./libs/common/src"
       ],
       "@thomas/nestjs/common/*": [
-        "libs/common/src/*"
+        "./libs/common/src/*"
       ],
       "@thomas/nestjs/core": [
-        "libs/core/src"
+        "./libs/core/src"
       ],
       "@thomas/nestjs/core/*": [
-        "libs/core/src/*"
+        "./libs/core/src/*"
       ],
       "@thomas/nestjs/entities": [
-        "libs/entities/src"
+        "./libs/entities/src"
       ],
       "@thomas/nestjs/entities/*": [
-        "libs/entities/src/*"
+        "./libs/entities/src/*"
       ]
     }
   },
