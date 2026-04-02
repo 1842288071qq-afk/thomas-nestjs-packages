@@ -107,7 +107,15 @@ export class DictionaryService implements OnModuleInit {
         ? [...parentCodePath, item.value]
         : [item.value];
 
-      const { children, ...ext } = item;
+      const { children, value, text, ext, ...extra } = item;
+      const normalizedExt =
+        ext && typeof ext === 'object'
+          ? Object.keys(extra).length > 0
+            ? { ...ext, ...extra }
+            : ext
+          : Object.keys(extra).length > 0
+            ? extra
+            : undefined;
 
       // 保存到扁平映射
       flatMap.set(item.value, {
@@ -115,7 +123,7 @@ export class DictionaryService implements OnModuleInit {
         text: item.text,
         textPath: currentTextPath,
         codePath: currentCodePath,
-        ext: Object.keys(ext).length > 2 ? ext : undefined, // 除了 value 和 text 之外有其他属性 (注意：item 本身解构后可能还包含 children 属性，这里判断时要精准点，DictItem 接口包含 value, text, children)
+        ext: normalizedExt,
       });
 
       const newItem: DictItem = { ...item };

@@ -15,6 +15,10 @@ export interface DictItem {
    */
   children?: DictItem[];
   /**
+   * 扩展属性（推荐统一放入 ext 中）
+   */
+  ext?: Record<string, any>;
+  /**
    * 扩展属性 (可选)
    */
   [key: string]: any;
