@@ -21,6 +21,8 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
     "paths": {
       "@thomas/nestjs/common": [
         "./libs/common/src"
