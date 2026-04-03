@@ -30,7 +30,7 @@ export interface ICreateOpUserParams {
   avatarUrl?: string;
   isSuper?: boolean;
   roleIds?: string[];
-  enable?: string;
+  status?: ObjectActiveStatus;
 }
 
 export interface IUpdateOpUserParams {
@@ -41,7 +41,7 @@ export interface IUpdateOpUserParams {
   deptId?: string | null;
   avatarUrl?: string;
   isSuper?: boolean;
-  enable?: string;
+  status?: ObjectActiveStatus;
   operatorId?: string;
 }
 
@@ -51,7 +51,7 @@ export interface IOpUserQueryParams {
   phone?: string;
   deptId?: string;
   roleId?: string;
-  enable?: string;
+  status?: ObjectActiveStatus;
 }
 
 @Injectable()
@@ -249,7 +249,7 @@ export class OpUserSharedService {
       avatarUrl,
       isSuper,
       roleIds,
-      enable,
+      status,
     } = params;
 
     if (!username) throw new BizError('用户名不能为空').codeAs(40001);
@@ -259,10 +259,7 @@ export class OpUserSharedService {
     await this.validateRoleIds(normalizedRoleIds);
 
     return await this.dataSource.transaction(async (manager) => {
-      const nextStatus =
-        enable === 'disabled'
-          ? ObjectActiveStatus.DISABLED
-          : ObjectActiveStatus.ACTIVE;
+      const nextStatus = status ?? ObjectActiveStatus.ACTIVE;
 
       const existingAccount = await manager.findOne(OpAccount, {
         where: { username },
@@ -391,7 +388,7 @@ export class OpUserSharedService {
       deptId,
       avatarUrl,
       isSuper,
-      enable,
+      status,
       operatorId,
     } = params;
 
@@ -440,23 +437,14 @@ export class OpUserSharedService {
     if (avatarUrl !== undefined) {
       user.avatarUrl = avatarUrl;
     }
-    if (enable !== undefined) {
-      user.status =
-        enable === 'disabled'
-          ? ObjectActiveStatus.DISABLED
-          : ObjectActiveStatus.ACTIVE;
+    if (status !== undefined) {
+      user.status = status;
       // 同步禁用状态到 identity.status
       if (user.identity) {
-        user.identity.status =
-          enable === 'disabled'
-            ? ObjectActiveStatus.DISABLED
-            : ObjectActiveStatus.ACTIVE;
+        user.identity.status = status;
       }
       if (opAccount) {
-        opAccount.status =
-          enable === 'disabled'
-            ? ObjectActiveStatus.DISABLED
-            : ObjectActiveStatus.ACTIVE;
+        opAccount.status = status;
       }
     }
     if (operatorId) user.updatedBy = operatorId;
@@ -559,7 +547,7 @@ export class OpUserSharedService {
     page: number,
     pageSize: number,
   ): Promise<IPageData<OpUser>> {
-    const { keyword, name, phone, deptId, roleId, enable } = queryParams;
+    const { keyword, name, phone, deptId, roleId, status } = queryParams;
 
     const qb = this.opUserRepository
       .createQueryBuilder('user')
@@ -595,13 +583,8 @@ export class OpUserSharedService {
     if (roleId) {
       qb.andWhere('userRoles.roleId = :roleId', { roleId });
     }
-    if (enable) {
-      qb.andWhere('user.status = :status', {
-        status:
-          enable === 'disabled'
-            ? ObjectActiveStatus.DISABLED
-            : ObjectActiveStatus.ACTIVE,
-      });
+    if (status) {
+      qb.andWhere('user.status = :status', { status });
     }
 
     const [rows, total] = await qb

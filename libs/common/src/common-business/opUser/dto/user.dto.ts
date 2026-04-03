@@ -4,8 +4,10 @@ import {
   IOpUserQueryParams,
   IUpdateOpUserParams,
 } from '../../../shared/services/op-user-shared.service';
+import { ObjectActiveStatus } from '@thomas/nestjs/entities';
 import { EnsureNotBlank } from '@thomas/nestjs/core/nest/composition/ensure-not-blank.decorator';
 import {
+  IsEnum,
   IsArray,
   IsBoolean,
   IsNotEmpty,
@@ -45,8 +47,8 @@ export class CreateUserDTO implements ICreateOpUserParams {
   roleIds?: string[];
 
   @IsOptional()
-  @IsString()
-  enable?: string;
+  @IsEnum(ObjectActiveStatus)
+  status?: ObjectActiveStatus;
 }
 
 export class UpdateUserDTO implements IUpdateOpUserParams {
@@ -67,8 +69,8 @@ export class UpdateUserDTO implements IUpdateOpUserParams {
   isSuper?: boolean;
 
   @IsOptional()
-  @IsString()
-  enable?: string;
+  @IsEnum(ObjectActiveStatus)
+  status?: ObjectActiveStatus;
 }
 
 export class UserQueryDTO implements IOpUserQueryParams {
@@ -85,8 +87,8 @@ export class UserQueryDTO implements IOpUserQueryParams {
   deptId?: string;
 
   @IsOptional()
-  @IsString()
-  enable?: string;
+  @IsEnum(ObjectActiveStatus)
+  status?: ObjectActiveStatus;
 }
 
 export class BindUserRolesDTO {
