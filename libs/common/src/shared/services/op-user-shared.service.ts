@@ -8,7 +8,6 @@ import { OpAccountProfile } from '@thomas/nestjs/entities/core/account/op-accoun
 import { BizError } from '@thomas/nestjs/core/BizError';
 import { IPageData } from '@thomas/nestjs/core/Pagination';
 import { PasswordUtil } from '@thomas/nestjs/common/utils/password';
-import { OpDept } from '@thomas/nestjs/entities/core/common-business/op-dept.entity';
 import {
   AccountSource,
   Identity,
@@ -72,8 +71,6 @@ export class OpUserSharedService {
     private readonly opAccountRepository: Repository<OpAccount>,
     @InjectRepository(Identity)
     private readonly identityRepository: Repository<Identity>,
-    @InjectRepository(OpDept)
-    private readonly opDeptRepository: Repository<OpDept>,
     @InjectRepository(OpRole)
     private readonly opRoleRepository: Repository<OpRole>,
     private readonly dataSource: DataSource,
@@ -325,16 +322,6 @@ export class OpUserSharedService {
       });
       const savedIdentity = await manager.save(identity);
 
-      // 处理空字符串 deptId,设置为默认部门
-      let finalDeptId = deptId;
-      if (!finalDeptId) {
-        const defaultDept = await this.findDefaultOpDept();
-        if (!defaultDept) {
-          throw new BizError('未找到默认部门').codeAs(40404);
-        }
-        finalDeptId = defaultDept.id;
-      }
-
       // 4. 创建用户记录
       const opUser = manager.create(OpUser, {
         accountId: savedAccount.id,
@@ -342,7 +329,7 @@ export class OpUserSharedService {
         name: name || username,
         phone,
         avatarUrl,
-        deptId: finalDeptId,
+        deptId: deptId || null,
         isSuper: isSuper || false,
         status: nextStatus,
         createdBy: operatorId,
@@ -423,15 +410,7 @@ export class OpUserSharedService {
       opAccount.email = email;
     }
     if (deptId !== undefined) {
-      if (deptId === '') {
-        const defaultDept = await this.findDefaultOpDept();
-        if (!defaultDept) {
-          throw new BizError('未找到默认部门').codeAs(40404);
-        }
-        user.deptId = defaultDept.id;
-      } else {
-        user.deptId = deptId === null ? null : deptId;
-      }
+      user.deptId = deptId || null;
     }
     if (isSuper !== undefined) user.isSuper = isSuper;
     if (avatarUrl !== undefined) {
@@ -781,27 +760,5 @@ export class OpUserSharedService {
         }),
       );
     });
-  }
-
-  /**
-   * 私有方法: 查找默认部门
-   * 策略: 优先查找 isDefault=true 的部门,否则返回创建时间最早的部门
-   */
-  private async findDefaultOpDept(): Promise<OpDept | null> {
-    // 1. 尝试查找标记为默认的部门
-    const defaultDept = await this.opDeptRepository.findOne({
-      where: { isDefault: true },
-    });
-
-    if (defaultDept) {
-      return defaultDept;
-    }
-
-    // 2. 如果没有标记的默认部门,返回创建时间最早的部门
-    const depts = await this.opDeptRepository.find({
-      order: { createdAt: 'ASC' },
-      take: 1,
-    });
-    return depts[0] || null;
   }
 }
