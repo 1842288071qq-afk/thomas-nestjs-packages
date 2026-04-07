@@ -2,8 +2,9 @@ import { Entity, Column, PrimaryColumn } from 'typeorm';
 import { WithAuditor, WithTimeTrace } from '../base/extendable';
 import type { OssS3Config } from './oss-s3-config.interface';
 
-@Entity('sys_oss_config')
 class SysOssConfigEntityRoot {}
+
+@Entity('sys_oss_config')
 export class SysOssConfigEntity extends WithAuditor(
   WithTimeTrace(SysOssConfigEntityRoot),
 ) {
