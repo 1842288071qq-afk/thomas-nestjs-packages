@@ -7,8 +7,9 @@ import {
 } from '../base/extendable';
 import { SysOssConfigEntity } from './sys-oss-config.entity';
 
-@Entity('sys_file')
 class SysFileEntityRoot {}
+
+@Entity('sys_file')
 export class SysFileEntity extends WithSoftDelete(
   WithAuditor(WithTimeTrace(WithId(SysFileEntityRoot))),
 ) {
