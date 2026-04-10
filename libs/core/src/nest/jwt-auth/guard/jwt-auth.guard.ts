@@ -21,10 +21,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const request = context.switchToHttp().getRequest<Request>();
 
     // 1️⃣ 装饰器白名单
-    const isPublic = this.reflector.get<boolean>(
-      IS_PUBLIC_KEY,
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
-    );
+      context.getClass(),
+    ]);
     if (isPublic) return true;
 
     // 2️⃣ Config 白名单
