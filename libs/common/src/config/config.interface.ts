@@ -1,9 +1,29 @@
+import type { LogLevel } from '@nestjs/common';
+
+export type AppLoggerLevel =
+  | 'fatal'
+  | 'error'
+  | 'warn'
+  | 'info'
+  | 'debug'
+  | 'verbose';
+
+export interface AppLoggerConfig {
+  /** 日志最小输出级别，默认 info */
+  level: AppLoggerLevel;
+  /** Nest 实际启用的日志级别列表 */
+  levels: LogLevel[];
+  /** 启动日志上下文，默认取 APP_NAME */
+  context: string;
+}
+
 export interface AppConfig {
   port: number;
   name: string;
   devName: string;
   apiPrefix: string;
   host?: string;
+  logger: AppLoggerConfig;
 }
 
 export interface SessionConfig {
