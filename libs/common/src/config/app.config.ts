@@ -36,7 +36,7 @@ export function resolveAppLoggerConfig(
 }
 
 export default registerAs('app', (): AppConfig => {
-  const host = process.env.APP_HOST?.trim();
+  const host = process.env.HOST?.trim();
 
   return {
     port: parseInt(process.env.PORT || '3000', 10),
@@ -45,6 +45,7 @@ export default registerAs('app', (): AppConfig => {
     name: process.env.APP_NAME || 'nest-app',
     // 默认devName为系统机器名称
     devName: process.env.DEV_NAME || os.hostname(),
+    // 不配置时保持 Nest 默认监听行为（不显式传 host）
     host: host || undefined,
     logger: resolveAppLoggerConfig(),
   };
