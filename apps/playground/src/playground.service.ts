@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { HelloResultDTO } from './dto/playground.dto';
+import { HelloResultDTO } from './DTO/playground.dto';
 
 @Injectable()
 export class PlaygroundService {

@@ -6,10 +6,7 @@ import '../../types/shared-types';
 
 @Module({
   imports: [SharedServicesModule],
-  providers: [
-    AccountDeserializeService,
-    AccountDeserializeGuard,
-  ],
+  providers: [AccountDeserializeService, AccountDeserializeGuard],
   exports: [AccountDeserializeService, AccountDeserializeGuard],
 })
 export class AccountDeserializeModule {}

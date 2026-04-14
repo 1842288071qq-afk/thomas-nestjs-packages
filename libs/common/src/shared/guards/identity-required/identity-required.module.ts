@@ -6,9 +6,7 @@ import '../../types/shared-types';
 
 @Module({
   imports: [ThreadLocalModule, SharedServicesModule],
-  providers: [
-    IdentityRequiredGuard,
-  ],
+  providers: [IdentityRequiredGuard],
   exports: [IdentityRequiredGuard],
 })
 export class IdentityRequiredModule {}

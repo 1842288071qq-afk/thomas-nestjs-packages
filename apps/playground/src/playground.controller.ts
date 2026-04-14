@@ -12,7 +12,7 @@ import { DataSourceConfig } from '@thomas/nestjs/common/config/config.interface'
 import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
 import { RedisService } from '@thomas/nestjs/core/nest/redis/redis.service';
 import { transformHelloResultToVO } from './playground.vo-transform';
-import { HelloResultVO } from './vo/playground.types';
+import type { HelloResultVO } from './vo/playground.types';
 
 @Controller()
 export class PlaygroundController {

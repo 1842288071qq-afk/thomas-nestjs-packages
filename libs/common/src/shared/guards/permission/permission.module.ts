@@ -7,10 +7,7 @@ import '../../types/shared-types';
 
 @Module({
   imports: [CoreEntityFeatureModule, CacheModule],
-  providers: [
-    PermissionService,
-    PermissionGuard,
-  ],
+  providers: [PermissionService, PermissionGuard],
   exports: [PermissionService, PermissionGuard],
 })
 export class PermissionModule {}
