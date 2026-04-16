@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { InjectDataSource } from '@nestjs/typeorm';
 import {
   DataSource,
   SelectQueryBuilder,
@@ -14,7 +15,7 @@ const DEFAULT_CLOSURE_TABLE_NAME = 'op_dept_closure';
  */
 @Injectable()
 export class DataScopeEngine {
-  constructor(private readonly ds: DataSource) {}
+  constructor(@InjectDataSource() private readonly ds: DataSource) {}
 
   /**
    * 应用数据范围

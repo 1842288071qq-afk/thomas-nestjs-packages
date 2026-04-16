@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, In, Repository } from 'typeorm';
 import { BizError } from '@thomas/nestjs/core/BizError';
 import { OpRole } from '@thomas/nestjs/entities/core/common-business/op-role.entity';
@@ -62,6 +62,7 @@ export class OpRoleSharedService {
     @InjectRepository(OpUser)
     private readonly opUserRepository: Repository<OpUser>,
     private readonly permissionService: PermissionService,
+    @InjectDataSource()
     private readonly dataSource: DataSource,
   ) {}
 

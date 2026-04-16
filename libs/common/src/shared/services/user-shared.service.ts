@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { BizError } from '@thomas/nestjs/core/BizError';
 import { IPageData } from '@thomas/nestjs/core/Pagination';
@@ -46,6 +46,7 @@ export class UserSharedService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Identity)
     private readonly identityRepository: Repository<Identity>,
+    @InjectDataSource()
     private readonly dataSource: DataSource,
     private readonly passwordUtil: PasswordUtil,
     private readonly findAccountService: FindAccountService,
