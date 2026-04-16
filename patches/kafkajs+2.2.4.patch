@@ -1,0 +1,26 @@
+*** Begin Patch
+*** Update File: node_modules/.pnpm/kafkajs@2.2.4/node_modules/kafkajs/src/network/requestQueue/index.js
+@@
+-    let scheduleAt = this.throttledUntil - Date.now()
+-    if (!this.throttleCheckTimeoutId) {
+-      if (this.pending.length > 0) {
+-        scheduleAt = scheduleAt > 0 ? scheduleAt : CHECK_PENDING_REQUESTS_INTERVAL
+-      }
+-      this.throttleCheckTimeoutId = setTimeout(() => {
+-        this.throttleCheckTimeoutId = null
+-        this.checkPendingRequests()
+-      }, scheduleAt)
+-    }
++    let scheduleAt = this.throttledUntil - Date.now()
++    if (!this.throttleCheckTimeoutId) {
++      // Ensure we never pass a negative timeout value to setTimeout.
++      // If throttledUntil is in the past (or default/zero), fallback to the
++      // regular check interval. This prevents Node's TimeoutNegativeWarning.
++      scheduleAt = scheduleAt > 0 ? scheduleAt : CHECK_PENDING_REQUESTS_INTERVAL
++
++      this.throttleCheckTimeoutId = setTimeout(() => {
++        this.throttleCheckTimeoutId = null
++        this.checkPendingRequests()
++      }, scheduleAt)
++    }
+*** End Patch
