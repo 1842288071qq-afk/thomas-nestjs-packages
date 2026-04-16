@@ -1,4 +1,4 @@
-import { ConfigModule, registerAs } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import appConfig from './app.config';
 import fileConfig from './file.config';
 import './config.interface';
@@ -6,9 +6,13 @@ import { redisConfig } from './redis.config';
 import { sessionConfig } from './session';
 import { jwtConfig } from './jwt.config';
 
+type ConfigModuleLoadEntry = NonNullable<
+  NonNullable<Parameters<typeof ConfigModule.forRoot>[0]>['load']
+>[number];
+
 interface ConfigModuleImportOptions {
   // 写在代码里面的配置
-  configs: Array<ReturnType<typeof registerAs>>;
+  configs: ConfigModuleLoadEntry[];
   // 变量环境名称,这里通过工程根目录env绑定为{appName}.env
   envName: string;
 }

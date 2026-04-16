@@ -21,9 +21,9 @@ import { RedisClientConfig } from '../redis/redis.types';
 /**
  * BullMQ 模块配置接口（支持同步和异步配置）
  */
-export interface BullMQModuleAsyncOptions {
+export interface BullMQModuleAsyncOptions<TArgs extends unknown[] = unknown[]> {
   useFactory: (
-    ...args: unknown[]
+    ...args: TArgs
   ) => Promise<BullMQModuleOptions> | BullMQModuleOptions;
   inject?: (InjectionToken | OptionalFactoryDependency)[];
 }
@@ -87,7 +87,9 @@ export class BullMQModule {
   /**
    * 异步配置模块（推荐）
    */
-  static forRootAsync(asyncOptions: BullMQModuleAsyncOptions): DynamicModule {
+  static forRootAsync<TArgs extends unknown[]>(
+    asyncOptions: BullMQModuleAsyncOptions<TArgs>,
+  ): DynamicModule {
     const asyncProvider: Provider = {
       provide: BULLMQ_MODULE_OPTIONS,
       useFactory: asyncOptions.useFactory,
