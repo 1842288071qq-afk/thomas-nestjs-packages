@@ -17,13 +17,16 @@ export function applyTypeOrmDs(ApplyTypeOrmDsOptions?: ApplyTypeOrmDsOptions) {
   ];
   const dsList: ReturnType<typeof TypeOrmModule.forRootAsync>[] = [];
   for (const dsName of usedDatasourceNameList) {
+    const isDefault = dsName === 'default';
     dsList.push(
       TypeOrmModule.forRootAsync({
+        ...(isDefault ? {} : { name: dsName }),
         useFactory: (configService: ConfigService) => {
           // 拿出对应数据源配置
-          const dsConfig = configService.get<{ [key: string]: any }>(
-            usedConfigKey,
-          )?.[dsName] as TypeOrmModuleOptions;
+          const dsConfig =
+            configService.get<Record<string, TypeOrmModuleOptions>>(
+              usedConfigKey,
+            )?.[dsName];
           if (!dsConfig) {
             throw new Error(
               `Datasource configuration for '${dsName}' not found under key '${usedConfigKey}'`,
@@ -31,6 +34,7 @@ export function applyTypeOrmDs(ApplyTypeOrmDsOptions?: ApplyTypeOrmDsOptions) {
           }
           return {
             ...dsConfig,
+            ...(isDefault ? {} : { name: dsName }),
             // 强制不开启数据库迁移同步
             synchronize: false,
           };
