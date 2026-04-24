@@ -1,3 +1,4 @@
+export type { Job } from 'bullmq';
 export * from './bullmq.constants';
 export * from './bullmq.module';
 export * from './bullmq.types';
