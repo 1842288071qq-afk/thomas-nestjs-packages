@@ -6,7 +6,13 @@
 
 ## 1. 核心文档引用
 
-在进行任何代码编写、重构或设计之前，Agent **必须** 优先阅读并参考以下两个文档：
+工程已将开发规范拆分为可被 AI 精准检索的 **Skill 库**，位于 [skills/](./skills/) 目录：
+
+- `skills/atomic/*` — 元 skill（单一规范点，如 `dto-validation`、`service-paradigm`）
+- `skills/composite/*` — 任务级 skill（`implement-controller`、`design-database-entity` 等）
+- 索引与安装：参见 [skills/README.md](./skills/README.md)，可通过 `node skills/bin/install-skills.mjs --target=<claude-code|copilot|codex>` 一键安装到消费工程
+
+**Agent 应优先按 skill 的 `description` 关键词匹配相关 skill 阅读**；以下两个原始文档作为补充与背景资料保留：
 
 - **[docs/development/intro.md](./docs/development/intro.md:0:0-0:0)**: 了解工程整体架构、libs/apps 划分、全局基础设施（Filter/Pipe/Interceptor）及请求生命周期。
 - **[docs/development/guide-line.md](./docs/development/guide-line.md:0:0-0:0)**: 掌握最佳实践，核心包括：
