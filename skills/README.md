@@ -17,6 +17,9 @@ Composite 通过正文中的「相关 skill」段落引用 atomic，AI agent 可
 
 | Skill | 关键词 |
 | - | - |
+| `app-bootstrap-main` | main.ts / NestFactory / connectGlobalGuards / startAllMicroservices |
+| `app-module-composition` | 根 Module / configModuleImport / applyTypeOrmDs / GlobalModule |
+| `env-config-conventions` | env/{appName}.env / .local 覆盖 / 变量前缀 / REDIS_KEY_PREFIX |
 | `context-threadlocal` | ALS / Store / requestId / account / identity |
 | `auth-identity-public` | `@IdentityRequired` / `@Public` / `jwt.whiteList` |
 | `permission-rbac` | `@PermissionRequired` / PermissionGuard / 超管 |
@@ -40,6 +43,7 @@ Composite 通过正文中的「相关 skill」段落引用 atomic，AI agent 可
 
 | Skill | 用途 |
 | - | - |
+| `create-new-app` | 在 monorepo 内新增 app 全流程 |
 | `implement-controller` | 实现 Controller 全流程 |
 | `implement-service` | 实现 Service 全流程 |
 | `design-database-entity` | 数据库实体设计 |
