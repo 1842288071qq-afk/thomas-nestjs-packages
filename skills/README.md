@@ -76,8 +76,8 @@ node packages/thomas-nestjs/skills/bin/install-skills.mjs --target=codex
 | Target | 输出位置 |
 | - | - |
 | `claude-code` | `<cwd>/.claude/skills/thomas-nestjs/{atomic,composite}/<name>/SKILL.md` |
-| `copilot` | `<cwd>/.github/instructions/thomas-nestjs.<name>.instructions.md`（含 `applyTo: "**"`） |
-| `codex` | `<cwd>/.codex/skills/thomas-nestjs/<name>.md` + 在 `AGENTS.md` 追加索引段（幂等） |
+| `copilot` | `<cwd>/.github/instructions/thomas-nestjs.<group>.<name>.instructions.md`（含 `applyTo: "**"`） |
+| `codex` | `<cwd>/.codex/skills/thomas-nestjs/<group>/<name>.md` + 在 `AGENTS.md` 追加索引段（幂等） |
 
 ## 4. 编写 / 维护
 

@@ -154,16 +154,19 @@ async function installCodex(skills, opts) {
   const agentsPath = join(CWD, 'AGENTS.md');
   const start = `<!-- ${PACKAGE_NAMESPACE}-skills:start -->`;
   const end = `<!-- ${PACKAGE_NAMESPACE}-skills:end -->`;
+  const relSkillsRoot = relative(CWD, outRoot);
+  const skillSourcePath = `./${relSkillsRoot}`.replace(/\\/g, '/');
   const lines = [start, '', `## thomas NestJS Skills`, '',
     `> 本节由 \`skills/bin/install-skills.mjs\` 维护，请勿手工编辑。`,
-    `> Skill 源：[${PACKAGE_NAMESPACE}](.codex/skills/${PACKAGE_NAMESPACE}/)`, ''];
+    `> Skill 源：[${PACKAGE_NAMESPACE}](${skillSourcePath}/)`, ''];
   const groups = { atomic: '元 Skill (atomic)', composite: '任务级 Skill (composite)' };
   for (const [g, label] of Object.entries(groups)) {
     const list = skills.filter(s => s.group === g);
     if (!list.length) continue;
     lines.push(`### ${label}`, '');
     for (const s of list) {
-      lines.push(`- **${s.name}** — ${s.description} (\`./.codex/skills/${PACKAGE_NAMESPACE}/${g}/${s.dir}.md\`)`);
+      const relSkillPath = relative(CWD, join(outRoot, g, `${s.dir}.md`)).replace(/\\/g, '/');
+      lines.push(`- **${s.name}** — ${s.description} (\`./${relSkillPath}\`)`);
     }
     lines.push('');
   }
