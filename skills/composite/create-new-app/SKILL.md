@@ -1,9 +1,9 @@
 ---
 name: create-new-app
 description: 在 monorepo 内新增一个 app 的全流程 — 注册 nest-cli.json、建 tsconfig.app.json、创建 main.ts/根 Module/config/datasource.config.ts/mq.config.ts、env/{appName}.env(.example)、PORT 与 REDIS_KEY_PREFIX 命名空间。
-type: composite
-tags: [new-app, monorepo, scaffold, bootstrap, nest-cli]
+when_to_use: 关键词 — new-app, monorepo, scaffold, bootstrap, nest-cli
 ---
+
 
 # 新建 App 全流程
 

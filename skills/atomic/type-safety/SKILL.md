@@ -1,10 +1,9 @@
 ---
 name: type-safety
 description: 禁止随意 as any 绕过编译；ALS 取值应在第一时间显式断言为业务实体类型；密码等敏感信息更新必须独立接口与独立 Service 方法，不混入综合维护接口。
-type: atomic
-strict: true
-tags: [type-safety, any, sensitive, password]
+when_to_use: 关键词 — type-safety, any, sensitive, password
 ---
+
 
 # 代码质量与敏感信息 ⚠️ Strict
 

@@ -1,9 +1,9 @@
 ---
 name: app-bootstrap-main
 description: app 的 main.ts 推荐写法 — 从 AppConfig 取 port/host/apiPrefix/logger 启动 HTTP，connectGlobalGuards 注入全局守卫，apiPrefix 可选。
-type: atomic
-tags: [main, bootstrap, NestFactory, AppConfig, apiPrefix, logger]
+when_to_use: 关键词 — main, bootstrap, NestFactory, AppConfig, apiPrefix, logger
 ---
+
 
 # App main.ts 规范
 

@@ -1,9 +1,9 @@
 ---
 name: permission-rbac
 description: 基于 @PermissionRequired + PermissionGuard 实现 RBAC 权限码校验，支持 AND/OR/自定义函数；超管跳过校验。
-type: atomic
-tags: [permission, rbac, role, guard, super-admin]
+when_to_use: 关键词 — permission, rbac, role, guard, super-admin
 ---
+
 
 # 权限控制 (RBAC)
 

@@ -1,9 +1,9 @@
 ---
 name: dto-validation
 description: 用 class-validator/class-transformer 校验请求 DTO；时间字段必须 @ToDate，布尔字段用 parseBooleanGeneral，非空字符串用 @EnsureNotBlank，嵌套对象用 @Type+@ValidateNested。
-type: atomic
-tags: [dto, validation, class-validator, class-transformer, ToDate, EnsureNotBlank]
+when_to_use: 关键词 — dto, validation, class-validator, class-transformer, ToDate, EnsureNotBlank
 ---
+
 
 # 请求 DTO 规范
 

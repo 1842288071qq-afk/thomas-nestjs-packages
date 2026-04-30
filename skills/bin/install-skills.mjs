@@ -115,11 +115,12 @@ async function writeFileSafe(path, content, { dryRun, force }) {
 }
 
 async function installClaudeCode(skills, opts) {
+  // Claude Code 识别路径：<cwd>/.claude/skills/<name>/SKILL.md（扁平一级，不加 group 前缀）
   const outRoot = opts.out
     ? resolve(CWD, opts.out)
-    : join(CWD, '.claude', 'skills', PACKAGE_NAMESPACE);
+    : join(CWD, '.claude', 'skills');
   for (const s of skills) {
-    const dest = join(outRoot, s.group, s.dir, 'SKILL.md');
+    const dest = join(outRoot, s.dir, 'SKILL.md');
     await writeFileSafe(dest, s.raw, opts);
   }
 }

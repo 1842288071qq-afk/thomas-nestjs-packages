@@ -1,9 +1,9 @@
 ---
 name: biz-error
 description: 业务预期错误（余额不足、状态不合法等）必须抛 BizError，可链式 codeAs/httpStatusAs 自定义业务码与 HTTP 状态。
-type: atomic
-tags: [error, exception, bizerror]
+when_to_use: 关键词 — error, exception, bizerror
 ---
+
 
 # 业务异常 (BizError)
 

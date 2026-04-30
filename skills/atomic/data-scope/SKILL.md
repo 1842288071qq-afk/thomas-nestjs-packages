@@ -1,9 +1,9 @@
 ---
 name: data-scope
 description: 通过 WithScopeStrategy Mixin 给实体加数据范围字段，Service 用 DataScopeEngine.apply 实现 SELF/DEPT_ONLY/DEPT_AND_CHILDREN/ALL 行级过滤。
-type: atomic
-tags: [data-scope, dept, rbac, row-level, scope-strategy]
+when_to_use: 关键词 — data-scope, dept, rbac, row-level, scope-strategy
 ---
+
 
 # 数据范围权限
 

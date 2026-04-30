@@ -1,9 +1,9 @@
 ---
 name: entity-base
 description: TypeORM 实体必须继承 EntityWithId 或 EntityWithIdAndTimeTrace，自动获得 Snowflake ID 与 createdAt/updatedAt；可叠加 WithScopeStrategy/WithAuditor 等 Mixin。
-type: atomic
-tags: [entity, typeorm, base-entity, snowflake, mixin]
+when_to_use: 关键词 — entity, typeorm, base-entity, snowflake, mixin
 ---
+
 
 # 数据库实体基类
 

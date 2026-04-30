@@ -1,9 +1,9 @@
 ---
 name: design-api-doc
 description: 接口文档放在工程 docs/api-schema/，按模块拆分；记录路径、方法、Query/Body 字段、返回 VO 结构、错误码、权限要求；接口结构调整后必须同步更新。
-type: composite
-tags: [docs, api-schema, documentation, design]
+when_to_use: 关键词 — docs, api-schema, documentation, design
 ---
+
 
 # 接口文档设计
 

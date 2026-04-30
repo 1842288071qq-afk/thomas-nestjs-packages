@@ -1,9 +1,9 @@
 ---
 name: design-database-entity
 description: 设计数据库实体 — 继承 EntityWithIdAndTimeTrace 自动获得 Snowflake ID 与时间戳；行级权限叠 WithScopeStrategy；审计叠 WithAuditor；命名/索引/关系约定。
-type: composite
-tags: [entity, database, schema, typeorm, design]
+when_to_use: 关键词 — entity, database, schema, typeorm, design
 ---
+
 
 # 数据库实体设计
 

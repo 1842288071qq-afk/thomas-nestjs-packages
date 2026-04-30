@@ -1,9 +1,9 @@
 ---
 name: config-service
 description: 通过 NestJS 原生 ConfigService 读取 yaml 配置，支持点路径取嵌套字段和默认值。
-type: atomic
-tags: [config, yaml, env]
+when_to_use: 关键词 — config, yaml, env
 ---
+
 
 # 配置获取
 

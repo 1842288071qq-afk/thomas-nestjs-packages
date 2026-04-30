@@ -1,10 +1,9 @@
 ---
 name: service-paradigm
 description: Service 层四条强约束 — 上下文无关（禁用 ThreadLocal）、参数用 interface 而非 DTO Class、超过 3 个参数用对象参数、查询分层（返回实体聚合，不构造展示态）。
-type: atomic
-strict: true
-tags: [service, paradigm, threadlocal, interface, object-parameter, query-layering]
+when_to_use: 关键词 — service, paradigm, threadlocal, interface, object-parameter, query-layering
 ---
+
 
 # Service 层范式 ⚠️ Strict
 

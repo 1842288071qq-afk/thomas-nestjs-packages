@@ -1,9 +1,9 @@
 ---
 name: implement-controller
 description: 实现一个 NestJS Controller 的标准流程 — 身份/权限装饰器、DTO 校验、RESTful 路径与参数、ApiResBody 返回类型、VO 转换、分页/列表区分。
-type: composite
-tags: [controller, nestjs, implement, http]
+when_to_use: 关键词 — controller, nestjs, implement, http
 ---
+
 
 # 实现 Controller 全流程
 

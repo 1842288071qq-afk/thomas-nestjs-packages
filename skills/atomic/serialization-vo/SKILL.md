@@ -1,10 +1,9 @@
 ---
 name: serialization-vo
 description: 全局 ClassSerializeInterceptor 按类装饰器序列化；接口返回默认用 VO（@Exclude/@Expose/@Transform），通过模块内 vo-transform 把 Service DTO 转 VO；Service 不依赖 vo-transform。
-type: atomic
-strict: true
-tags: [vo, serialization, class-transformer, exclude, expose, vo-transform]
+when_to_use: 关键词 — vo, serialization, class-transformer, exclude, expose, vo-transform
 ---
+
 
 # 数据序列化与 VO ⚠️ Strict
 

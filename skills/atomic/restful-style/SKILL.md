@@ -1,10 +1,9 @@
 ---
 name: restful-style
 description: 禁止用 Path 参数定位资源，ID 一律 Query 传；修改类 DTO 不携带 id（即便有也不使用）；PATCH/PUT 必须返回更新后的完整对象，不返回 null。
-type: atomic
-strict: true
-tags: [restful, controller, path-param, query-param, patch, update]
+when_to_use: 关键词 — restful, controller, path-param, query-param, patch, update
 ---
+
 
 # RESTful 风格规范 ⚠️ Strict
 

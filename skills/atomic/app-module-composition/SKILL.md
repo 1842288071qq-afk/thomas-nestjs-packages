@@ -1,9 +1,9 @@
 ---
 name: app-module-composition
 description: app 根 Module 必备组合 — configModuleImport 加载配置、applyTypeOrmDs 注册数据源、GlobalModule、CoreEntityFeatureModule、AccountDeserializeModule、IdentityRequiredModule、PermissionModule、RedisModule、JwtAuthModule.forRoot()。
-type: atomic
-tags: [module, root-module, configModuleImport, applyTypeOrmDs, GlobalModule]
+when_to_use: 关键词 — module, root-module, configModuleImport, applyTypeOrmDs, GlobalModule
 ---
+
 
 # App Root Module 组合规范
 

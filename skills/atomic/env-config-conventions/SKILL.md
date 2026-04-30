@@ -1,9 +1,9 @@
 ---
 name: env-config-conventions
 description: env 文件按工程根目录 env/{appName}.env 命名，{appName}.local 优先覆盖；变量按模块前缀分组（PORT/APP_/DATABASE_/REDIS_/JWT_/KAFKA_/RABBIT_）；必须维护 .env.example 同步。
-type: atomic
-tags: [env, dotenv, config, naming, namespace]
+when_to_use: 关键词 — env, dotenv, config, naming, namespace
 ---
+
 
 # Env 文件与变量命名规范
 

@@ -1,9 +1,9 @@
 ---
 name: response-apiresbody
 description: API 响应统一为 ApiResBody 结构，由全局 CatchEverythingFilter 自动封装；Controller 只返回 data 部分，必要时用 ApiResBody.of 显式包裹。
-type: atomic
-tags: [response, apiresbody, filter]
+when_to_use: 关键词 — response, apiresbody, filter
 ---
+
 
 # 统一响应体 (ApiResBody)
 

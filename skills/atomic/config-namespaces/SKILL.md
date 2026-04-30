@@ -1,9 +1,9 @@
 ---
 name: config-namespaces
 description: 配置通过 declare global 的 AllConfig 接口定义命名空间类型；内置 app/session/datasource/file/questionBank；扩展时 declare 同名 interface 合并；使用 ConfigService<AllConfig> 获得类型安全访问。
-type: atomic
-tags: [config, AllConfig, AppConfig, namespace, registerAs, declare-global]
+when_to_use: 关键词 — config, AllConfig, AppConfig, namespace, registerAs, declare-global
 ---
+
 
 # Config 命名空间与类型体系
 

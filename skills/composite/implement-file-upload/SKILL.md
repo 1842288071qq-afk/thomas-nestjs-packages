@@ -1,9 +1,9 @@
 ---
 name: implement-file-upload
 description: 实现文件上传接口 — FileInterceptor 接收 multipart，组合存储路径，调用 LocalUploadService.saveLocalFile 持久化；详情接口 FileService.translateIds 翻译 ID。
-type: composite
-tags: [file, upload, multer, FileInterceptor, LocalUploadService]
+when_to_use: 关键词 — file, upload, multer, FileInterceptor, LocalUploadService
 ---
+
 
 # 实现文件上传 / 文件展示
 
