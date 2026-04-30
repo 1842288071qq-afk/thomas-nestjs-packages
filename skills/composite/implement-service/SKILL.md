@@ -93,3 +93,15 @@ export class UserService {
   }
 }
 ```
+
+## 相关 skill
+
+- `service-paradigm`
+- `biz-error`
+- `design-sql-query`
+- `range-query`
+- `data-scope`
+- `pagination-and-list`
+- `cache-wrap`
+- `redis-kv`
+- `type-safety`

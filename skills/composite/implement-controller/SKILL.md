@@ -91,3 +91,17 @@ export class UserController {
   }
 }
 ```
+
+## 相关 skill
+
+- `restful-style`
+- `auth-identity-public`
+- `permission-rbac`
+- `dto-validation`
+- `range-query`
+- `context-threadlocal`
+- `type-safety`
+- `pagination-and-list`
+- `response-apiresbody`
+- `serialization-vo`
+- `biz-error`

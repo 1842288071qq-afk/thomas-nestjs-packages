@@ -22,3 +22,7 @@ const v = JSON.parse(await this.redisService.get('key'));
 ```
 
 如需「读缓存 → miss 回源 → 写缓存」一体化流程，用 `cache-wrap`。
+
+## 相关 skill
+
+- `cache-wrap`

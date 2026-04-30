@@ -89,3 +89,17 @@ node packages/thomas-nestjs/skills/bin/install-skills.mjs --target=codex
 4. 在 README 索引表增加条目
 
 > Skill 的 `description` 是检索精度的核心，控制在 1-2 句、覆盖关键场景词。
+
+维护约定：
+
+- `name` 必须与目录名一致；`type` 必须与目录层级一致（`atomic` / `composite`）
+- frontmatter 必填：`name` / `description` / `type` / `tags`
+- 正文建议包含 `## 相关 skill` 段，便于组合链路检索
+- import 示例建议统一优先写包对外别名（`@thomas/nestjs/*`）；若示例使用内部别名（如 `@libs/*`），应保持同一 skill 内风格一致
+- 组织约束（如 `restful-style`）建议在文案中明确“本工程规范”，避免被泛化为通用最佳实践
+
+维护后建议执行：
+
+```bash
+pnpm skills:validate
+```

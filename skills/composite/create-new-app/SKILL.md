@@ -147,3 +147,14 @@ pnpm dev:myapp
 - [ ] `main.ts` 调了 `connectGlobalGuards(app)`
 - [ ] `module.ts` 引入了 `import '@thomas/nestjs/common/shared/types/shared-types'`
 - [ ] 不需要 MQ 的 app 删除了 `MqModule.connectMicroservices` 与 `mq.config.ts`
+
+## 相关 skill
+
+- `app-bootstrap-main`
+- `app-module-composition`
+- `env-config-conventions`
+- `config-namespaces`
+- `organize-nestjs-module`
+- `implement-controller`
+- `implement-service`
+- `design-database-entity`

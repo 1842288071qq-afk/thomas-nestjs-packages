@@ -67,3 +67,5 @@ uploads
 
 
 .claude/settings.local.json
+tmp/
+.tmp*
