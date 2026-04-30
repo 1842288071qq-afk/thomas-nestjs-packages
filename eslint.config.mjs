@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['eslint.config.mjs', 'webpack.config.js', 'dist/**', 'devops/**'],
+    ignores: ['eslint.config.mjs', 'webpack.config.js', 'dist/**', 'devops/**', 'skills/**/*.mjs'],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
