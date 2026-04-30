@@ -1,6 +1,8 @@
 ---
 name: app-module-composition
 description: app 根 Module 必备组合 — configModuleImport 加载配置、applyTypeOrmDs 注册数据源、GlobalModule、CoreEntityFeatureModule、AccountDeserializeModule、IdentityRequiredModule、PermissionModule、RedisModule、JwtAuthModule.forRoot()。
+type: atomic
+tags: [module, config]
 when_to_use: 关键词 — module, root-module, configModuleImport, applyTypeOrmDs, GlobalModule
 ---
 
@@ -86,5 +88,4 @@ applyTypeOrmDs({
 
 - `app-bootstrap-main` — main.ts 启动流程
 - `env-config-conventions` — env 命名与加载
-- `config-service` — 配置读取
-- `config-namespaces` — AllConfig 类型体系与扩展
+- `config-service` — 配置读取、AllConfig 类型体系与扩展

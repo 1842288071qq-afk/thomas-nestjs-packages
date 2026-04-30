@@ -1,7 +1,9 @@
 ---
 name: serialization-vo
-description: 全局 ClassSerializeInterceptor 按类装饰器序列化；接口返回默认用 VO（@Exclude/@Expose/@Transform），通过模块内 vo-transform 把 Service DTO 转 VO；Service 不依赖 vo-transform。
-when_to_use: 关键词 — vo, serialization, class-transformer, exclude, expose, vo-transform
+description: 全局 ClassSerializeInterceptor 按类装饰器序列化；接口返回默认用 VO class，通过模块内 vo-transform + plainToInstance 把 Service DTO 转 VO；禁止直接 return 普通对象充当 VO。
+type: atomic
+tags: [vo, serialization]
+when_to_use: 关键词 — vo, serialization, class-transformer, plainToInstance, exclude, expose, vo-transform
 ---
 
 
@@ -29,11 +31,16 @@ export class AgentDetailVO extends OpAgent {
   }
 }
 
+// agent.vo-transform.ts
+export function toAgentDetailVO(data: OpAgent): AgentDetailVO {
+  return plainToInstance(AgentDetailVO, data);
+}
+
 // Controller
 @Get('detail')
-async getDetail(@Query('id') id: string) {
+async getDetail(@Query('id') id: string): Promise<AgentDetailVO> {
   const data = await this.service.getDetail(id);
-  return plainToInstance(AgentDetailVO, data); // 拦截器按 VO 装饰器渲染
+  return toAgentDetailVO(data);
 }
 ```
 
@@ -57,6 +64,8 @@ apps/{app}/src/{module}/
 | Service | 仅返回 DTO/Entity/聚合对象，**禁止依赖 vo-transform** |
 | vo-transform | 仅 Controller 层调用，组装展示态字段 |
 | Controller | 必须显式声明返回类型（VO 或 DTO） |
+| VO | **必须是 class**，不要用 interface 充当最终 HTTP 返回类型 |
+| 转换方式 | 默认用 `plainToInstance(TargetVO, data)`，不要普通 `return { ... }` 冒充 VO |
 | 简单结构 | 可直接返回 Service DTO，但谨慎使用 |
 
 ## 4. DTO -> VO 示例
@@ -65,12 +74,22 @@ apps/{app}/src/{module}/
 // service：纯净 DTO
 export interface UserDetailDTO { id: string; name: string; internalStatus: number; }
 
-// vo
-export interface UserDetailVO { id: string; name: string; statusText: string; }
+// vo/user.types.ts
+export class UserDetailVO {
+  id: string;
+  name: string;
+  statusText: string;
+}
 
-// vo-transform
+// user.vo-transform.ts
+import { plainToInstance } from 'class-transformer';
+
 export function toUserDetailVO(dto: UserDetailDTO): UserDetailVO {
-  return { id: dto.id, name: dto.name, statusText: dto.internalStatus === 1 ? '启用' : '禁用' };
+  return plainToInstance(UserDetailVO, {
+    id: dto.id,
+    name: dto.name,
+    statusText: dto.internalStatus === 1 ? '启用' : '禁用',
+  });
 }
 
 // controller
@@ -80,7 +99,14 @@ async detail(@Query('id') id: string): Promise<UserDetailVO> {
 }
 ```
 
+## 5. 不要做
+
+- 不要在 Controller 里手写大段展示态对象组装，提取到 `{module}.vo-transform.ts`
+- 不要把 `interface` 当成响应 VO 的最终承载类型
+- 不要直接返回普通对象后期待 `@Exclude` / `@Expose` 生效
+
 ## 相关 skill
 
 - `service-paradigm` — Service 不构造展示态
+- `dict-json` — 业务字典 text/path 可在 `vo-transform` 中组装
 - `dto-validation` — 请求侧 DTO 校验

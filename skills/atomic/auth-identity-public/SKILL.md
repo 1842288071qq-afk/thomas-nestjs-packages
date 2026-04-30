@@ -1,6 +1,8 @@
 ---
 name: auth-identity-public
 description: 用 @IdentityRequired 限定接口可访问身份（student/hospital_admin/op 等），用 @Public 或 jwt.whiteList 跳过 JWT 认证。
+type: atomic
+tags: [auth, identity]
 when_to_use: 关键词 — auth, identity, jwt, public, whitelist, guard
 ---
 

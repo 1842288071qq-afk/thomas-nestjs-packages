@@ -1,6 +1,8 @@
 ---
 name: implement-service
 description: 实现 NestJS Service 的标准流程 — 上下文无关、interface 入参、对象参数、查询分层、缓存包裹、BizError 抛错、数据范围注入。
+type: composite
+tags: [service, nestjs]
 when_to_use: 关键词 — service, nestjs, implement, business-logic
 ---
 

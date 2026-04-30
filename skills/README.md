@@ -24,20 +24,21 @@ Composite 通过正文中的「相关 skill」段落引用 atomic，AI agent 可
 | `auth-identity-public` | `@IdentityRequired` / `@Public` / `jwt.whiteList` |
 | `permission-rbac` | `@PermissionRequired` / PermissionGuard / 超管 |
 | `data-scope` | WithScopeStrategy / DataScopeEngine / 行级权限 |
-| `config-namespaces` | AllConfig 接口 / declare global / AppConfig / 扩展命名空间 |
-| `config-service` | ConfigService / 点路径 + 默认值 |
+| `config-service` | ConfigService / AllConfig / registerAs / 内置配置 / 扩展命名空间 |
+| `config-namespaces` | AllConfig / declare global（兼容入口，内容并入 `config-service`） |
 | `cache-wrap` | `CacheService.wrap` / 防击穿 |
 | `redis-kv` | RedisService set/get / 自动序列化 |
 | `response-apiresbody` | ApiResBody / 全局过滤器 |
 | `biz-error` | BizError / codeAs / httpStatusAs |
 | `dto-validation` | class-validator / `@ToDate` / `@EnsureNotBlank` / 嵌套 |
 | `range-query` | `@ParseRange` / `@ParseDateTimeRange` |
-| `entity-base` | `EntityWithIdAndTimeTrace` / Snowflake / Mixin |
+| `entity-base` | `EntityWithIdAndTimeTrace` / extendable / `WithStatus` / `@Column.type` |
+| `dict-json` | `public/dict.json` / `DictionaryService` / code 翻译 / 业务枚举 |
 | `service-paradigm` ⚠️ | 上下文无关 / interface 入参 / 对象参数 / 查询分层 |
 | `pagination-and-list` ⚠️ | PaginationDTO / IPageData / ListLimitDto / simple-list |
 | `restful-style` ⚠️ | Query 参数定位 / DTO 不携带 id / PATCH 返完整对象 |
 | `type-safety` ⚠️ | 禁止 as any / 敏感信息独立 |
-| `serialization-vo` ⚠️ | `@Exclude` / `@Expose` / vo-transform / DTO-VO 分层 |
+| `serialization-vo` ⚠️ | `@Exclude` / `@Expose` / `plainToInstance` / vo-transform / VO class |
 | `file-management` | LocalUploadService / FileService / translateIds |
 
 ### Composite（任务级）

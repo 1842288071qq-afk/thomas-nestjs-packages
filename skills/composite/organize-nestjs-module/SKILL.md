@@ -1,6 +1,8 @@
 ---
 name: organize-nestjs-module
 description: NestJS 业务模块的目录组织 — dto/、vo/、{module}.controller.ts、{module}.service.ts、{module}.vo-transform.ts；Service 不依赖 vo-transform。
+type: composite
+tags: [module, structure]
 when_to_use: 关键词 — module, organize, structure, nestjs, dto, vo
 ---
 

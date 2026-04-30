@@ -1,6 +1,8 @@
 ---
 name: implement-controller
 description: 实现一个 NestJS Controller 的标准流程 — 身份/权限装饰器、DTO 校验、RESTful 路径与参数、ApiResBody 返回类型、VO 转换、分页/列表区分。
+type: composite
+tags: [controller, nestjs]
 when_to_use: 关键词 — controller, nestjs, implement, http
 ---
 
@@ -24,8 +26,9 @@ when_to_use: 关键词 — controller, nestjs, implement, http
 
 - `dto/` 目录维护
 - 时间字段 **必须 `@ToDate`**，布尔字段 `@Transform(parseBooleanGeneral)`，非空字符串 `@EnsureNotBlank`，嵌套用 `@Type + @ValidateNested`
+- 枚举字段必须声明为枚举对象并配 `@IsEnum(...)`；通用状态优先复用 `ObjectActiveStatus`
 - 范围字段用 `@ParseRange` / `@ParseDateTimeRange`
-- 详见 `dto-validation`、`range-query`
+- 详见 `dto-validation`、`range-query`、`dict-json`
 
 ## 4. 上下文取值
 
@@ -99,6 +102,7 @@ export class UserController {
 - `permission-rbac`
 - `dto-validation`
 - `range-query`
+- `dict-json`
 - `context-threadlocal`
 - `type-safety`
 - `pagination-and-list`

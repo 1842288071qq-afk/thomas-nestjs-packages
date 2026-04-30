@@ -1,6 +1,8 @@
 ---
 name: create-new-app
 description: 在 monorepo 内新增一个 app 的全流程 — 注册 nest-cli.json、建 tsconfig.app.json、创建 main.ts/根 Module/config/datasource.config.ts/mq.config.ts、env/{appName}.env(.example)、PORT 与 REDIS_KEY_PREFIX 命名空间。
+type: composite
+tags: [app, scaffold]
 when_to_use: 关键词 — new-app, monorepo, scaffold, bootstrap, nest-cli
 ---
 
@@ -136,7 +138,7 @@ pnpm dev:myapp
 
 - `organize-nestjs-module` — 业务 module 目录
 - `implement-controller`、`implement-service`、`design-database-entity`
-- `config-namespaces` — 如何为 app 扩展自定义 config 命名空间并声明类型
+- `config-service` — 如何为 app 扩展自定义 config 命名空间并声明类型
 
 ## 常见疏漏 checklist
 
@@ -153,7 +155,7 @@ pnpm dev:myapp
 - `app-bootstrap-main`
 - `app-module-composition`
 - `env-config-conventions`
-- `config-namespaces`
+- `config-service`
 - `organize-nestjs-module`
 - `implement-controller`
 - `implement-service`

@@ -1,6 +1,8 @@
 ---
 name: file-management
 description: 文件上传用 LocalUploadService.saveLocalFile，自动落盘并写 sys_file 元数据；接口返回时用 FileService.translateIds 批量把文件 ID 翻译为带 fullUrl 的实体（带 Redis 缓存）。
+type: atomic
+tags: [file, upload]
 when_to_use: 关键词 — file, upload, LocalUploadService, FileService, translateIds, sys_file
 ---
 

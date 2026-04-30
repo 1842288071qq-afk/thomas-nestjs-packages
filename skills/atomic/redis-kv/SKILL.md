@@ -1,6 +1,8 @@
 ---
 name: redis-kv
 description: RedisService.set/get 已内置 JSON 序列化，禁止手动 JSON.stringify/parse；get 用泛型指定返回类型。
+type: atomic
+tags: [redis, kv]
 when_to_use: 关键词 — redis, kv, serialization
 ---
 

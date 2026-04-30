@@ -1,7 +1,9 @@
 ---
 name: write-ddl
-description: 在 docs/DDL/ 下编写建表 SQL — 遵循 sql-guide.md 规范：公共字段对齐 extendable、禁止数据库外键、软删除表唯一索引加 WHERE deleted_at IS NULL 过滤。
-when_to_use: 关键词 — DDL, SQL, 建表, sql-guide, 数据库设计
+description: 在 docs/DDL/ 下编写建表 SQL — 遵循 sql-guide.md 规范：公共字段对齐 extendable；状态/枚举字段要与 Entity、DTO、dict 一致；禁止数据库外键；软删除表唯一索引加 WHERE deleted_at IS NULL。
+type: composite
+tags: [ddl, sql]
+when_to_use: 关键词 — DDL, SQL, 建表, sql-guide, status, enum, ObjectActiveStatus
 ---
 
 
@@ -27,6 +29,7 @@ docs/DDL/
 | `WithTimeTrace` | `created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()` `updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()` | 时间戳 |
 | `WithSoftDelete` | `deleted_at TIMESTAMPTZ NULL` | 软删除 |
 | `WithAuditor` | `created_by VARCHAR(64) NULL` `updated_by VARCHAR(64) NULL` | 操作人 |
+| `WithStatus` | `status VARCHAR(16) NOT NULL DEFAULT 'active'` | 通用启停状态 |
 
 参考文件：`server/packages/@thomas/nestjs/libs/entities/src/core/base/extendable.ts`
 
@@ -61,6 +64,18 @@ CREATE INDEX idx_biz_article_tenant_id ON biz_article (tenant_id);
 CREATE INDEX idx_biz_article_column_id ON biz_article (column_id);
 ```
 
+### 2.5 状态 / 枚举字段必须与代码约定一致
+
+- `status` 为通用启停态时，对齐 `WithStatus` / `ObjectActiveStatus`
+- 自定义业务枚举时，数据库通常落 `VARCHAR`，取值集合与 TypeScript `enum` 对象保持一致
+- 不要在 DDL 里随手写一个自由字符串字段，然后让 Entity / DTO 各自再发明一套取值
+- 若该枚举面向前端展示，通常还应在 `public/dict.json` 中维护同一组 code
+
+```sql
+status      VARCHAR(16)  NOT NULL DEFAULT 'active' COMMENT '状态（ObjectActiveStatus: active/disabled）',
+source_type VARCHAR(16)  NOT NULL                  COMMENT '来源类型（KnowledgeBaseSourceType，对应 dict: knowledge_base_source_type）',
+```
+
 ## 3. 模板
 
 ```sql
@@ -70,6 +85,7 @@ CREATE TABLE `{table_name}` (
   `tenant_id`   VARCHAR(64)  NOT NULL                   COMMENT '租户/医院 ID',
   -- 业务字段
   `name`        VARCHAR(128) NOT NULL                   COMMENT '名称',
+  `status`      VARCHAR(16)  NOT NULL DEFAULT 'active'  COMMENT '状态（ObjectActiveStatus）',
   -- 公共字段（对齐 extendable）
   `created_at`  TIMESTAMPTZ  NOT NULL DEFAULT NOW()     COMMENT '创建时间',
   `updated_at`  TIMESTAMPTZ  NOT NULL DEFAULT NOW()     COMMENT '更新时间',
@@ -92,3 +108,5 @@ CREATE UNIQUE INDEX uq_{table_name}_{key}
 
 - `write-feat-design` — 功能设计文档
 - `design-database-entity` — TypeORM Entity 设计（SQL 与 Entity 保持一致）
+- `entity-base` — extendable / `WithStatus` / `ObjectActiveStatus`
+- `dict-json` — 业务枚举的字典项

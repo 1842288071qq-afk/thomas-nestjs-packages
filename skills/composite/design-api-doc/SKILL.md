@@ -1,6 +1,8 @@
 ---
 name: design-api-doc
 description: 在 docs/api-schema/{端}/{模块}/ 下写接口文档 — index.md 记录接口语义/Controller 来源/请求路径/DTO-VO 引用/错误码；types.ts 归集该模块所有 DTO/VO 类型定义。
+type: composite
+tags: [api, docs]
 when_to_use: 关键词 — docs, api-schema, 接口文档, documentation, design, types.ts
 ---
 

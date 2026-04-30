@@ -1,6 +1,8 @@
 ---
 name: env-config-conventions
 description: env 文件按工程根目录 env/{appName}.env 命名，{appName}.local 优先覆盖；变量按模块前缀分组（PORT/APP_/DATABASE_/REDIS_/JWT_/KAFKA_/RABBIT_）；必须维护 .env.example 同步。
+type: atomic
+tags: [env, config]
 when_to_use: 关键词 — env, dotenv, config, naming, namespace
 ---
 
@@ -44,7 +46,7 @@ env/
 
 ## 5. 在代码中读取
 
-env 不直接 `process.env.X` 散落各处，统一在 `apps/{app}/src/config/*.config.ts` 内通过 `registerAs(...)` 收敛，业务代码用 `ConfigService.get(...)` 读取。详见 `config-service`。
+env 不直接 `process.env.X` 散落各处，统一在 `apps/{app}/src/config/*.config.ts` 内通过 `registerAs(...)` 收敛，业务代码用 `ConfigService<AllConfig>.get(...)` 读取。详见 `config-service`。
 
 ```typescript
 export const datasourceConfig = registerAs('datasource', () => ({

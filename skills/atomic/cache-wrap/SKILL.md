@@ -1,6 +1,8 @@
 ---
 name: cache-wrap
 description: 用 CacheService.wrap 自动完成「查缓存 → miss 回源 → 写缓存 → 返回」流程，防止缓存击穿；支持 unless 条件不缓存。
+type: atomic
+tags: [cache, wrap]
 when_to_use: 关键词 — cache, redis, wrap, cache-aside
 ---
 

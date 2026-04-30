@@ -1,6 +1,8 @@
 ---
 name: write-feat-design
 description: 在 docs/feat-design/ 下编写功能设计文档 — 遵循 design-guide.md 强制章节（字段/枚举定义/业务能力/模块/接口/其他注意事项），可用引用语法复用已有文档段落。
+type: composite
+tags: [design, docs]
 when_to_use: 关键词 — feat-design, 功能设计, 需求, design-guide, 文档
 ---
 

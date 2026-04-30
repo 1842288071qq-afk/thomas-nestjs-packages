@@ -1,6 +1,8 @@
 ---
 name: range-query
 description: 范围查询 DTO 字段必须用 @ParseRange / @ParseDateTimeRange；声明为可选数组，开区间通过留空的逗号分隔字符串支持。Service 按数组元素是否存在拼 BETWEEN/>=/<=。
+type: atomic
+tags: [range, query]
 when_to_use: 关键词 — range, dto, query, between, ParseRange, ParseDateTimeRange
 ---
 

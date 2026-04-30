@@ -1,6 +1,8 @@
 ---
 name: design-sql-query
 description: 设计 TypeORM 查询/SQL — 优先 leftJoinAndSelect 拿关系数据，范围条件按 ParseRange 解析结果拼 BETWEEN/>=/<=，行级权限 dataScopeEngine.apply，分页用 skip+take+getManyAndCount。
+type: composite
+tags: [sql, query]
 when_to_use: 关键词 — sql, typeorm, querybuilder, query, design, join
 ---
 

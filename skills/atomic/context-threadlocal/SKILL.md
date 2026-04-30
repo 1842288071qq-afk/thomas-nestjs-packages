@@ -1,6 +1,8 @@
 ---
 name: context-threadlocal
 description: 通过 ThreadLocal(ALS) 在请求生命周期内获取 account/identity/requestId 等上下文；仅 Controller/Guard/Interceptor 层使用，Service 层禁止。
+type: atomic
+tags: [als, context]
 when_to_use: 关键词 — als, threadlocal, context, account, identity, requestId
 ---
 

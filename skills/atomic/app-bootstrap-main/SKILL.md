@@ -1,6 +1,8 @@
 ---
 name: app-bootstrap-main
 description: app 的 main.ts 推荐写法 — 从 AppConfig 取 port/host/apiPrefix/logger 启动 HTTP，connectGlobalGuards 注入全局守卫，apiPrefix 可选。
+type: atomic
+tags: [bootstrap, main]
 when_to_use: 关键词 — main, bootstrap, NestFactory, AppConfig, apiPrefix, logger
 ---
 
@@ -72,7 +74,7 @@ void bootstrap();
 
 | 关键点 | 说明 |
 | - | - |
-| `ConfigService<AllConfig>` | 从 `app.get()` 拿到类型化 ConfigService，后续 `get` 有类型提示。详见 `config-namespaces` |
+| `ConfigService<AllConfig>` | 从 `app.get()` 拿到类型化 ConfigService，后续 `get` 有类型提示。详见 `config-service` |
 | `AppConfig` | 内置 `app` 命名空间，提供 `port` / `host` / `name` / `apiPrefix` / `logger`（含 `levels` 与 `context`）。由 `configModuleImport` 自动加载 |
 | `app.useLogger(...)` | 用 `AppConfig.logger.levels` 控制 Nest 日志输出级别，替代 `app.useLogger(false)` 的粗暴关闭 |
 | `app.setGlobalPrefix(apiPrefix)` | 统一 URL 前缀，如 `api/v1` |
@@ -88,7 +90,7 @@ void bootstrap();
 
 ## 相关 skill
 
-- `config-namespaces` — `AllConfig` / `AppConfig` 类型体系与扩展方式
+- `config-service` — `AllConfig` / `AppConfig` 类型体系与扩展方式
 - `app-module-composition` — Root Module 结构
 - `env-config-conventions` — env 变量如何映射到 config
 - `create-new-app` — 新建 app 全流程

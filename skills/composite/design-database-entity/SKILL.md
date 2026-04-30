@@ -1,7 +1,9 @@
 ---
 name: design-database-entity
-description: 设计数据库实体 — 继承 EntityWithIdAndTimeTrace 自动获得 Snowflake ID 与时间戳；行级权限叠 WithScopeStrategy；审计叠 WithAuditor；命名/索引/关系约定。
-when_to_use: 关键词 — entity, database, schema, typeorm, design
+description: 设计数据库实体 — 继承 EntityWithIdAndTimeTrace，优先复用 extendable 的 WithStatus/ObjectActiveStatus/WithAuditor/WithScopeStrategy；所有 @Column 必须显式声明 type，并让 DTO/DDL/dict 保持一致。
+type: composite
+tags: [entity, database]
+when_to_use: 关键词 — entity, database, schema, typeorm, design, ObjectActiveStatus, @Column.type
 ---
 
 
@@ -20,39 +22,62 @@ when_to_use: 关键词 — entity, database, schema, typeorm, design
 
 - 行级数据权限 → `WithScopeStrategy(Base)`，配合 `data-scope`
 - 创建/更新人审计 → `WithAuditor(Base)`
-- 通常组合：`WithAuditor(WithScopeStrategy(EntityWithIdAndTimeTrace))`
+- 通用启停状态 → `WithStatus(Base)` + `ObjectActiveStatus`
+- 通常组合：`WithAuditor(WithScopeStrategy(WithStatus(EntityWithIdAndTimeTrace)))`
 
 ## 3. 字段命名
 
 - 列名使用 `snake_case`（数据库），TypeScript 属性 `camelCase`
 - 业务编码列保留语义后缀：`xxxCode`、`xxxType`、`xxxStatus`
 - 软删用 TypeORM `@DeleteDateColumn() deletedAt: Date`，查询不要手拼 `deletedAt IS NULL`
+- **每个 `@Column` 必须显式写 `type`**，禁止裸 `@Column()`
 
-## 4. 索引建议
+## 4. 业务枚举 / 状态字段
+
+- `status` 是普通启停态时，优先复用 `WithStatus` / `ObjectActiveStatus`
+- 自定义业务枚举时，必须新建 `enum` 对象，Entity / DTO / Service / VO 统一使用该枚举
+- 面向前端展示的业务枚举，通常还要同步维护 `public/dict.json`
+- 不要在 Entity 中把状态字段定义成宽泛 `string`
+
+## 5. 索引建议
 
 - 查询条件高频字段（`hospitalId`、`createdAt`、状态码）建索引
 - 唯一性约束（手机号、用户名）建唯一索引并在 Service 层显式查重抛 `BizError`
 - 复合索引按区分度高的列在前
 
-## 5. 关系定义
+## 6. 关系定义
 
 - 使用 TypeORM 关系装饰器（`@OneToMany` / `@ManyToOne` / `@OneToOne`），通过 `leftJoinAndSelect` 取数（参见 `service-paradigm` 查询分层）
 - 反向关系字段建议命名为复数（`profiles`、`schedules`）
 
-## 6. 模板
+## 7. 模板
 
 ```typescript
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { EntityWithIdAndTimeTrace } from '@libs/entities/base/WithIdAndTimeTrace';
-import { WithScopeStrategy, WithAuditor } from '@libs/entities/base/extendable';
+import {
+  EntityWithIdAndTimeTrace,
+  WithAuditor,
+  WithScopeStrategy,
+  WithStatus,
+} from '@thomas/nestjs/entities';
+
+export enum SubjectType {
+  SYSTEM = 'system',
+  CUSTOM = 'custom',
+}
 
 @Entity('biz_custom_subject')
-export class CustomSubject extends WithAuditor(WithScopeStrategy(EntityWithIdAndTimeTrace)) {
-  @Column({ length: 64 }) name: string;
+export class CustomSubject extends WithAuditor(
+  WithScopeStrategy(WithStatus(EntityWithIdAndTimeTrace)),
+) {
+  @Column({ name: 'name', type: 'varchar', length: 64 })
+  name: string;
 
-  @Column({ name: 'hospital_id' }) hospitalId: string;
+  @Column({ name: 'hospital_id', type: 'varchar', length: 64 })
+  hospitalId: string;
 
-  @Column({ name: 'subject_type', length: 16 }) subjectType: string;
+  @Column({ name: 'subject_type', type: 'varchar', length: 16 })
+  subjectType: SubjectType;
 
   @ManyToOne(() => CustomCategory, c => c.subjects)
   @JoinColumn({ name: 'category_id' })
@@ -62,5 +87,9 @@ export class CustomSubject extends WithAuditor(WithScopeStrategy(EntityWithIdAnd
 
 ## 相关 skill
 
-- `entity-base`、`data-scope`
+- `entity-base` — extendable 与固定写法
+- `dto-validation` — DTO 枚举校验与 Entity 对齐
+- `dict-json` — 业务枚举与字典同步
+- `write-ddl` — SQL 字段定义必须与 Entity 一致
+- `data-scope`
 - `service-paradigm` — 查询基于实体关系
