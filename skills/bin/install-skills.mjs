@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // 把 skills/{atomic,composite} 下的 SKILL.md 安装到消费工程的 AI 工具目录。
-// 用法：node packages/thomas-nestjs/skills/bin/install-skills.mjs --target=claude-code|copilot|codex|all [--out=path] [--dry-run] [--force] [--list]
+// 用法：node packages/thomas-nestjs/skills/bin/install-skills.mjs --target=claude-code|copilot|gemini|codex|trae|all [--out=path] [--dry-run] [--force] [--list]
 
 import { readFile, writeFile, mkdir, readdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
@@ -12,7 +12,7 @@ const SKILLS_ROOT = resolve(__dirname, '..');
 const PACKAGE_NAMESPACE = 'thomas-nestjs';
 const CWD = process.cwd();
 
-const VALID_TARGETS = ['claude-code', 'copilot', 'codex'];
+const VALID_TARGETS = ['claude-code', 'copilot', 'gemini', 'codex', 'trae'];
 
 // ---------- arg parsing ----------
 function parseArgs(argv) {
@@ -37,10 +37,13 @@ function parseArgs(argv) {
 const HELP = `\nInstall skills CLI
 
 用法:
-  node skills/bin/install-skills.mjs --target=<claude-code|copilot|codex|all> [选项]
+  node skills/bin/install-skills.mjs --target=<claude-code|copilot|gemini|codex|trae|all> [选项]
 
 选项:
-  --target=<name>   目标 AI 工具 (claude-code / copilot / codex / all)
+  --target=<name>   目标 AI 工具 (claude-code / copilot / gemini / codex / trae / all)
+                    claude-code, copilot → .claude/skills/
+                    gemini, codex       → .agents/skills/
+                    trae                → .trae/skills/
   --out=<path>      自定义输出根目录 (默认按工具约定)
   --list            列出所有 skill 后退出
   --dry-run         仅打印将要写的文件，不实际写入
@@ -126,29 +129,23 @@ async function installClaudeCode(skills, opts) {
 }
 
 async function installCopilot(skills, opts) {
+  // Copilot 与 claude-code 共用 .claude/skills/ 目录
   const outRoot = opts.out
     ? resolve(CWD, opts.out)
-    : join(CWD, '.github', 'instructions');
+    : join(CWD, '.claude', 'skills');
   for (const s of skills) {
-    const dest = join(outRoot, `${PACKAGE_NAMESPACE}.${s.group}.${s.dir}.instructions.md`);
-    const fm = [
-      '---',
-      'applyTo: "**"',
-      `description: ${JSON.stringify(s.description)}`,
-      '---',
-      '',
-    ].join('\n');
-    const content = fm + `<!-- source: ${PACKAGE_NAMESPACE}/${s.group}/${s.dir} -->\n\n` + s.body;
-    await writeFileSafe(dest, content, opts);
+    const dest = join(outRoot, s.dir, 'SKILL.md');
+    await writeFileSafe(dest, s.raw, opts);
   }
 }
 
-async function installCodex(skills, opts) {
+async function installAgentsDir(skills, opts) {
+  // gemini / codex 共用 .agents/skills/ 目录
   const outRoot = opts.out
     ? resolve(CWD, opts.out)
-    : join(CWD, '.codex', 'skills', PACKAGE_NAMESPACE);
+    : join(CWD, '.agents', 'skills');
   for (const s of skills) {
-    const dest = join(outRoot, s.group, `${s.dir}.md`);
+    const dest = join(outRoot, s.dir, 'SKILL.md');
     await writeFileSafe(dest, s.raw, opts);
   }
   // 维护 AGENTS.md 索引段（幂等）
@@ -166,7 +163,7 @@ async function installCodex(skills, opts) {
     if (!list.length) continue;
     lines.push(`### ${label}`, '');
     for (const s of list) {
-      const relSkillPath = relative(CWD, join(outRoot, g, `${s.dir}.md`)).replace(/\\/g, '/');
+      const relSkillPath = relative(CWD, join(outRoot, s.dir, 'SKILL.md')).replace(/\\/g, '/');
       lines.push(`- **${s.name}** — ${s.description} (\`./${relSkillPath}\`)`);
     }
     lines.push('');
@@ -190,6 +187,24 @@ async function installCodex(skills, opts) {
   } else {
     await writeFile(agentsPath, next, 'utf8');
     console.log(`update ${relative(CWD, agentsPath)} (thomas-nestjs-skills 段)`);
+  }
+}
+
+async function installGemini(skills, opts) {
+  await installAgentsDir(skills, opts);
+}
+
+async function installCodex(skills, opts) {
+  await installAgentsDir(skills, opts);
+}
+
+async function installTrae(skills, opts) {
+  const outRoot = opts.out
+    ? resolve(CWD, opts.out)
+    : join(CWD, '.trae', 'skills');
+  for (const s of skills) {
+    const dest = join(outRoot, s.dir, 'SKILL.md');
+    await writeFileSafe(dest, s.raw, opts);
   }
 }
 
@@ -225,7 +240,9 @@ async function main() {
     console.log(`\n=== install target: ${t} ===`);
     if (t === 'claude-code') await installClaudeCode(skills, opts);
     else if (t === 'copilot') await installCopilot(skills, opts);
+    else if (t === 'gemini') await installGemini(skills, opts);
     else if (t === 'codex') await installCodex(skills, opts);
+    else if (t === 'trae') await installTrae(skills, opts);
   }
   console.log('\n完成。');
 }
