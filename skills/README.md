@@ -50,7 +50,9 @@ Composite 通过正文中的「相关 skill」段落引用 atomic，AI agent 可
 | `design-database-entity` | 数据库实体设计 |
 | `design-sql-query` | TypeORM 查询 / SQL 设计 |
 | `implement-file-upload` | 文件上传 / 详情翻译 |
-| `design-api-doc` | 接口文档设计 |
+| `design-api-doc` | 接口文档（docs/api-schema/{端}/{模块}/index.md + types.ts） |
+| `write-feat-design` | 功能设计文档（docs/feat-design/） |
+| `write-ddl` | DDL 建表 SQL（docs/DDL/） |
 | `organize-nestjs-module` | NestJS 模块目录规范 |
 
 ## 3. 安装到消费工程

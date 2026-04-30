@@ -1,72 +1,122 @@
 ---
 name: design-api-doc
-description: 接口文档放在工程 docs/api-schema/，按模块拆分；记录路径、方法、Query/Body 字段、返回 VO 结构、错误码、权限要求；接口结构调整后必须同步更新。
-when_to_use: 关键词 — docs, api-schema, documentation, design
+description: 在 docs/api-schema/{端}/{模块}/ 下写接口文档 — index.md 记录接口语义/Controller 来源/请求路径/DTO-VO 引用/错误码；types.ts 归集该模块所有 DTO/VO 类型定义。
+when_to_use: 关键词 — docs, api-schema, 接口文档, documentation, design, types.ts
 ---
 
 
-# 接口文档设计
+# 接口文档设计（api-schema）
 
-## 1. 位置与组织
+## 1. 文件位置
 
-- 工程根 `docs/api-schema/` 下按业务模块分文件：`docs/api-schema/{module}.md`
-- 通用约定写在 `docs/api-schema/README.md`（响应结构、错误码列表、鉴权头等）
-- 工程级别的文档总规范遵循根目录 `docs/doc-guide.md`（若存在）
+```
+docs/api-schema/
+├── api-schema-guide.md        ← 规范（必读）
+├── admin/
+│   └── {module}/
+│       ├── index.md           ← 接口文档
+│       └── types.ts           ← DTO/VO 类型定义
+└── client/
+    └── {module}/
+        ├── index.md
+        └── types.ts
+```
 
-## 2. 单接口必备字段
+**必须在 monorepo 根目录的 `docs/api-schema/{端}/{模块}/` 下创建，不得放在 `server/docs/`。**
 
-| 字段 | 说明 |
-| - | - |
-| 路径 + 方法 | `GET /api/v1/user/page` |
-| 鉴权要求 | 需要的身份（`@IdentityRequired`）与权限码（`@PermissionRequired`），或 `@Public` |
-| Query / Path | 参数表：字段、类型、是否必填、说明、示例（Path 应不存在，全部 Query） |
-| Body | DTO 字段表，标注校验规则（非空 / 范围 / 嵌套等） |
-| 响应 | VO 结构表 + 完整 JSON 示例（包裹 `ApiResBody`） |
-| 错误码 | 该接口可能抛出的 `BizError code` 列表 |
+- `{端}` 对应 app 名：`admin`（admin-app）、`client`（client-app）
+- `{模块}` 对应 Controller 的路由前缀（如 `knowledge-base`、`dept`）
 
-## 3. 字段约定
+## 2. index.md 必备内容
 
-- 时间字段标注格式：`YYYY-MM-DD HH:mm:ss`（响应层 `DateSerializeInterceptor` 默认值）
-- 分页字段统一：`page`、`pageSize`、`rows`、`total`
-- 范围字段说明开区间用法：`createTimeRange=,2024-01-01` 表示 `<= 2024-01-01`
-
-## 4. 同步要求
-
-接口结构（路径 / 入参 / 出参）调整必须**同步更新文档**，否则视为未完成。文档 PR 可与代码 PR 合并提交。
-
-## 5. 模板
+每个接口按如下结构描述：
 
 ```markdown
-## GET /api/v1/user/page — 用户分页
+# admin 端 {模块} 模块接口文档
 
-- 鉴权：`@IdentityRequired('hospital_admin')` + `@PermissionRequired('user.view')`
+## 模块信息
 
-### Query
+- 端：`admin`
+- 模块：`{module}`
+- Controller：`server/apps/admin-app/src/modules/{module}/{module}.controller.ts`
+- 模块类型定义：`docs/api-schema/admin/{module}/types.ts`
 
-| 字段 | 类型 | 必填 | 说明 |
-| - | - | - | - |
-| username | string | 否 | 模糊匹配 |
-| createTimeRange | string | 否 | 时间范围，示例 `2024-01-01,2024-12-31` |
-| page | number | 否 | 默认 1 |
-| pageSize | number | 否 | 默认 10 |
+---
 
-### 响应
+## 鉴权说明
 
-包裹 `ApiResBody<IPageData<UserListVO>>`：
+...
 
-\`\`\`json
-{ "code": 200, "message": "请求完成",
-  "data": { "rows": [{ "id": "1", "name": "Tom", "statusText": "启用" }],
-    "total": 1, "page": 1, "pageSize": 10 } }
-\`\`\`
+## 通用错误码
+
+| HTTP Status | 业务码 | 说明 |
+| --- | --- | --- |
+
+---
+
+## {N}. {接口名称}
+
+### 接口语义
+
+（一句话说清楚这个接口做什么）
+
+### Controller 来源
+
+- 文件：`server/apps/admin-app/src/modules/{module}/{module}.controller.ts`
+- 方法：`{ControllerClass}.{methodName}`
+
+### 请求信息
+
+- 方法：`GET / POST / PATCH / DELETE`
+- 路径：`/{prefix}/{sub}`
+- 请求 DTO：`docs/api-schema/admin/{module}/types.ts#{DtoName}`
+- 响应 VO：`docs/api-schema/admin/{module}/types.ts#{VoName}`
 
 ### 错误码
 
-| code | 含义 |
-| - | - |
-| 1001 | 手机号已存在 |
+| HTTP Status | 业务码 | 说明 |
+| --- | --- | --- |
 ```
+
+## 3. types.ts 规范
+
+只表达接口契约，不含业务逻辑：
+
+```typescript
+// ===== Query DTOs =====
+export interface {Module}PageQuery {
+  keyword?: string;
+  status?: '{status1}' | '{status2}';
+  page: number;
+  pageSize: number;
+}
+
+// ===== Request DTOs =====
+export interface Create{Module}DTO {
+  name: string;
+}
+
+// ===== Response VOs =====
+export interface {Module}ListItemVO {
+  id: string;
+  name: string;
+  createdAt: string; // YYYY-MM-DD HH:mm:ss
+}
+
+export type {Module}ListRes = ApiResBody<IPageData<{Module}ListItemVO>>;
+```
+
+## 4. 关键约定
+
+| 约定 | 说明 |
+| - | - |
+| 禁止 path 参数 | ID 一律 `?id=` query |
+| DELETE 无 body | 批量 id 用 `?ids=1,2,3` |
+| 时间格式 | 响应中时间字段格式 `YYYY-MM-DD HH:mm:ss` |
+| 分页默认值 | `page` 默认 1，`pageSize` 默认 20 |
+| 同步要求 | 接口结构变更必须同步更新文档 |
 
 ## 相关 skill
 
+- `write-feat-design` — 功能设计文档
 - `restful-style`、`pagination-and-list`、`response-apiresbody`、`biz-error`
