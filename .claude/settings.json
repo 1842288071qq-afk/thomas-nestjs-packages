@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(chmod +x skills/bin/install-skills.mjs)"
+    ]
+  }
+}
