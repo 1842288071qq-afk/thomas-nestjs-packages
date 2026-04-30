@@ -29,3 +29,7 @@ export class MyService {
 - 使用点路径读嵌套字段
 - 提供默认值避免 `undefined` 流入业务逻辑
 - 类型不可信，必要时显式校验后再使用
+
+## 相关 skill
+
+- `config-namespaces` — `AllConfig` 类型体系、`ConfigService<AllConfig>` 类型安全访问、扩展自定义命名空间

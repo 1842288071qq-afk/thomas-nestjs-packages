@@ -17,14 +17,15 @@ Composite 通过正文中的「相关 skill」段落引用 atomic，AI agent 可
 
 | Skill | 关键词 |
 | - | - |
-| `app-bootstrap-main` | main.ts / NestFactory / connectGlobalGuards / startAllMicroservices |
+| `app-bootstrap-main` | main.ts / NestFactory / AppConfig / connectGlobalGuards / apiPrefix |
 | `app-module-composition` | 根 Module / configModuleImport / applyTypeOrmDs / GlobalModule |
 | `env-config-conventions` | env/{appName}.env / .local 覆盖 / 变量前缀 / REDIS_KEY_PREFIX |
 | `context-threadlocal` | ALS / Store / requestId / account / identity |
 | `auth-identity-public` | `@IdentityRequired` / `@Public` / `jwt.whiteList` |
 | `permission-rbac` | `@PermissionRequired` / PermissionGuard / 超管 |
 | `data-scope` | WithScopeStrategy / DataScopeEngine / 行级权限 |
-| `config-service` | ConfigService / yaml |
+| `config-namespaces` | AllConfig 接口 / declare global / AppConfig / 扩展命名空间 |
+| `config-service` | ConfigService / 点路径 + 默认值 |
 | `cache-wrap` | `CacheService.wrap` / 防击穿 |
 | `redis-kv` | RedisService set/get / 自动序列化 |
 | `response-apiresbody` | ApiResBody / 全局过滤器 |

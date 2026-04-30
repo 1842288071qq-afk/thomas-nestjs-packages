@@ -87,3 +87,4 @@ applyTypeOrmDs({
 - `app-bootstrap-main` — main.ts 启动流程
 - `env-config-conventions` — env 命名与加载
 - `config-service` — 配置读取
+- `config-namespaces` — AllConfig 类型体系与扩展

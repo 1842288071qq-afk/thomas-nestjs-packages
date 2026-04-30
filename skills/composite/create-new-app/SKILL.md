@@ -136,6 +136,7 @@ pnpm dev:myapp
 
 - `organize-nestjs-module` — 业务 module 目录
 - `implement-controller`、`implement-service`、`design-database-entity`
+- `config-namespaces` — 如何为 app 扩展自定义 config 命名空间并声明类型
 
 ## 常见疏漏 checklist
 
