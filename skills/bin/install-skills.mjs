@@ -9,7 +9,6 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SKILLS_ROOT = resolve(__dirname, '..');
-const PACKAGE_NAMESPACE = 'thomas-nestjs';
 const CWD = process.cwd();
 
 const VALID_TARGETS = ['claude-code', 'copilot', 'gemini', 'codex', 'trae'];
@@ -148,46 +147,6 @@ async function installAgentsDir(skills, opts) {
     const dest = join(outRoot, s.dir, 'SKILL.md');
     await writeFileSafe(dest, s.raw, opts);
   }
-  // 维护 AGENTS.md 索引段（幂等）
-  const agentsPath = join(CWD, 'AGENTS.md');
-  const start = `<!-- ${PACKAGE_NAMESPACE}-skills:start -->`;
-  const end = `<!-- ${PACKAGE_NAMESPACE}-skills:end -->`;
-  const relSkillsRoot = relative(CWD, outRoot);
-  const skillSourcePath = `./${relSkillsRoot}`.replace(/\\/g, '/');
-  const lines = [start, '', `## thomas NestJS Skills`, '',
-    `> 本节由 \`skills/bin/install-skills.mjs\` 维护，请勿手工编辑。`,
-    `> Skill 源：[${PACKAGE_NAMESPACE}](${skillSourcePath}/)`, ''];
-  const groups = { atomic: '元 Skill (atomic)', composite: '任务级 Skill (composite)' };
-  for (const [g, label] of Object.entries(groups)) {
-    const list = skills.filter(s => s.group === g);
-    if (!list.length) continue;
-    lines.push(`### ${label}`, '');
-    for (const s of list) {
-      const relSkillPath = relative(CWD, join(outRoot, s.dir, 'SKILL.md')).replace(/\\/g, '/');
-      lines.push(`- **${s.name}** — ${s.description} (\`./${relSkillPath}\`)`);
-    }
-    lines.push('');
-  }
-  lines.push(end, '');
-  const block = lines.join('\n');
-
-  let existing = '';
-  if (existsSync(agentsPath)) existing = await readFile(agentsPath, 'utf8');
-  let next;
-  if (existing.includes(start) && existing.includes(end)) {
-    next = existing.replace(new RegExp(`${escapeRe(start)}[\\s\\S]*?${escapeRe(end)}`), block.trimEnd());
-  } else {
-    next = (existing.endsWith('\n') || existing === '' ? existing : existing + '\n')
-      + (existing ? '\n' : '') + block;
-  }
-  if (opts.dryRun) {
-    console.log(`[dry-run] update AGENTS.md (thomas-nestjs-skills 段)`);
-  } else if (next === existing) {
-    console.log(`AGENTS.md 已是最新, 跳过`);
-  } else {
-    await writeFile(agentsPath, next, 'utf8');
-    console.log(`update ${relative(CWD, agentsPath)} (thomas-nestjs-skills 段)`);
-  }
 }
 
 async function installGemini(skills, opts) {
@@ -207,8 +166,6 @@ async function installTrae(skills, opts) {
     await writeFileSafe(dest, s.raw, opts);
   }
 }
-
-function escapeRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
 // ---------- main ----------
 async function main() {
