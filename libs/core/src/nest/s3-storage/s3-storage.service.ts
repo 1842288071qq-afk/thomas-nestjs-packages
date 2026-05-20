@@ -2,6 +2,7 @@ import {
   AbortMultipartUploadCommand,
   CompleteMultipartUploadCommand,
   CreateMultipartUploadCommand,
+  DeleteObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
   ListObjectsV2Command,
@@ -562,5 +563,79 @@ export class S3StorageService {
       uploadId: options.uploadId,
       aborted: true,
     };
+  }
+
+  /**
+   * 删除 OSS 对象（支持单个和批量删除）
+   *
+   * @param options - 删除选项
+   * @param options.ossConfigCode - OSS 配置代码
+   * @param options.key - 要删除的对象键（单个删除时使用）
+   * @param options.keys - 要删除的对象键数组（批量删除时使用）
+   * @returns 删除结果
+   */
+  async deleteObject(options: {
+    ossConfigCode: string;
+    key?: string;
+    keys?: string[];
+  }) {
+    const { client, bucket } = await this.getClientContext(
+      options.ossConfigCode,
+    );
+
+    if (options.keys && options.keys.length > 0) {
+      // 批量删除
+      const deletedKeys: string[] = [];
+      const failedKeys: { key: string; error: string }[] = [];
+
+      for (const key of options.keys) {
+        try {
+          await client.send(
+            new DeleteObjectCommand({
+              Bucket: bucket,
+              Key: key,
+            }),
+          );
+          deletedKeys.push(key);
+        } catch (error) {
+          failedKeys.push({
+            key,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        }
+      }
+
+      return {
+        bucket,
+        deletedCount: deletedKeys.length,
+        failedCount: failedKeys.length,
+        deletedKeys,
+        failedKeys,
+      };
+    }
+
+    // 单个删除
+    if (!options.key) {
+      throw new BizError('key 或 keys 不能为空').codeAs(400);
+    }
+
+    try {
+      await client.send(
+        new DeleteObjectCommand({
+          Bucket: bucket,
+          Key: options.key,
+        }),
+      );
+
+      return {
+        bucket,
+        key: options.key,
+        deleted: true,
+      };
+    } catch (error) {
+      throw new BizError(
+        `删除对象失败: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      ).codeAs(500);
+    }
   }
 }
