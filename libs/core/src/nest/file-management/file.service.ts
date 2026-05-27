@@ -201,4 +201,15 @@ export class FileService {
     }
     return !!result.affected && result.affected > 0;
   }
+
+  /**
+   * 根据 OSS 对象键查找文件记录
+   * @param object - OSS 对象键（key）
+   * @returns 匹配的 SysFileEntity 数组
+   */
+  async findByObjectKey(object: string): Promise<SysFileEntity[]> {
+    return this.fileRepo.find({
+      where: { object, storageType: 'oss' },
+    });
+  }
 }
