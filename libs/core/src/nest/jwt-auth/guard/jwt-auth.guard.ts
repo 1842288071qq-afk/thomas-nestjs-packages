@@ -25,12 +25,21 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       context.getHandler(),
       context.getClass(),
     ]);
-    if (isPublic) return true;
-
     // 2️⃣ Config 白名单
     const whiteList = this.config.get<string[]>('jwt.whiteList', []);
-    if (whiteList.includes(request.path)) {
-      return true;
+    const isWhiteListed = whiteList.includes(request.path);
+
+    // 可选认证：公开接口也尝试解析 token，成功则设置 req.user（如用于收藏状态查询），失败不拦截
+    if (isPublic || isWhiteListed) {
+      try {
+        const result = super.canActivate(context);
+        if (result instanceof Promise) {
+          return result.catch(() => true as const);
+        }
+        return result;
+      } catch {
+        return true as const;
+      }
     }
 
     return super.canActivate(context);
