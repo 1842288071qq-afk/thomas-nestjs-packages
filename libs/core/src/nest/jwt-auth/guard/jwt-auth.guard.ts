@@ -25,28 +25,27 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       context.getHandler(),
       context.getClass(),
     ]);
-
-    // 2️⃣ Config 白名单（完全跳过认证）
+    // 2️⃣ Config 白名单
     const whiteList = this.config.get<string[]>('jwt.whiteList', []);
-    if (whiteList.includes(request.path)) {
-      return true;
+    const isWhiteListed = whiteList.includes(request.path);
+
+    // 可选认证：公开接口也尝试解析 token，成功则设置 req.user（如用于收藏状态查询），失败不拦截
+    if (isPublic || isWhiteListed) {
+      try {
+        const result = super.canActivate(context);
+        if (result instanceof Promise) {
+          return result.catch(() => true as const);
+        }
+        return result;
+      } catch {
+        return true as const;
+      }
     }
 
-    // 公开端点也尝试认证，但不强制要求（由 handleRequest 宽容处理）
     return super.canActivate(context);
   }
 
-  handleRequest(err, user, info, context: ExecutionContext) {
-    // 公开端点：可选认证，认证失败不抛异常，以匿名用户身份放行
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
-    if (isPublic) {
-      if (err) throw err;
-      return user || null;
-    }
-
+  handleRequest(err, user, info) {
     if (!user && !info) {
       throw new JwtAuthException(JwtErrorCode.MISSING);
     }
