@@ -25,9 +25,6 @@ export class IdentityRequiredGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    if (isPublic) {
-      return true;
-    }
 
     const requiredIdentities = this.reflector.getAllAndOverride<IdentityType[]>(
       IDENTITY_REQUIRED_KEY,
@@ -60,6 +57,11 @@ export class IdentityRequiredGuard implements CanActivate {
           void this.activeService.recordActive(identity.id);
         }
       }
+    }
+
+    // 公开端点：已尝试挂载身份，跳过强制身份校验
+    if (isPublic) {
+      return true;
     }
 
     // 如果没有设置装饰器，默认允许通过
