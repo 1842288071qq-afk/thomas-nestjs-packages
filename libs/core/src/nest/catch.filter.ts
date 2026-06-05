@@ -40,6 +40,10 @@ export class CatchEverythingFilter implements ExceptionFilter {
         caught = true;
         httpStatus = exception['httpStatus'] ?? 400;
         responseBody = ApiResBody.ofWith(exception['code'], exception.message);
+        const bizData: unknown = exception['data'];
+        if (bizData != null) {
+          responseBody.data = bizData as Record<string, unknown>;
+        }
         break;
       }
 
