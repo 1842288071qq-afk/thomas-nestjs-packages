@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// 把 skills/{atomic,composite} 下的 SKILL.md 安装到消费工程的 AI 工具目录。
+// 把 skills/{atomic,composite} 下的 skill 目录安装到消费工程的 AI 工具目录。
 // 用法：node packages/thomas-nestjs/skills/bin/install-skills.mjs --target=claude-code|copilot|gemini|codex|trae|all [--out=path] [--dry-run] [--force] [--list]
 
-import { readFile, writeFile, mkdir, readdir, stat } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -48,6 +48,9 @@ const HELP = `\nInstall skills CLI
   --dry-run         仅打印将要写的文件，不实际写入
   --force           覆盖已有同名文件 (默认跳过)
   -h, --help        显示本帮助
+
+说明:
+  安装时会复制整个 skill 目录，包括 SKILL.md 以及 scripts/、references/、assets/ 等资源。
 `;
 
 // ---------- frontmatter parser (轻量, 仅取 key: value) ----------
@@ -93,6 +96,7 @@ async function discoverSkills() {
         type: meta.type || group,
         tags: Array.isArray(meta.tags) ? meta.tags : [],
         strict: !!meta.strict,
+        sourceDir: join(groupDir, entry),
         path: skillFile, raw, body, meta,
       });
     }
@@ -101,19 +105,40 @@ async function discoverSkills() {
 }
 
 // ---------- writers ----------
-async function writeFileSafe(path, content, { dryRun, force }) {
+async function copyFileSafe(sourcePath, destPath, { dryRun, force }) {
   if (dryRun) {
-    console.log(`[dry-run] write ${relative(CWD, path)} (${content.length} bytes)`);
+    console.log(`[dry-run] write ${relative(CWD, destPath)}`);
     return 'dry-run';
   }
-  if (existsSync(path) && !force) {
-    console.log(`skip   ${relative(CWD, path)} (已存在, 用 --force 覆盖)`);
+  if (existsSync(destPath) && !force) {
+    console.log(`skip   ${relative(CWD, destPath)} (已存在, 用 --force 覆盖)`);
     return 'skipped';
   }
-  await mkdir(dirname(path), { recursive: true });
-  await writeFile(path, content, 'utf8');
-  console.log(`write  ${relative(CWD, path)}`);
+  await mkdir(dirname(destPath), { recursive: true });
+  await copyFile(sourcePath, destPath);
+  console.log(`write  ${relative(CWD, destPath)}`);
   return 'written';
+}
+
+async function copySkillDir(skill, destRoot, opts) {
+  async function traverse(sourceDir, currentDestDir) {
+    const entries = await readdir(sourceDir, { withFileTypes: true });
+    for (const entry of entries) {
+      const sourcePath = join(sourceDir, entry.name);
+      const destPath = join(currentDestDir, entry.name);
+
+      if (entry.isDirectory()) {
+        await traverse(sourcePath, destPath);
+        continue;
+      }
+
+      if (entry.isFile()) {
+        await copyFileSafe(sourcePath, destPath, opts);
+      }
+    }
+  }
+
+  await traverse(skill.sourceDir, destRoot);
 }
 
 async function installClaudeCode(skills, opts) {
@@ -122,8 +147,7 @@ async function installClaudeCode(skills, opts) {
     ? resolve(CWD, opts.out)
     : join(CWD, '.claude', 'skills');
   for (const s of skills) {
-    const dest = join(outRoot, s.dir, 'SKILL.md');
-    await writeFileSafe(dest, s.raw, opts);
+    await copySkillDir(s, join(outRoot, s.dir), opts);
   }
 }
 
@@ -133,8 +157,7 @@ async function installCopilot(skills, opts) {
     ? resolve(CWD, opts.out)
     : join(CWD, '.claude', 'skills');
   for (const s of skills) {
-    const dest = join(outRoot, s.dir, 'SKILL.md');
-    await writeFileSafe(dest, s.raw, opts);
+    await copySkillDir(s, join(outRoot, s.dir), opts);
   }
 }
 
@@ -144,8 +167,7 @@ async function installAgentsDir(skills, opts) {
     ? resolve(CWD, opts.out)
     : join(CWD, '.agents', 'skills');
   for (const s of skills) {
-    const dest = join(outRoot, s.dir, 'SKILL.md');
-    await writeFileSafe(dest, s.raw, opts);
+    await copySkillDir(s, join(outRoot, s.dir), opts);
   }
 }
 
@@ -162,8 +184,7 @@ async function installTrae(skills, opts) {
     ? resolve(CWD, opts.out)
     : join(CWD, '.trae', 'skills');
   for (const s of skills) {
-    const dest = join(outRoot, s.dir, 'SKILL.md');
-    await writeFileSafe(dest, s.raw, opts);
+    await copySkillDir(s, join(outRoot, s.dir), opts);
   }
 }
 

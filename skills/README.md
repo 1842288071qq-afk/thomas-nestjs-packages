@@ -2,7 +2,7 @@
 
 本目录是「文档 → AI Skill」的权威源，按 [Anthropic Claude Code Skill](https://docs.anthropic.com/claude/docs) 风格组织：每个 skill 一个目录，内含 `SKILL.md`，frontmatter 包含 `name` / `description` / `type` / `tags`。
 
-CLI 工具 [`bin/install-skills.mjs`](./bin/install-skills.mjs) 把源 skill 一键安装到消费工程的指定 AI 工具目录（claude-code / github-copilot / codex）。
+CLI 工具 [`bin/install-skills.mjs`](./bin/install-skills.mjs) 把源 skill 目录一键安装到消费工程的指定 AI 工具目录（claude-code / github-copilot / gemini / codex / trae）。
 
 ## 1. 分层
 
@@ -40,6 +40,7 @@ Composite 通过正文中的「相关 skill」段落引用 atomic，AI agent 可
 | `type-safety` ⚠️ | 禁止 as any / 敏感信息独立 |
 | `serialization-vo` ⚠️ | `@Exclude` / `@Expose` / `plainToInstance` / vo-transform / VO class |
 | `file-management` | LocalUploadService / FileService / translateIds |
+| `skill-usage-tracking` | skill统计 / skill-usage / sessions / total.mjs |
 
 ### Composite（任务级）
 
@@ -63,12 +64,14 @@ Composite 通过正文中的「相关 skill」段落引用 atomic，AI agent 可
 ```bash
 node packages/thomas-nestjs/skills/bin/install-skills.mjs --target=claude-code
 node packages/thomas-nestjs/skills/bin/install-skills.mjs --target=copilot
+node packages/thomas-nestjs/skills/bin/install-skills.mjs --target=gemini
 node packages/thomas-nestjs/skills/bin/install-skills.mjs --target=codex
+node packages/thomas-nestjs/skills/bin/install-skills.mjs --target=trae
 ```
 
 可选参数：
 
-- `--target=<claude-code|copilot|codex|all>` — 必填（除非 `--list`）
+- `--target=<claude-code|copilot|gemini|codex|trae|all>` — 必填（除非 `--list`）
 - `--out=<path>` — 自定义输出根目录，默认按工具约定
 - `--dry-run` — 仅打印将要写的文件
 - `--list` — 列出本包所有可用 skill
@@ -78,9 +81,13 @@ node packages/thomas-nestjs/skills/bin/install-skills.mjs --target=codex
 
 | Target | 输出位置 |
 | - | - |
-| `claude-code` | `<cwd>/.claude/skills/thomas-nestjs/{atomic,composite}/<name>/SKILL.md` |
-| `copilot` | `<cwd>/.github/instructions/thomas-nestjs.<group>.<name>.instructions.md`（含 `applyTo: "**"`） |
-| `codex` | `<cwd>/.codex/skills/thomas-nestjs/<group>/<name>.md` + 在 `AGENTS.md` 追加索引段（幂等） |
+| `claude-code` | `<cwd>/.claude/skills/<name>/` |
+| `copilot` | `<cwd>/.claude/skills/<name>/` |
+| `gemini` | `<cwd>/.agents/skills/<name>/` |
+| `codex` | `<cwd>/.agents/skills/<name>/` |
+| `trae` | `<cwd>/.trae/skills/<name>/` |
+
+安装时会复制整个 skill 目录，包括 `SKILL.md` 和 `scripts/`、`references/`、`assets/` 等随 skill 提供的资源。
 
 ## 4. 编写 / 维护
 

@@ -1,6 +1,6 @@
 ---
 name: skill-usage-tracking
-description: 记录本次会话中使用的 skill 及触发次数，写入 skills-usage/ 目录，用于演进 skill 体系。
+description: 记录本次会话中使用的 skill 及触发次数，只写入 skills-usage/sessions/ 会话文件，并用随 skill 提供的 total.mjs 实时汇总查看。
 type: atomic
 tags: [meta, tracking, statistics]
 when_to_use: 关键词 — skill统计, skill使用, 记录skill, 保存skill, skill-usage, tracking
@@ -35,13 +35,15 @@ when_to_use: 关键词 — skill统计, skill使用, 记录skill, 保存skill, s
 
 ```
 {projectRoot}/skills-usage/
-  total.json
+  total.mjs
   sessions/
+    .gitkeep
     {timestamp}_{slug}.json
 ```
 
-- `{timestamp}` 格式：`YYYY-MM-DDTHH-mm-ss`（用当前时间）
+- `{timestamp}` 文件名格式：`YYYY-MM-DDTHH-mm-ss-SSS`（用当前时间，含毫秒，降低多人并发时的文件名碰撞概率）
 - `{slug}` 为会话描述的 kebab-case 拼音缩写（2~4 个单词），例如 `implement-auth-service`
+- 若目标 session 文件名已存在，在文件名末尾追加 `-2`、`-3` 等序号，禁止覆盖已有 session 文件
 
 ### 第四步：写入会话 JSON
 
@@ -59,24 +61,50 @@ when_to_use: 关键词 — skill统计, skill使用, 记录skill, 保存skill, s
 }
 ```
 
-### 第五步：更新 total.json
+### 第五步：查看实时汇总
 
-读取（或初始化）`skills-usage/total.json`，累加本次会话数据后写回：
+需要查看 total 时，运行项目内脚本：
 
-```json
-{
-  "totalSessions": 5,
-  "lastUpdated": "2026-04-30T10:30:00Z",
-  "skills": {
-    "implement-service": 12,
-    "dto-validation": 8
-  }
-}
+```bash
+node skills-usage/total.mjs
 ```
 
-- `totalSessions` 每次 +1
-- `skills` 中对应 skill 的计数累加；不存在的 skill 从 0 开始
-- `lastUpdated` 更新为当前时间
+需要机器可读输出时：
+
+```bash
+node skills-usage/total.mjs --json
+```
+
+该脚本实时读取 `skills-usage/sessions/*.json` 后汇总输出，不写入任何统计文件。
+
+## 初始化与脚本安装
+
+`pnpm init:monorepo` 应幂等创建：
+
+```
+skills-usage/
+  total.mjs
+  sessions/
+    .gitkeep
+```
+
+`total.mjs` 的权威源随本 skill 提供：
+
+```
+{serverDir}/packages/@thomas/nestjs/skills/atomic/skill-usage-tracking/scripts/total.mjs
+```
+
+若项目中缺失该脚本，可从子模块复制：
+
+```bash
+mkdir -p skills-usage/sessions
+cp {serverDir}/packages/@thomas/nestjs/skills/atomic/skill-usage-tracking/scripts/total.mjs skills-usage/total.mjs
+```
+
+## 废弃项
+
+- 禁止创建、更新或依赖 `skills-usage/total.json`
+- 若历史项目仍有 `skills-usage/total.json`，本 skill 不再修改它；确认 session 数据完整后再由项目维护者删除
 
 ## 注意事项
 
@@ -84,3 +112,7 @@ when_to_use: 关键词 — skill统计, skill使用, 记录skill, 保存skill, s
 - skill 名称使用目录名，不含路径和扩展名
 - 写文件时使用 Write 工具；读文件时使用 Read 工具；若文件不存在则从零初始化
 - 写入前先打印"正在记录本次 skill 使用统计…"让用户知晓
+
+## 相关 skill
+
+无
