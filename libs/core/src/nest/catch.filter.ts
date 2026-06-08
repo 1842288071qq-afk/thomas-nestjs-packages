@@ -39,7 +39,11 @@ export class CatchEverythingFilter implements ExceptionFilter {
       if (exception instanceof BizError) {
         caught = true;
         httpStatus = exception['httpStatus'] ?? 400;
-        responseBody = ApiResBody.ofWith(exception['code'], exception.message);
+        responseBody = ApiResBody.ofWith(
+          exception['code'],
+          exception.message,
+          exception['data'] as Record<string, unknown> | undefined,
+        );
         break;
       }
 

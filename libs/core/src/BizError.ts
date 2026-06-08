@@ -6,6 +6,8 @@ export class BizError extends Error {
   private httpStatus: number = HttpStatus.BAD_REQUEST;
   // 对应ApiResBody的code
   private code: number = 400;
+  // 附加数据，由全局异常过滤器写入 ApiResBody.data
+  private data: unknown = undefined;
 
   constructor(message: string) {
     super(message);
@@ -17,6 +19,10 @@ export class BizError extends Error {
   }
   codeAs(code: number): this {
     this.code = code;
+    return this;
+  }
+  dataAs(data: unknown): this {
+    this.data = data;
     return this;
   }
 }
