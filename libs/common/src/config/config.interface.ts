@@ -17,6 +17,13 @@ export interface AppLoggerConfig {
   context: string;
 }
 
+export interface AppRequestLogsConfig {
+  /** 是否持久化 HTTP 请求日志，默认 false */
+  persistEnabled: boolean;
+  /** 是否将请求日志打印到 stdout，默认 false */
+  printToStdout: boolean;
+}
+
 export interface AppConfig {
   port: number;
   name: string;
@@ -24,6 +31,7 @@ export interface AppConfig {
   apiPrefix: string;
   host?: string;
   logger: AppLoggerConfig;
+  requestLogs: AppRequestLogsConfig;
 }
 
 export interface SessionConfig {

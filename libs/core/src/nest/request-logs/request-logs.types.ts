@@ -12,7 +12,10 @@ export type RequestLogsRuntimeOptions = RequestLogBodyCaptureOptions;
 
 export interface RequestLogsModuleOptions {
   systemType: RequestLogSystemType;
+  /** @deprecated use persistEnabled */
   enabled?: boolean;
+  persistEnabled?: boolean;
+  printToStdout?: boolean;
   persistenceMode?: RequestLogsPersistenceMode;
   kafkaTopic?: string;
   includeHeaders?: boolean;
@@ -26,7 +29,8 @@ export interface RequestLogsModuleOptions {
 
 export interface RequestLogsResolvedOptions {
   systemType: RequestLogSystemType;
-  enabled: boolean;
+  persistEnabled: boolean;
+  printToStdout: boolean;
   persistenceMode: RequestLogsPersistenceMode;
   kafkaTopic: string;
   includeHeaders: boolean;

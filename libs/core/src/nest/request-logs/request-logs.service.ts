@@ -18,6 +18,7 @@ import {
 import type {
   CreateRequestLogInput,
   RequestLogBodyCaptureOptions,
+  RequestLogsResolvedOptions,
 } from './request-logs.types';
 import { ThreadLocal } from '../als/thread-local';
 import type { Request } from 'express';
@@ -27,20 +28,6 @@ interface RequestLogStartContext {
   request: Request;
   captureRequestBody: boolean;
   captureResponseBody: boolean;
-}
-
-interface RequestLogsResolvedOptionsLocal {
-  systemType: string;
-  enabled: boolean;
-  persistenceMode: 'database' | 'kafka';
-  kafkaTopic: string;
-  includeHeaders: boolean;
-  captureRequestBodyByDefault: boolean;
-  captureResponseBodyByDefault: boolean;
-  maxBodyLength: number;
-  maskedHeaders: string[];
-  ignorePaths: Array<string | RegExp>;
-  skip?: (request: Request) => boolean;
 }
 
 @Injectable()
@@ -58,12 +45,16 @@ export class RequestLogsService {
     private readonly kafkaPublisher?: KafkaEventPublisher,
   ) {}
 
-  private get resolvedOptions(): RequestLogsResolvedOptionsLocal {
-    return this.options as unknown as RequestLogsResolvedOptionsLocal;
+  private get resolvedOptions(): RequestLogsResolvedOptions {
+    return this.options as unknown as RequestLogsResolvedOptions;
   }
 
   isHttpEnabled(context: ExecutionContext) {
-    return context.getType() === 'http' && this.resolvedOptions.enabled;
+    return (
+      context.getType() === 'http' &&
+      (this.resolvedOptions.persistEnabled ||
+        this.resolvedOptions.printToStdout)
+    );
   }
 
   start(
@@ -111,6 +102,7 @@ export class RequestLogsService {
       success: httpStatus < 400,
       businessCodeHint: responseBody,
     });
+    this.printToStdout(log);
     await this.persist(log);
   }
 
@@ -132,10 +124,15 @@ export class RequestLogsService {
       businessCodeHint: errorResponse,
       error,
     });
+    this.printToStdout(log);
     await this.persist(log);
   }
 
   async consumeKafkaLog(payload: unknown): Promise<void> {
+    if (!this.resolvedOptions.persistEnabled) {
+      return;
+    }
+
     const normalized = this.normalizeForStorage(payload);
     if (!normalized || typeof normalized !== 'object') {
       return;
@@ -156,6 +153,10 @@ export class RequestLogsService {
   }
 
   async persist(input: CreateRequestLogInput): Promise<void> {
+    if (!this.resolvedOptions.persistEnabled) {
+      return;
+    }
+
     const shouldUseKafka = this.resolvedOptions.persistenceMode === 'kafka';
 
     if (shouldUseKafka) {
@@ -199,6 +200,22 @@ export class RequestLogsService {
     } catch (error) {
       this.logger.warn(
         `request log persist failed: ${
+          error instanceof Error ? error.message : 'unknown'
+        }`,
+      );
+    }
+  }
+
+  private printToStdout(input: CreateRequestLogInput): void {
+    if (!this.resolvedOptions.printToStdout) {
+      return;
+    }
+
+    try {
+      process.stdout.write(`[request-log] ${JSON.stringify(input)}\n`);
+    } catch (error) {
+      this.logger.warn(
+        `request log stdout print failed: ${
           error instanceof Error ? error.message : 'unknown'
         }`,
       );

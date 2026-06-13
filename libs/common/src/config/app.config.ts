@@ -5,6 +5,7 @@ import type {
   AppConfig,
   AppLoggerConfig,
   AppLoggerLevel,
+  AppRequestLogsConfig,
 } from './config.interface';
 
 const APP_LOG_LEVELS_MAP: Record<AppLoggerLevel, LogLevel[]> = {
@@ -18,6 +19,23 @@ const APP_LOG_LEVELS_MAP: Record<AppLoggerLevel, LogLevel[]> = {
 
 function isAppLoggerLevel(value: string): value is AppLoggerLevel {
   return value in APP_LOG_LEVELS_MAP;
+}
+
+function parseBooleanEnv(value: string | undefined, defaultValue: boolean) {
+  const normalized = value?.trim().toLowerCase();
+  if (!normalized) {
+    return defaultValue;
+  }
+
+  if (['true', '1', 'yes', 'y', 'on'].includes(normalized)) {
+    return true;
+  }
+
+  if (['false', '0', 'no', 'n', 'off'].includes(normalized)) {
+    return false;
+  }
+
+  return defaultValue;
 }
 
 export function resolveAppLoggerConfig(
@@ -35,6 +53,21 @@ export function resolveAppLoggerConfig(
   };
 }
 
+export function resolveAppRequestLogsConfig(
+  env: NodeJS.ProcessEnv = process.env,
+): AppRequestLogsConfig {
+  return {
+    persistEnabled: parseBooleanEnv(
+      env.APP_REQUEST_LOGS_PERSIST_ENABLED ?? env.APP_REQUEST_LOGS_ENABLED,
+      false,
+    ),
+    printToStdout: parseBooleanEnv(
+      env.APP_REQUEST_LOGS_PRINT_TO_STDOUT,
+      false,
+    ),
+  };
+}
+
 export default registerAs('app', (): AppConfig => {
   const host = process.env.HOST?.trim();
 
@@ -48,5 +81,6 @@ export default registerAs('app', (): AppConfig => {
     // 不配置时保持 Nest 默认监听行为（不显式传 host）
     host: host || undefined,
     logger: resolveAppLoggerConfig(),
+    requestLogs: resolveAppRequestLogsConfig(),
   };
 });
