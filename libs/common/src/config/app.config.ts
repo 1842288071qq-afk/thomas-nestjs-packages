@@ -56,15 +56,19 @@ export function resolveAppLoggerConfig(
 export function resolveAppRequestLogsConfig(
   env: NodeJS.ProcessEnv = process.env,
 ): AppRequestLogsConfig {
+  const accessLogEnabled = parseBooleanEnv(
+    env.APP_REQUEST_LOGS_ACCESS_LOG_ENABLED ??
+      env.APP_REQUEST_LOGS_PRINT_TO_STDOUT,
+    false,
+  );
+
   return {
     persistEnabled: parseBooleanEnv(
       env.APP_REQUEST_LOGS_PERSIST_ENABLED ?? env.APP_REQUEST_LOGS_ENABLED,
       false,
     ),
-    printToStdout: parseBooleanEnv(
-      env.APP_REQUEST_LOGS_PRINT_TO_STDOUT,
-      false,
-    ),
+    accessLogEnabled,
+    printToStdout: accessLogEnabled,
   };
 }
 

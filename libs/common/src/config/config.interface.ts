@@ -20,7 +20,9 @@ export interface AppLoggerConfig {
 export interface AppRequestLogsConfig {
   /** 是否持久化 HTTP 请求日志，默认 false */
   persistEnabled: boolean;
-  /** 是否将请求日志打印到 stdout，默认 false */
+  /** 是否通过 Nest Logger 输出 HTTP 访问日志，默认 false */
+  accessLogEnabled: boolean;
+  /** @deprecated use accessLogEnabled */
   printToStdout: boolean;
 }
 

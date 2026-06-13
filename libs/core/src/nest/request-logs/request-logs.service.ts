@@ -53,7 +53,7 @@ export class RequestLogsService {
     return (
       context.getType() === 'http' &&
       (this.resolvedOptions.persistEnabled ||
-        this.resolvedOptions.printToStdout)
+        this.resolvedOptions.accessLogEnabled)
     );
   }
 
@@ -102,7 +102,7 @@ export class RequestLogsService {
       success: httpStatus < 400,
       businessCodeHint: responseBody,
     });
-    this.printToStdout(log);
+    this.printAccessLog(log);
     await this.persist(log);
   }
 
@@ -124,7 +124,7 @@ export class RequestLogsService {
       businessCodeHint: errorResponse,
       error,
     });
-    this.printToStdout(log);
+    this.printAccessLog(log);
     await this.persist(log);
   }
 
@@ -206,20 +206,65 @@ export class RequestLogsService {
     }
   }
 
-  private printToStdout(input: CreateRequestLogInput): void {
-    if (!this.resolvedOptions.printToStdout) {
+  private printAccessLog(input: CreateRequestLogInput): void {
+    if (!this.resolvedOptions.accessLogEnabled) {
       return;
     }
 
-    try {
-      process.stdout.write(`[request-log] ${JSON.stringify(input)}\n`);
-    } catch (error) {
-      this.logger.warn(
-        `request log stdout print failed: ${
-          error instanceof Error ? error.message : 'unknown'
-        }`,
+    const message = this.formatAccessLog(input);
+    if (input.success) {
+      this.logger.log(message);
+      return;
+    }
+
+    this.logger.warn(message);
+  }
+
+  private formatAccessLog(input: CreateRequestLogInput): string {
+    const segments = [
+      input.ip || '-',
+      this.stringifyAccessLogValue(`${input.method} ${input.fullPath}`),
+      input.httpStatus.toString(),
+      `${input.costMs}ms`,
+      `success=${input.success ? 1 : 0}`,
+    ];
+
+    if (input.bizCode !== undefined) {
+      segments.push(`bizCode=${input.bizCode}`);
+    }
+
+    if (input.requestId) {
+      segments.push(`requestId=${input.requestId}`);
+    }
+
+    if (input.accountId) {
+      segments.push(`accountId=${input.accountId}`);
+    }
+
+    if (input.identityId) {
+      segments.push(`identityId=${input.identityId}`);
+    }
+
+    if (input.userAgent) {
+      segments.push(`ua=${this.stringifyAccessLogValue(input.userAgent)}`);
+    }
+
+    if (input.requestBody !== undefined) {
+      segments.push(`body=${this.stringifyAccessLogValue(input.requestBody)}`);
+    }
+
+    if (input.errorMessage) {
+      segments.push(
+        `error=${this.stringifyAccessLogValue(input.errorMessage)}`,
       );
     }
+
+    return segments.join(' ');
+  }
+
+  private stringifyAccessLogValue(value: unknown): string {
+    const result = JSON.stringify(value);
+    return result === undefined ? String(value) : result;
   }
 
   private shouldSkip(request: Request): boolean {

@@ -14,7 +14,10 @@ export interface RequestLogsModuleOptions {
   systemType: RequestLogSystemType;
   /** @deprecated use persistEnabled */
   enabled?: boolean;
+  /** 是否通过 Nest Logger 输出 HTTP 访问日志 */
+  accessLogEnabled?: boolean;
   persistEnabled?: boolean;
+  /** @deprecated use accessLogEnabled */
   printToStdout?: boolean;
   persistenceMode?: RequestLogsPersistenceMode;
   kafkaTopic?: string;
@@ -29,7 +32,9 @@ export interface RequestLogsModuleOptions {
 
 export interface RequestLogsResolvedOptions {
   systemType: RequestLogSystemType;
+  accessLogEnabled: boolean;
   persistEnabled: boolean;
+  /** @deprecated use accessLogEnabled */
   printToStdout: boolean;
   persistenceMode: RequestLogsPersistenceMode;
   kafkaTopic: string;

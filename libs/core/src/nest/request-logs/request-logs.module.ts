@@ -119,6 +119,8 @@ export class RequestLogsModule {
 
     return {
       systemType: options.systemType,
+      accessLogEnabled:
+        options.accessLogEnabled ?? options.printToStdout ?? false,
       persistEnabled: options.persistEnabled ?? options.enabled ?? false,
       printToStdout: options.printToStdout ?? false,
       persistenceMode: options.persistenceMode ?? 'database',
