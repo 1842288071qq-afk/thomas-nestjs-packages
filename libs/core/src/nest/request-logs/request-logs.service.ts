@@ -13,6 +13,7 @@ import { getRealIp } from '../../utils/ip.util';
 import { KafkaEventPublisher } from '../mq/kafka-publisher.service';
 import {
   REQUEST_LOG_BODY_CAPTURE_METADATA,
+  REQUEST_LOG_IGNORE_METADATA,
   REQUEST_LOGS_OPTIONS,
 } from './constants';
 import type {
@@ -61,6 +62,10 @@ export class RequestLogsService {
     context: ExecutionContext,
     request: Request,
   ): RequestLogStartContext | null {
+    if (this.isIgnoredByDecorator(context)) {
+      return null;
+    }
+
     if (this.shouldSkip(request)) {
       return null;
     }
@@ -265,6 +270,15 @@ export class RequestLogsService {
   private stringifyAccessLogValue(value: unknown): string {
     const result = JSON.stringify(value);
     return result === undefined ? String(value) : result;
+  }
+
+  private isIgnoredByDecorator(context: ExecutionContext): boolean {
+    return (
+      this.reflector.getAllAndOverride<boolean | undefined>(
+        REQUEST_LOG_IGNORE_METADATA,
+        [context.getHandler(), context.getClass()],
+      ) ?? false
+    );
   }
 
   private shouldSkip(request: Request): boolean {
