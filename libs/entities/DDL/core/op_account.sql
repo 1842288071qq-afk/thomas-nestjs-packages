@@ -132,7 +132,7 @@ CREATE TABLE op_login_audit (
   op_identity_id BIGINT,
   channel VARCHAR(32),
   ip VARCHAR(45),
-  user_agent VARCHAR(255),
+  user_agent TEXT,
   success BOOLEAN NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP

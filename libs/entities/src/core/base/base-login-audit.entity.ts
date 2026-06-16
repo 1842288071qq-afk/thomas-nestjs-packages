@@ -18,7 +18,7 @@ export abstract class BaseLoginAudit extends WithId(BaseLoginAuditRoot) {
   @Column({ length: 45, nullable: true })
   ip?: string;
 
-  @Column({ name: 'user_agent', length: 255, nullable: true })
+  @Column({ name: 'user_agent', type: 'text', nullable: true })
   userAgent?: string;
 
   @Column({ type: 'boolean' })
