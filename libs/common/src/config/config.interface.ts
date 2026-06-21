@@ -114,6 +114,10 @@ export interface DataSourceConfig {
   logging: boolean;
   namingStrategy: any;
   name?: string;
+  /** 驱动级连接池/超时参数（pg: max/connectionTimeoutMillis/statement_timeout 等） */
+  extra?: Record<string, unknown>;
+  /** 慢查询日志阈值（毫秒），超过则记 warn，便于排查 */
+  maxQueryExecutionTime?: number;
 }
 
 declare global {

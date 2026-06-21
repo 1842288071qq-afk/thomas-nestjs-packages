@@ -42,12 +42,14 @@ export class SessionGuard implements CanActivate {
       user.jti,
     );
 
-    // 4. 更新活跃时间 (异步去抖)
-    void this.sessionService.updateLastActivity(
-      user.accountId,
-      user.system,
-      user.jti,
-    );
+    // 4. 更新活跃时间 (异步去抖，尽力而为)
+    // Redis 抖动/超时（commandTimeout）会让该命令 reject，必须 catch，
+    // 否则 fire-and-forget 会变成未处理的 Promise rejection。
+    void this.sessionService
+      .updateLastActivity(user.accountId, user.system, user.jti)
+      .catch(() => {
+        /* 活跃时间更新失败不影响请求，忽略 */
+      });
 
     return true;
   }

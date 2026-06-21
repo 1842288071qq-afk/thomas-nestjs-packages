@@ -69,6 +69,8 @@ export class WorkerFactory implements OnModuleDestroy {
         port: redisConfig.port,
         password: redisConfig.password,
         db: redisConfig.db,
+        // BullMQ blocking 连接要求：阻塞命令不限重试
+        maxRetriesPerRequest: null,
       },
       prefix: this.queueFactory.getPrefix(),
       concurrency,

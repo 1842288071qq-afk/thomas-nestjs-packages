@@ -4,6 +4,11 @@ import Redis, { RedisOptions } from 'ioredis';
 import { RedisConfig, RedisClientConfig } from './redis.types';
 import { RedisHelper } from './redis.helper';
 
+function parseIntEnv(value: string | undefined, fallback: number): number {
+  const parsed = parseInt((value ?? '').trim(), 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
 @Injectable()
 export class RedisService implements OnModuleDestroy {
   private readonly clients = new Map<string, Redis>();
@@ -46,8 +51,14 @@ export class RedisService implements OnModuleDestroy {
       password: config.password,
       db: config.db,
       lazyConnect: true,
-      maxRetriesPerRequest: null,
       keyPrefix: config.keyPrefix,
+      // 命令级超时：Redis 慢/连接异常时命令快速 reject，
+      // 避免 await 永久悬挂（每个请求都经 SessionGuard 打 Redis，否则会拖垮全站）。
+      commandTimeout: parseIntEnv(process.env.REDIS_COMMAND_TIMEOUT_MS, 5000),
+      connectTimeout: parseIntEnv(process.env.REDIS_CONNECT_TIMEOUT_MS, 5000),
+      // 收敛重试：普通 KV/session/lock 客户端有限重试即失败。
+      // （BullMQ 的 blocking 连接在 worker/queue.factory 内独立创建并自带 null，不受此影响。）
+      maxRetriesPerRequest: parseIntEnv(process.env.REDIS_MAX_RETRIES, 3),
     };
 
     const client = new Redis(options);

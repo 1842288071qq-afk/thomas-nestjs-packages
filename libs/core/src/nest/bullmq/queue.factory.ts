@@ -65,6 +65,8 @@ export class QueueFactory implements OnModuleDestroy {
         port: this.options.redis.port,
         password: this.options.redis.password,
         db: this.options.redis.db,
+        // BullMQ blocking 连接要求：阻塞命令不限重试
+        maxRetriesPerRequest: null,
       },
       prefix: this.prefix,
       defaultJobOptions: {
