@@ -3,6 +3,8 @@ import type { LogLevel } from '@nestjs/common';
 import os from 'os';
 import type {
   AppConfig,
+  AppLogFileConfig,
+  AppLogFileFormat,
   AppLoggerConfig,
   AppLoggerLevel,
   AppRequestLogsConfig,
@@ -72,6 +74,39 @@ export function resolveAppRequestLogsConfig(
   };
 }
 
+function parseOptionalString(value: string | undefined): string | undefined {
+  const normalized = value?.trim();
+  return normalized ? normalized : undefined;
+}
+
+function parsePositiveInt(value: string | undefined): number | undefined {
+  const normalized = value?.trim();
+  if (!normalized) {
+    return undefined;
+  }
+  const parsed = parseInt(normalized, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+}
+
+export function resolveAppLogFileConfig(
+  env: NodeJS.ProcessEnv = process.env,
+): AppLogFileConfig {
+  const rawFormat = env.APP_LOG_FILE_FORMAT?.trim().toLowerCase();
+  const format: AppLogFileFormat = rawFormat === 'text' ? 'text' : 'json';
+
+  return {
+    enabled: parseBooleanEnv(env.APP_LOG_FILE_ENABLED, false),
+    format,
+    dir: parseOptionalString(env.APP_LOG_FILE_DIR) ?? './logs',
+    fileName: parseOptionalString(env.APP_LOG_FILE_NAME) ?? '{app}.log',
+    size: parseOptionalString(env.APP_LOG_FILE_MAX_SIZE) ?? '20M',
+    interval: parseOptionalString(env.APP_LOG_FILE_INTERVAL) ?? '1d',
+    maxFiles: parsePositiveInt(env.APP_LOG_FILE_MAX_FILES) ?? 14,
+    compress: parseBooleanEnv(env.APP_LOG_FILE_COMPRESS, true),
+    captureStd: parseBooleanEnv(env.APP_LOG_FILE_CAPTURE_STD, false),
+  };
+}
+
 export default registerAs('app', (): AppConfig => {
   const host = process.env.HOST?.trim();
 
@@ -86,5 +121,6 @@ export default registerAs('app', (): AppConfig => {
     host: host || undefined,
     logger: resolveAppLoggerConfig(),
     requestLogs: resolveAppRequestLogsConfig(),
+    logFile: resolveAppLogFileConfig(),
   };
 });
