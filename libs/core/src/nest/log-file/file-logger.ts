@@ -17,6 +17,9 @@ type AppLogRecordLevel =
  * 任何落盘异常都被吞掉，绝不影响 Nest 日志本身。
  */
 export class FileLogger extends ConsoleLogger {
+  /** 落盘允许的级别集合（与 APP_LOG_LEVEL 解析出的 levels 一致），文件输出据此过滤 */
+  private readonly enabledLevels: Set<LogLevel>;
+
   constructor(
     context: string,
     levels: LogLevel[],
@@ -24,6 +27,7 @@ export class FileLogger extends ConsoleLogger {
     private readonly appName: string,
   ) {
     super(context, { logLevels: levels });
+    this.enabledLevels = new Set(levels);
   }
 
   log(message: unknown, ...rest: unknown[]): void {
@@ -61,6 +65,10 @@ export class FileLogger extends ConsoleLogger {
     message: unknown,
     rest: unknown[],
   ): void {
+    // 落盘与控制台一致地按 APP_LOG_LEVEL 过滤：未启用的级别（如 info 下的 debug）不写文件
+    if (!this.enabledLevels.has(level)) {
+      return;
+    }
     try {
       // Nest 约定最后一个 string 参数是 context；error 还可能带 trace 字符串
       const params = [...rest];
