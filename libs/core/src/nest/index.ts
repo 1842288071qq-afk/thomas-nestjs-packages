@@ -9,6 +9,7 @@ export * from './composition/index';
 export * from './decorators/index';
 export * from './dictionary/index';
 export * from './file-management/index';
+export * from './health/index';
 export * from './jwt-auth/index';
 export * from './log-file/index';
 export * from './mq/index';

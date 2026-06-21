@@ -58,6 +58,20 @@ export interface AppLogFileConfig {
   captureStd: boolean;
 }
 
+export interface AppHealthConfig {
+  /** 健康接口总开关，默认 true；false 时接口返回 404 */
+  enabled: boolean;
+  /**
+   * 详情接口（/health/ready）令牌；非空则需 X-Health-Token 头或 ?token= 匹配，
+   * 为空表示不校验令牌（依赖 nginx IP 白名单等外层保护）。
+   */
+  token?: string;
+  /** readiness 结果缓存毫秒，默认 3000，避免高频探测打爆 DB */
+  cacheTtlMs: number;
+  /** 单个检查的硬超时毫秒，默认 2500；卡死的检查超时即判 down，不拖垮接口 */
+  checkTimeoutMs: number;
+}
+
 export interface AppConfig {
   port: number;
   name: string;
@@ -67,6 +81,7 @@ export interface AppConfig {
   logger: AppLoggerConfig;
   requestLogs: AppRequestLogsConfig;
   logFile: AppLogFileConfig;
+  health: AppHealthConfig;
 }
 
 export interface SessionConfig {

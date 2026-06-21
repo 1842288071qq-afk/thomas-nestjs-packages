@@ -3,6 +3,7 @@ import type { LogLevel } from '@nestjs/common';
 import os from 'os';
 import type {
   AppConfig,
+  AppHealthConfig,
   AppLogFileConfig,
   AppLogFileFormat,
   AppLoggerConfig,
@@ -107,6 +108,17 @@ export function resolveAppLogFileConfig(
   };
 }
 
+export function resolveAppHealthConfig(
+  env: NodeJS.ProcessEnv = process.env,
+): AppHealthConfig {
+  return {
+    enabled: parseBooleanEnv(env.APP_HEALTH_ENABLED, true),
+    token: parseOptionalString(env.APP_HEALTH_TOKEN),
+    cacheTtlMs: parsePositiveInt(env.APP_HEALTH_CACHE_TTL_MS) ?? 3000,
+    checkTimeoutMs: parsePositiveInt(env.APP_HEALTH_CHECK_TIMEOUT_MS) ?? 2500,
+  };
+}
+
 export default registerAs('app', (): AppConfig => {
   const host = process.env.HOST?.trim();
 
@@ -122,5 +134,6 @@ export default registerAs('app', (): AppConfig => {
     logger: resolveAppLoggerConfig(),
     requestLogs: resolveAppRequestLogsConfig(),
     logFile: resolveAppLogFileConfig(),
+    health: resolveAppHealthConfig(),
   };
 });
