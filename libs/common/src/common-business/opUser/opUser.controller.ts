@@ -35,6 +35,7 @@ import {
 import {
   BindUserRolesDTO,
   CreateUserDTO,
+  ResetOpUserPasswordDTO,
   UpdateUserDTO,
   UserQueryDTO,
 } from './dto/user.dto';
@@ -158,6 +159,21 @@ export class OpUserController implements OnModuleInit {
   ): Promise<ApiResBody<OpUserRole[]>> {
     const roles = await this.opUserSharedService.getUserRoles(id);
     return ApiResBody.of(roles);
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(
+    @Query('id') id: string,
+    @Body() dto: ResetOpUserPasswordDTO,
+  ): Promise<ApiResBody<null>> {
+    if (!id) {
+      throw new BizError('id is required').httpStatusAs(HttpStatus.BAD_REQUEST);
+    }
+    const operatorId = this.getCurrentIdentityId();
+    await this.opUserSharedService.resetOpUserPassword(id, dto.password);
+    this.logger.log(`重置运营用户密码: ID: ${id}, operator: ${operatorId}`);
+    return ApiResBody.of(null);
   }
 
   @Get('public-list')

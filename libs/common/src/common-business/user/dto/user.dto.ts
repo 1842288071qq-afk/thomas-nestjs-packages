@@ -55,5 +55,9 @@ export class BizUserQueryDTO implements IUserQueryParams {
 
   @IsOptional()
   @IsString()
+  username?: string;
+
+  @IsOptional()
+  @IsString()
   enable?: string;
 }

@@ -48,6 +48,7 @@ export interface IOpUserQueryParams {
   keyword?: string;
   name?: string;
   phone?: string;
+  username?: string;
   deptId?: string;
   roleId?: string;
   status?: ObjectActiveStatus;
@@ -527,7 +528,8 @@ export class OpUserSharedService {
     page: number,
     pageSize: number,
   ): Promise<IPageData<OpUser>> {
-    const { keyword, name, phone, deptId, roleId, status } = queryParams;
+    const { keyword, name, phone, username, deptId, roleId, status } =
+      queryParams;
 
     const qb = this.opUserRepository
       .createQueryBuilder('user')
@@ -555,6 +557,11 @@ export class OpUserSharedService {
     if (phone) {
       qb.andWhere('(user.phone LIKE :phone OR opAccount.phone LIKE :phone)', {
         phone: `%${phone}%`,
+      });
+    }
+    if (username) {
+      qb.andWhere('opAccount.username LIKE :username', {
+        username: `%${username}%`,
       });
     }
     if (deptId) {

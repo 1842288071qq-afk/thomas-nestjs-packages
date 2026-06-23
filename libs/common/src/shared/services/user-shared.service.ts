@@ -34,6 +34,7 @@ export interface IUpdateUserParams {
 export interface IUserQueryParams {
   name?: string;
   phone?: string;
+  username?: string;
   enable?: string;
 }
 
@@ -252,7 +253,7 @@ export class UserSharedService {
     page: number,
     pageSize: number,
   ): Promise<IPageData<User>> {
-    const { name, phone, enable } = queryParams;
+    const { name, phone, username, enable } = queryParams;
 
     const qb = this.userRepository
       .createQueryBuilder('user')
@@ -268,6 +269,11 @@ export class UserSharedService {
     }
     if (phone) {
       qb.andWhere('user.phone LIKE :phone', { phone: `%${phone}%` });
+    }
+    if (username) {
+      qb.andWhere('account.username LIKE :username', {
+        username: `%${username}%`,
+      });
     }
     if (enable) {
       qb.andWhere('user.status = :status', {

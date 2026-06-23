@@ -84,6 +84,10 @@ export class UserQueryDTO implements IOpUserQueryParams {
 
   @IsOptional()
   @IsString()
+  username?: string;
+
+  @IsOptional()
+  @IsString()
   deptId?: string;
 
   @IsOptional()
@@ -95,4 +99,11 @@ export class BindUserRolesDTO {
   @IsArray()
   @IsString({ each: true })
   roleIds: string[];
+}
+
+export class ResetOpUserPasswordDTO {
+  @IsNotEmpty({ message: '密码不能为空' })
+  @IsString()
+  @MinLength(6, { message: '密码长度至少6位' })
+  password: string;
 }
