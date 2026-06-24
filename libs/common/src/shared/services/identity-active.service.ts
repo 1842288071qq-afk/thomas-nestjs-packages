@@ -48,7 +48,7 @@ export class IdentityActiveService {
       .smembers(this.DIRTY_SET_KEY);
     if (dirtyMembers.length === 0) return;
 
-    this.logger.log(`Syncing ${dirtyMembers.length} active statistics to DB`);
+    this.logger.debug(`Syncing ${dirtyMembers.length} active statistics to DB`);
 
     // 执行同步
     await this.syncIdentitiesToRepo(this.identityRepo, dirtyMembers);
