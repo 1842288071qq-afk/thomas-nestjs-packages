@@ -6,7 +6,6 @@ import {
   HttpCode,
   HttpStatus,
   Logger,
-  OnModuleInit,
   Patch,
   Post,
   Query,
@@ -28,54 +27,22 @@ import {
 } from '@thomas/nestjs/core/Pagination';
 import { OpUserSharedService } from '../../shared/services/op-user-shared.service';
 import {
-  QueueName,
-  TaskService,
-  WorkerFactory,
-} from '@thomas/nestjs/core/nest/bullmq';
-import {
   BindUserRolesDTO,
   CreateUserDTO,
   ResetOpUserPasswordDTO,
   UpdateUserDTO,
   UserQueryDTO,
 } from './dto/user.dto';
-import { Job } from 'bullmq';
 
 @IdentityRequired(IdentityType.OP_USER)
 @Controller('op-user')
-export class OpUserController implements OnModuleInit {
+export class OpUserController {
   private readonly logger = new Logger(OpUserController.name);
-
-  private readonly bootstrapTaskName = 'opUser.bootstrap.ensure-user-id-1';
-  private readonly bootstrapTaskBizKey = 'op-user-id-1';
-  private hasSetupBootstrapWorker = false;
 
   constructor(
     private readonly opUserSharedService: OpUserSharedService,
     private readonly threadLocal: ThreadLocal,
-    private readonly taskService: TaskService,
-    private readonly workerFactory: WorkerFactory,
   ) {}
-
-  async onModuleInit(): Promise<void> {
-    if (!this.hasSetupBootstrapWorker) {
-      this.workerFactory.createRoutedWorker(QueueName.ASYNC, {
-        [this.bootstrapTaskName]: (job) => this.handleBootstrapOpUser(job),
-      });
-      this.hasSetupBootstrapWorker = true;
-    }
-
-    await this.taskService.addTask({
-      queue: QueueName.ASYNC,
-      name: this.bootstrapTaskName,
-      bizKey: this.bootstrapTaskBizKey,
-      data: { source: 'op-user-controller-module-init' },
-    });
-  }
-
-  private async handleBootstrapOpUser(_job: Job): Promise<void> {
-    await this.opUserSharedService.ensureBootstrapAdminUser();
-  }
 
   private getCurrentIdentityId(): string {
     const identity = this.threadLocal.getStore()?.identity as
