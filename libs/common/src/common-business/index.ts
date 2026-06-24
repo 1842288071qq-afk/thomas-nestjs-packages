@@ -1,5 +1,6 @@
 export * from './common-business.module';
 export * from './opUser/opUser.controller';
+export * from './opUser/opUser.bootstrap.task';
 export * from './opUser/dto/user.dto';
 export * from './opRole/opRole.controller';
 export * from './opRole/dto/role.dto';
