@@ -3,6 +3,7 @@ import {
   ExecutionContext,
   Injectable,
   NestInterceptor,
+  StreamableFile,
 } from '@nestjs/common';
 import { map } from 'rxjs';
 import dayjs from 'dayjs';
@@ -28,7 +29,13 @@ export class DateSerializeInterceptor implements NestInterceptor {
     }
     return next
       .handle()
-      .pipe(map((data) => this.serializeDate(data, timezone)));
+      .pipe(
+        map((data) =>
+          data instanceof StreamableFile
+            ? data
+            : this.serializeDate(data, timezone),
+        ),
+      );
   }
 
   private serializeDate(obj: unknown, timezone?: string): unknown {
