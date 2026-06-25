@@ -3,6 +3,7 @@ import {
   ExecutionContext,
   Injectable,
   NestInterceptor,
+  StreamableFile,
 } from '@nestjs/common';
 import { instanceToPlain } from 'class-transformer';
 import { map } from 'rxjs';
@@ -12,8 +13,7 @@ export class ClassSerializeInterceptor implements NestInterceptor {
   intercept(_context: ExecutionContext, next: CallHandler) {
     return next.handle().pipe(
       map((data) => {
-        // 利用 class-transformer 按照实体装饰器规则转为 plain object
-        // 这会处理 @Exclude, @Expose 和 Getter
+        if (data instanceof StreamableFile) return data;
         return instanceToPlain(data);
       }),
     );
