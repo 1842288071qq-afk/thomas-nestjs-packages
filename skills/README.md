@@ -29,7 +29,7 @@ Composite 通过正文中的「相关 skill」段落引用 atomic，AI agent 可
 | `cache-wrap` | `CacheService.wrap` / 防击穿 |
 | `redis-kv` | RedisService set/get / 自动序列化 |
 | `response-apiresbody` | ApiResBody / 全局过滤器 |
-| `biz-error` | BizError / codeAs / httpStatusAs |
+| `biz-error` | BizError / codeAs / httpStatusAs / dataAs |
 | `dto-validation` | class-validator / `@ToDate` / `@EnsureNotBlank` / 嵌套 |
 | `range-query` | `@ParseRange` / `@ParseDateTimeRange` |
 | `entity-base` | `EntityWithIdAndTimeTrace` / extendable / `WithStatus` / `@Column.type` |
@@ -40,6 +40,9 @@ Composite 通过正文中的「相关 skill」段落引用 atomic，AI agent 可
 | `type-safety` ⚠️ | 禁止 as any / 敏感信息独立 |
 | `serialization-vo` ⚠️ | `@Exclude` / `@Expose` / `plainToInstance` / vo-transform / VO class |
 | `file-management` | LocalUploadService / FileService / translateIds |
+| `request-logging` | 请求日志 / access log / 持久化 / `@IgnoreRequestLog` / `@CaptureRequestLogBody` |
+| `health-check` | HealthModule / `/health` / readiness / `@HealthIndicator` / 探活 |
+| `log-file` | setupAppLogger / APP_LOG_FILE_* / 滚动落盘 / json·text |
 | `skill-usage-tracking` | skill统计 / skill-usage / sessions / total.mjs |
 
 ### Composite（任务级）

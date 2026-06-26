@@ -78,6 +78,13 @@ applyTypeOrmDs({
 @InjectRepository(LogEntity, 'audit') private readonly auditLog: Repository<LogEntity>;
 ```
 
+## 可选基础设施模块（按需追加在业务 Module 前）
+
+- `RequestLogsModule.forRoot({ systemType, accessLogEnabled, persistEnabled })` — HTTP 请求日志（访问日志 + 持久化），见 `request-logging`
+- `HealthModule.forRoot()` — 暴露 `/health`、`/health/ready`，见 `health-check`
+
+> 应用日志文件落盘不在根 Module 装配，而在 `main.ts` 用 `setupAppLogger` 接入，见 `log-file`。
+
 ## 不要做
 
 - 不要直接 `ConfigModule.forRoot(...)` 自行装配 — 使用 `configModuleImport`
@@ -89,3 +96,4 @@ applyTypeOrmDs({
 - `app-bootstrap-main` — main.ts 启动流程
 - `env-config-conventions` — env 命名与加载
 - `config-service` — 配置读取、AllConfig 类型体系与扩展
+- `request-logging` / `health-check` / `log-file` — 可选基础设施能力

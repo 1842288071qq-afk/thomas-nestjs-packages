@@ -39,6 +39,8 @@ async detail(@Query('id') id: string): Promise<ApiResBody<UserDetailVO>> {
 
 抛出的 `BizError` / `HttpException` / `ValidationException` 由同一过滤器映射为对应 `code` 与 HTTP 状态。详见 `biz-error`。
 
+`BizError.dataAs(data)` 携带的业务数据会被过滤器写入错误响应的 `data` 字段（非空才写），用于 402 购买拦截等需要在错误响应里返回业务数据的场景。
+
 ## 相关 skill
 
 - `biz-error` — 业务异常如何被统一封装

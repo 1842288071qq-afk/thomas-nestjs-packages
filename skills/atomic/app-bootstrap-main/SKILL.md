@@ -77,7 +77,8 @@ void bootstrap();
 | `ConfigService<AllConfig>` | 从 `app.get()` 拿到类型化 ConfigService，后续 `get` 有类型提示。详见 `config-service` |
 | `AppConfig` | 内置 `app` 命名空间，提供 `port` / `host` / `name` / `apiPrefix` / `logger`（含 `levels` 与 `context`）。由 `configModuleImport` 自动加载 |
 | `app.useLogger(...)` | 用 `AppConfig.logger.levels` 控制 Nest 日志输出级别，替代 `app.useLogger(false)` 的粗暴关闭 |
-| `app.setGlobalPrefix(apiPrefix)` | 统一 URL 前缀，如 `api/v1` |
+| `setupAppLogger(app, appConfig)` | 需要日志文件落盘时用它替代 `app.useLogger(...)`（默认关闭，零侵入），见 `log-file` |
+| `app.setGlobalPrefix(apiPrefix)` | 统一 URL 前缀，如 `api/v1`；接入 `HealthModule` 时用 `{ exclude: ['health','health/ready'] }` 排除健康路径，见 `health-check` |
 | `connectGlobalGuards(app)` | 统一注入全局 Guard 链，不在 `main.ts` 逐个调 `useGlobalGuards` |
 | `void bootstrap()` | 顶层 `void` 避免悬挂 Promise |
 
@@ -94,3 +95,5 @@ void bootstrap();
 - `app-module-composition` — Root Module 结构
 - `env-config-conventions` — env 变量如何映射到 config
 - `create-new-app` — 新建 app 全流程
+- `log-file` — `setupAppLogger` 日志文件落盘
+- `health-check` — `/health` 路径与全局前缀排除

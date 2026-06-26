@@ -130,6 +130,17 @@ jwt:
     - /api/v1/auth/login
 ```
 
+### 可选认证（Optional Auth）
+
+`@Public()` 与 `jwt.whiteList` 均为**可选认证**而非「完全跳过」：
+
+- 请求**未带 token / token 无效 / 过期** → 放行，不抛异常，`req.user` 为空（匿名访问）。
+- 请求**携带有效 token** → 仍会解析并写入 `req.user`，下游可获取登录用户信息。
+
+适用场景：公开详情接口（如题目详情）允许匿名访问，但登录用户访问时还要附带「是否收藏」等个性化数据。Controller 中通过 ThreadLocal 取 `account`，需做空值判断（匿名为空）。
+
+> 实现：`JwtAuthGuard.canActivate` 对公开/白名单接口尝试 `super.canActivate`，失败时 `catch(() => true)` 放行，不再直接 short-circuit。
+
 ## 4. 配置获取 (Configuration)
 
 使用 NestJS 原生 `ConfigService` 获取配置。
@@ -231,6 +242,7 @@ const val = JSON.parse(await this.redisService.get('key'));
 
 - `BizError` 可以自定义业务状态码 (`code`) 和 HTTP 状态码 (`httpStatus`)。
 - 默认 HTTP 状态码为 400，默认业务 Code 为 400。
+- 可用 `.dataAs(data)` 携带业务数据，过滤器会把它写入 `ApiResBody.data`（非空才写）。
 
 **代码示例:**
 
@@ -242,6 +254,29 @@ if (balance < amount) {
   throw new BizError('余额不足')
     .codeAs(1001) // 自定义业务码
     .httpStatusAs(402); // 自定义 HTTP 状态码
+}
+```
+
+#### 携带业务数据 (dataAs)
+
+当错误响应本身需要带业务语义数据时（例如 402 购买拦截需返回所缺商品/价格信息），用 `.dataAs(data)`。过滤器在 `BizError` 分支会把 `data`（非 `null`/`undefined`）写入响应体 `data` 字段，前端可按业务语义直接消费：
+
+```typescript
+if (!purchased) {
+  throw new BizError('请先购买该课程')
+    .codeAs(402)
+    .httpStatusAs(402)
+    .dataAs({ productId, price, purchaseUrl }); // 写入 ApiResBody.data
+}
+```
+
+返回体：
+
+```json
+{
+  "code": 402,
+  "message": "请先购买该课程",
+  "data": { "productId": "p_1", "price": 9900, "purchaseUrl": "/buy/p_1" }
 }
 ```
 

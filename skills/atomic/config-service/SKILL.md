@@ -53,7 +53,7 @@ export class MyService {
 
 | 命名空间 | 说明 |
 | - | - |
-| `app` | `port` / `host` / `name` / `apiPrefix` / `logger` |
+| `app` | `port` / `host` / `name` / `apiPrefix` / `logger` / `requestLogs` / `logFile` / `health` |
 | `session` | 会话与踢出策略 |
 | `datasource` | 一个或多个 TypeORM 数据源 |
 | `file` | 本地文件存储配置 |

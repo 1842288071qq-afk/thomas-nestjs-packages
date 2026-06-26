@@ -57,6 +57,24 @@ jwt:
 
 仅支持精确匹配；优先用 `@Public` 装饰器，配置法适用于第三方/无源码场景。
 
+## 可选认证（重要）
+
+`@Public` 与 `jwt.whiteList` 是**可选认证**，不是「无脑跳过」：
+
+- 无 token / token 无效 / 过期 → 放行，不抛异常，`req.user` 为空（匿名）。
+- 携带有效 token → 仍解析并写入 `req.user`，下游能拿到登录用户。
+
+所以公开接口里 Controller 取 `account`/`identity` 时**必须判空**：匿名访问为空，登录访问有值。典型用途：公开详情接口在登录态下附带「是否收藏」等个性化字段。
+
+```typescript
+@Get('detail')
+@Public()
+async detail(@Query('id') id: string) {
+  const account = this.threadLocal.get('account'); // 匿名时为 undefined
+  return this.service.getDetail(id, account?.id);
+}
+```
+
 ## 相关 skill
 
 - `permission-rbac` — 身份通过后再做权限码校验

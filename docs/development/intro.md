@@ -33,6 +33,11 @@
 | **ClassSerializeInterceptor** | Interceptor        | 负责将实体对象根据类装饰器规则（`@Exclude`, `@Expose`）转换为纯对象。       | `libs/core/src/nest/transform`  |
 | **DateSerializeInterceptor**  | Interceptor        | 统一处理响应中的日期格式化及客户端时区转换。                                | `libs/core/src/nest/transform`  |
 | **GlobalModule**              | Module             | 注册全局 Filters, Pipes, Interceptors (如序列化和日期处理)。                | `libs/core/src/nest`            |
+| **RequestLogsModule**         | Module/Interceptor | HTTP 请求日志，访问日志与持久化两个独立开关；支持 `@IgnoreRequestLog`/`@CaptureRequestLogBody`。 | `libs/core/src/nest/request-logs` |
+| **HealthModule**              | Module             | 进程健康监测，暴露 `/health`(liveness) 与 `/health/ready`(readiness)，`@HealthIndicator` 扩展。 | `libs/core/src/nest/health`     |
+| **setupAppLogger**            | Bootstrap          | 应用日志异步滚动文件落盘（默认关闭，`APP_LOG_FILE_*` 驱动）。              | `libs/core/src/nest/log-file`   |
+
+> 上述三个能力的设计详情分别见 [request-log.md](./request-log.md)、[health-check.md](./health-check.md)、[log-file.md](./log-file.md)。
 
 ## 3. 全局基础设施 (Global Infrastructure)
 

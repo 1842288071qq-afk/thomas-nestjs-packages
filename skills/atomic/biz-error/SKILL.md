@@ -27,6 +27,17 @@ if (balance < amount) {
 - `code` 默认 400
 - `message` 用于面向用户提示，应清晰可读
 
+## 携带业务数据 (dataAs)
+
+错误响应需要带业务语义数据时（如 402 购买拦截返回商品/价格），用 `.dataAs(data)`：过滤器在 BizError 分支把 `data`（非 `null`/`undefined`）写入 `ApiResBody.data`，前端可直接消费。向后兼容，不调用即不写。
+
+```typescript
+throw new BizError('请先购买该课程')
+  .codeAs(402)
+  .httpStatusAs(402)
+  .dataAs({ productId, price, purchaseUrl }); // -> ApiResBody.data
+```
+
 ## 使用建议
 
 - 链式调用一行内表达，避免拆分
