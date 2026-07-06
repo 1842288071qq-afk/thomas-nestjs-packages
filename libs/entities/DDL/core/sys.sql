@@ -88,9 +88,9 @@ CREATE INDEX idx_sys_file_deleted_at ON sys_file (deleted_at);
 CREATE TABLE core_request_log (
   id BIGINT PRIMARY KEY,
   system_type VARCHAR(32) NOT NULL,
-  account_id VARCHAR(64),
+  account_id BIGINT,
   account_source VARCHAR(64),
-  identity_id VARCHAR(64),
+  identity_id BIGINT,
   request_id VARCHAR(64),
   method VARCHAR(16) NOT NULL,
   request_at TIMESTAMPTZ NOT NULL,

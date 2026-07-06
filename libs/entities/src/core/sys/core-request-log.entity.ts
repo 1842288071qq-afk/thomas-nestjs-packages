@@ -23,8 +23,7 @@ export class CoreRequestLogEntity extends WithId(CoreRequestLogEntityRoot) {
 
   @Column({
     name: 'account_id',
-    type: 'varchar',
-    length: 64,
+    type: 'bigint',
     nullable: true,
     comment: '账号ID',
   })
@@ -41,8 +40,7 @@ export class CoreRequestLogEntity extends WithId(CoreRequestLogEntityRoot) {
 
   @Column({
     name: 'identity_id',
-    type: 'varchar',
-    length: 64,
+    type: 'bigint',
     nullable: true,
     comment: '身份ID',
   })
