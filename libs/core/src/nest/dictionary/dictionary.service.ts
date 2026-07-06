@@ -7,7 +7,10 @@ import { DictGroup, DictItem, DictTranslateResult } from './dictionary.types';
 @Injectable()
 export class DictionaryService implements OnModuleInit {
   private readonly logger = new Logger(DictionaryService.name);
-  private readonly DICT_PATH = path.join(process.cwd(), 'public/dict.json');
+  /** 兼容形态：聚合字典文件（数组，每个元素为一个字典分组） */
+  private readonly DICT_FILE = path.join(process.cwd(), 'public/dict.json');
+  /** 推荐形态：分片字典目录，每个文件一个字典，文件名即字典 key */
+  private readonly DICT_DIR = path.join(process.cwd(), 'public/dict');
   private readonly REDIS_PREFIX_FULL = 'dict:full:';
   private readonly REDIS_PREFIX_MAP = 'dict:map:';
   private allDictionaries: DictGroup[] = [];
@@ -19,37 +22,162 @@ export class DictionaryService implements OnModuleInit {
   }
 
   /**
-   * 刷新字典缓存：读取文件 -> 校验 -> 同步到 Redis
+   * 刷新字典缓存：加载全部来源 -> 校验 -> 同步到 Redis
+   *
+   * 数据来源（后者优先，同 key 时分片覆盖聚合）：
+   * 1. `public/dict.json`  —— 聚合形态，兼容历史用法
+   * 2. `public/dict/*.json` —— 分片形态，文件名即字典 key（推荐）
    */
   async refresh() {
+    const groups = this.loadAllGroups();
+    const newAllDictionaries: DictGroup[] = [];
+
+    for (const group of groups) {
+      const [validatedItems, error] = await this.syncGroupToRedis(group);
+      if (error) {
+        this.logger.error(
+          `Failed to sync dictionary "${group.key}" to Redis`,
+          error,
+        );
+        continue;
+      }
+      newAllDictionaries.push({ ...group, items: validatedItems });
+    }
+
+    this.allDictionaries = newAllDictionaries;
+    this.logger.log(
+      `Dictionary cache refreshed successfully (${newAllDictionaries.length} groups)`,
+    );
+  }
+
+  /**
+   * 汇总两种来源的字典分组，按 key 去重（分片目录优先）
+   */
+  private loadAllGroups(): DictGroup[] {
+    const groupMap = new Map<string, DictGroup>();
+
+    // 1. 兼容 public/dict.json（聚合形态）
+    for (const group of this.loadFromMonolith()) {
+      this.upsertGroup(groupMap, group, 'public/dict.json');
+    }
+
+    // 2. 加载 public/dict/*.json（分片形态，优先级更高）
+    for (const group of this.loadFromShardDir()) {
+      this.upsertGroup(groupMap, group, `public/dict/${group.key}.json`);
+    }
+
+    return [...groupMap.values()];
+  }
+
+  /**
+   * 读取聚合形态 public/dict.json，返回字典分组数组
+   */
+  private loadFromMonolith(): DictGroup[] {
+    if (!fs.existsSync(this.DICT_FILE)) {
+      return [];
+    }
+
+    const [parsed, error] = this.readJsonFile<DictGroup[]>(this.DICT_FILE);
+    if (error) {
+      this.logger.error(`Failed to parse ${this.DICT_FILE}`, error);
+      return [];
+    }
+    if (!Array.isArray(parsed)) {
+      this.logger.warn(
+        `Dictionary file ${this.DICT_FILE} must be an array of groups, skipped.`,
+      );
+      return [];
+    }
+
+    return parsed;
+  }
+
+  /**
+   * 读取分片目录 public/dict/*.json，每个文件转为一个字典分组
+   * 强制约定：文件名（去后缀）即字典 key，每个文件仅承载一个字典
+   */
+  private loadFromShardDir(): DictGroup[] {
+    if (!fs.existsSync(this.DICT_DIR)) {
+      return [];
+    }
+
+    const groups: DictGroup[] = [];
+    const files = fs
+      .readdirSync(this.DICT_DIR)
+      .filter((file) => file.toLowerCase().endsWith('.json'));
+
+    for (const file of files) {
+      const key = path.basename(file, path.extname(file));
+      const filePath = path.join(this.DICT_DIR, file);
+
+      const [parsed, error] = this.readJsonFile<Partial<DictGroup>>(filePath);
+      if (error) {
+        this.logger.error(`Failed to parse ${filePath}`, error);
+        continue;
+      }
+      if (Array.isArray(parsed) || typeof parsed !== 'object' || !parsed) {
+        this.logger.warn(
+          `Shard dictionary ${file} must contain a single dict object ({ name, items }), skipped.`,
+        );
+        continue;
+      }
+      if (parsed.key && parsed.key !== key) {
+        this.logger.warn(
+          `Shard dictionary ${file}: inner key "${parsed.key}" mismatches filename, using filename "${key}".`,
+        );
+      }
+
+      groups.push({
+        key,
+        name: parsed.name ?? key,
+        items: parsed.items ?? [],
+      });
+    }
+
+    return groups;
+  }
+
+  /**
+   * 写入分组去重表，同 key 时后写入者覆盖并告警
+   */
+  private upsertGroup(
+    map: Map<string, DictGroup>,
+    group: DictGroup,
+    source: string,
+  ) {
+    if (!group.key) {
+      this.logger.warn(`Dictionary group without key skipped (from ${source}).`);
+      return;
+    }
+    if (map.has(group.key)) {
+      this.logger.warn(
+        `Duplicate dictionary key "${group.key}" from ${source} overrides the previous definition.`,
+      );
+    }
+    map.set(group.key, group);
+  }
+
+  /**
+   * 读取并解析 JSON 文件，返回 [数据, 错误] 元组，调用方无需 try/catch
+   */
+  private readJsonFile<T>(filePath: string): [T | null, Error | null] {
     try {
-      if (!fs.existsSync(this.DICT_PATH)) {
-        this.logger.warn(`Dictionary file not found at ${this.DICT_PATH}`);
-        return;
-      }
-
-      const content = fs.readFileSync(this.DICT_PATH, 'utf-8');
-      const groups = JSON.parse(content) as DictGroup[];
-      const newAllDictionaries: DictGroup[] = [];
-
-      for (const group of groups) {
-        const validatedItems = await this.syncGroupToRedis(group);
-        newAllDictionaries.push({ ...group, items: validatedItems });
-      }
-      this.allDictionaries = newAllDictionaries;
-      this.logger.log('Dictionary cache refreshed successfully');
+      const content = fs.readFileSync(filePath, 'utf-8');
+      return [JSON.parse(content) as T, null];
     } catch (error) {
-      this.logger.error('Failed to refresh dictionary cache', error);
+      return [null, error as Error];
     }
   }
 
-  private async syncGroupToRedis(group: DictGroup): Promise<DictItem[]> {
+  private async syncGroupToRedis(
+    group: DictGroup,
+  ): Promise<[DictItem[], Error | null]> {
     const { key, items } = group;
     const flatMap = new Map<string, DictTranslateResult>();
     const seenValues = new Set<string>();
 
     const validatedItems = this.validateAndFlatten(
-      items,
+      items ?? [],
       null,
       null,
       flatMap,
@@ -57,24 +185,28 @@ export class DictionaryService implements OnModuleInit {
       key,
     );
 
-    // 1. 存储完整树形
-    await this.redisService.set(
-      `${this.REDIS_PREFIX_FULL}${key}`,
-      validatedItems,
-    );
+    try {
+      // 1. 存储完整树形
+      await this.redisService.set(
+        `${this.REDIS_PREFIX_FULL}${key}`,
+        validatedItems,
+      );
 
-    // 2. 存储扁平映射 (Hash)
-    const hashData: Record<string, string> = {};
-    flatMap.forEach((value, code) => {
-      hashData[code] = JSON.stringify(value);
-    });
+      // 2. 存储扁平映射 (Hash)
+      const hashData: Record<string, string> = {};
+      flatMap.forEach((value, code) => {
+        hashData[code] = JSON.stringify(value);
+      });
 
-    if (Object.keys(hashData).length > 0) {
-      const client = this.redisService.getClient();
-      await client.hmset(`${this.REDIS_PREFIX_MAP}${key}`, hashData);
+      if (Object.keys(hashData).length > 0) {
+        const client = this.redisService.getClient();
+        await client.hmset(`${this.REDIS_PREFIX_MAP}${key}`, hashData);
+      }
+    } catch (error) {
+      return [validatedItems, error as Error];
     }
 
-    return validatedItems;
+    return [validatedItems, null];
   }
 
   /**

@@ -33,7 +33,7 @@ Composite 通过正文中的「相关 skill」段落引用 atomic，AI agent 可
 | `dto-validation` | class-validator / `@ToDate` / `@EnsureNotBlank` / 嵌套 |
 | `range-query` | `@ParseRange` / `@ParseDateTimeRange` |
 | `entity-base` | `EntityWithIdAndTimeTrace` / extendable / `WithStatus` / `@Column.type` |
-| `dict-json` | `public/dict.json` / `DictionaryService` / code 翻译 / 业务枚举 |
+| `dict-json` | `public/dict/<key>.json` 分片（推荐）/ `public/dict.json` 兼容 / `DictionaryService` / code 翻译 / 业务枚举 |
 | `service-paradigm` ⚠️ | 上下文无关 / interface 入参 / 对象参数 / 查询分层 |
 | `pagination-and-list` ⚠️ | PaginationDTO / IPageData / ListLimitDto / simple-list |
 | `restful-style` ⚠️ | Query 参数定位 / DTO 不携带 id / PATCH 返完整对象 |

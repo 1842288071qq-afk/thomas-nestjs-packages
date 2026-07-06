@@ -1,0 +1,7 @@
+{
+  "name": "知识库来源类型",
+  "items": [
+    { "value": "manual", "text": "手工录入" },
+    { "value": "import", "text": "导入" }
+  ]
+}
