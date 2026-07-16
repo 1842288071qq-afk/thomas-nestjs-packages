@@ -84,7 +84,7 @@ export class WorkerDiscoveryService implements OnModuleInit {
           return;
         }
 
-        const { name, cron, description } = metadata;
+        const { name, cron, description, silentDebug } = metadata;
 
         const cronHandler = instance[methodName];
         if (typeof cronHandler !== 'function') {
@@ -97,6 +97,7 @@ export class WorkerDiscoveryService implements OnModuleInit {
           name,
           cron,
           description,
+          silentDebug,
           handler: (cronHandler as () => Promise<void>).bind(
             instance,
           ) as () => Promise<void>,

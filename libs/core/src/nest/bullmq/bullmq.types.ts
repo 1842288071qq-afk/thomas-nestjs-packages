@@ -44,6 +44,8 @@ export interface CronJobDefinition {
   handler: () => Promise<void>;
   /** 任务描述 */
   description?: string;
+  /** 静默 debug 日志：跳过「执行中 / 已完成」类 debug 日志，失败/警告日志不受影响 */
+  silentDebug?: boolean;
 }
 
 /**

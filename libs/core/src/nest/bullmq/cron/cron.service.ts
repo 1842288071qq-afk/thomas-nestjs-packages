@@ -84,11 +84,16 @@ export class CronService implements OnApplicationBootstrap {
           return;
         }
 
-        this.logger.debug(`Executing cron job: ${cronName}`);
+        // 高频任务可声明 silentDebug 以静默「执行中 / 已完成」类 debug 日志，失败/警告日志不受影响
+        if (!cronJob.silentDebug) {
+          this.logger.debug(`Executing cron job: ${cronName}`);
+        }
 
         try {
           await cronJob.handler();
-          this.logger.debug(`Cron job completed: ${cronName}`);
+          if (!cronJob.silentDebug) {
+            this.logger.debug(`Cron job completed: ${cronName}`);
+          }
         } catch (error) {
           this.logger.error(
             `Cron job failed: ${cronName}`,
