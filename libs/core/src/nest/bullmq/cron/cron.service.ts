@@ -26,6 +26,11 @@ export class CronService implements OnApplicationBootstrap {
    */
   async onApplicationBootstrap(): Promise<void> {
     const cronJobs = this.cronRegistry.getAll();
+    const knownNames = new Set(cronJobs.map((job) => job.name));
+
+    // 清理本进程 registry 之外的残留 repeatable（已删除/改名的 cron），
+    // 避免 worker 抢到无 handler 的 job 而刷 "Cron job handler not found" 警告
+    await this.cleanupOrphanRepeatables(knownNames);
 
     if (cronJobs.length === 0) {
       this.logger.log('No cron jobs registered');
@@ -41,6 +46,25 @@ export class CronService implements OnApplicationBootstrap {
     this.startWorker();
 
     this.logger.log(`CronService started with ${cronJobs.length} cron jobs`);
+  }
+
+  /**
+   * 清理 CRON 队列中不在当前 registry 的残留 repeatable 任务
+   *
+   * cron 任务从代码中移除/改名后，BullMQ 队列里的 repeatable 调度仍会残留在 Redis，
+   * 继续触发但 worker 找不到 handler。启动时按 name 比对清理掉这些孤儿。
+   * 各进程队列前缀（bullmq:{appName}:{devName}）隔离，互不影响。
+   */
+  private async cleanupOrphanRepeatables(
+    knownNames: Set<string>,
+  ): Promise<void> {
+    const cronQueue = this.queueFactory.getQueue(QueueName.CRON);
+    const repeatables = await cronQueue.getRepeatableJobs();
+    for (const repeatable of repeatables) {
+      if (knownNames.has(repeatable.name)) continue;
+      await cronQueue.removeRepeatableByKey(repeatable.key);
+      this.logger.log(`Removed orphan cron repeatable: ${repeatable.name}`);
+    }
   }
 
   /**
