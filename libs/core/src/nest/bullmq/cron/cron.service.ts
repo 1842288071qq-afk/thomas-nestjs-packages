@@ -31,6 +31,7 @@ export class CronService implements OnApplicationBootstrap {
     // 清理本进程 registry 之外的残留 repeatable（已删除/改名的 cron），
     // 避免 worker 抢到无 handler 的 job 而刷 "Cron job handler not found" 警告
     await this.cleanupOrphanRepeatables(knownNames);
+    await this.cleanupOrphanJobs(knownNames);
 
     if (cronJobs.length === 0) {
       this.logger.log('No cron jobs registered');
@@ -64,6 +65,29 @@ export class CronService implements OnApplicationBootstrap {
       if (knownNames.has(repeatable.name)) continue;
       await cronQueue.removeRepeatableByKey(repeatable.key);
       this.logger.log(`Removed orphan cron repeatable: ${repeatable.name}`);
+    }
+  }
+
+  /**
+   * 清理已经由旧 repeatable 生成、但尚未执行的孤儿任务
+   *
+   * removeRepeatableByKey 只移除调度元数据，不会移除已经进入 waiting/delayed
+   * 等状态的任务实例。若不额外清理，这些实例仍会被当前 worker 消费并因 registry
+   * 中没有对应 handler 而产生警告。
+   */
+  private async cleanupOrphanJobs(knownNames: Set<string>): Promise<void> {
+    const cronQueue = this.queueFactory.getQueue(QueueName.CRON);
+    const jobs = await cronQueue.getJobs([
+      'waiting',
+      'delayed',
+      'paused',
+      'prioritized',
+    ]);
+
+    for (const job of jobs) {
+      if (knownNames.has(job.name)) continue;
+      await job.remove();
+      this.logger.log(`Removed orphan cron job: ${job.name} (${job.id})`);
     }
   }
 
