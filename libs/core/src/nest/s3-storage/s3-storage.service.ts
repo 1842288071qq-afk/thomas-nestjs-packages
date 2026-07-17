@@ -13,6 +13,10 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable } from '@nestjs/common';
 import { BizError } from '@thomas/nestjs/core/BizError';
+import {
+  OssAddressingStyle,
+  OssProvider,
+} from '@thomas/nestjs/entities/core/sys/oss-s3-config.interface';
 import { OssConfigService } from '../file-management/oss-config.service';
 import {
   S3StorageAbortMultipartOptions,
@@ -23,6 +27,7 @@ import {
   S3StorageListPartsOptions,
   S3StorageMultipartInitOptions,
   S3StorageSignOptions,
+  S3StorageSignGetOptions,
   S3StorageSignPutOptions,
   S3StorageSignUploadPartOptions,
   S3StorageUploadOptions,
@@ -36,6 +41,7 @@ interface CachedS3ClientContext {
   endpoint?: string;
   domain?: string;
   signingExpiresIn?: number;
+  addressingStyle: OssAddressingStyle;
 }
 
 @Injectable()
@@ -111,7 +117,20 @@ export class S3StorageService {
     const sessionToken = freeConfig?.sessionToken;
     const region = freeConfig?.region || 'us-east-1';
     const endpoint = ossConfig.endpoint;
-    const forcePathStyle = freeConfig?.forcePathStyle ?? false;
+    const addressingStyle =
+      freeConfig?.addressingStyle ??
+      (freeConfig?.forcePathStyle
+        ? OssAddressingStyle.PATH
+        : OssAddressingStyle.VIRTUAL_HOSTED);
+    if (
+      freeConfig?.provider === OssProvider.ALIYUN &&
+      addressingStyle !== OssAddressingStyle.VIRTUAL_HOSTED
+    ) {
+      throw new BizError('阿里云 OSS 仅支持 virtual-hosted 寻址样式').codeAs(
+        400,
+      );
+    }
+    const forcePathStyle = addressingStyle === OssAddressingStyle.PATH;
     const domain = freeConfig?.domain;
     const signingExpiresIn = freeConfig?.signingExpiresIn;
 
@@ -125,6 +144,7 @@ export class S3StorageService {
       bucket: ossConfig.bucket,
       domain,
       signingExpiresIn,
+      addressingStyle,
     });
 
     const cached = this.clientCache.get(ossConfigCode);
@@ -156,6 +176,7 @@ export class S3StorageService {
       endpoint,
       domain,
       signingExpiresIn,
+      addressingStyle,
     };
     this.clientCache.set(ossConfigCode, context);
     return context;
@@ -163,29 +184,46 @@ export class S3StorageService {
 
   /**
    * 构建对象访问 URL。
-   * 优先使用 `domain`（CDN/自定义域名），否则回退为 `endpoint/bucket/key`。
+   * 优先使用 `domain`（CDN/自定义域名），否则按配置的寻址样式生成 URL。
    */
   private buildObjectUrl(
     key: string,
     bucket: string,
     endpoint?: string,
     domain?: string,
+    addressingStyle: OssAddressingStyle = OssAddressingStyle.VIRTUAL_HOSTED,
   ) {
+    const encodedKey = key
+      .split('/')
+      .map((part) => encodeURIComponent(part))
+      .join('/');
     if (domain) {
-      return `${domain.replace(/\/$/, '')}/${key}`;
+      return `${domain.replace(/\/$/, '')}/${encodedKey}`;
     }
     if (!endpoint) return undefined;
     const normalizedEndpoint = endpoint.replace(/\/$/, '');
-    return `${normalizedEndpoint}/${bucket}/${key}`;
+    if (addressingStyle === OssAddressingStyle.PATH) {
+      return `${normalizedEndpoint}/${encodeURIComponent(bucket)}/${encodedKey}`;
+    }
+
+    try {
+      const url = new URL(normalizedEndpoint);
+      if (!url.hostname.startsWith(`${bucket}.`)) {
+        url.hostname = `${bucket}.${url.hostname}`;
+      }
+      url.pathname = `${url.pathname.replace(/\/$/, '')}/${encodedKey}`;
+      return url.toString();
+    } catch {
+      return `${normalizedEndpoint.replace('://', `://${bucket}.`)}/${encodedKey}`;
+    }
   }
 
   /**
    * 上传对象（同 key 可覆盖更新）。
    */
   async uploadObject(options: S3StorageUploadOptions) {
-    const { client, bucket, endpoint, domain } = await this.getClientContext(
-      options.ossConfigCode,
-    );
+    const { client, bucket, endpoint, domain, addressingStyle } =
+      await this.getClientContext(options.ossConfigCode);
     const output = await client.send(
       new PutObjectCommand({
         Bucket: bucket,
@@ -204,7 +242,13 @@ export class S3StorageService {
       key: options.key,
       eTag: output.ETag,
       versionId: output.VersionId,
-      fullUrl: this.buildObjectUrl(options.key, bucket, endpoint, domain),
+      fullUrl: this.buildObjectUrl(
+        options.key,
+        bucket,
+        endpoint,
+        domain,
+        addressingStyle,
+      ),
     };
   }
 
@@ -229,9 +273,8 @@ export class S3StorageService {
    * 查询对象元数据（不返回文件内容）。
    */
   async getObjectMetadata(options: S3StorageHeadOptions) {
-    const { client, bucket } = await this.getClientContext(
-      options.ossConfigCode,
-    );
+    const { client, bucket, endpoint, domain, addressingStyle } =
+      await this.getClientContext(options.ossConfigCode);
     const output = await client.send(
       new HeadObjectCommand({
         Bucket: bucket,
@@ -249,6 +292,13 @@ export class S3StorageService {
       lastModifiedAt: output.LastModified,
       metadata: output.Metadata,
       versionId: output.VersionId,
+      fullUrl: this.buildObjectUrl(
+        options.key,
+        bucket,
+        endpoint,
+        domain,
+        addressingStyle,
+      ),
     };
   }
 
@@ -333,9 +383,14 @@ export class S3StorageService {
    * 生成 PUT 直传预签名 URL，供客户端直接上传对象。
    */
   async generatePresignedPutUrl(options: S3StorageSignPutOptions) {
-    const { client, bucket, signingExpiresIn } = await this.getClientContext(
-      options.ossConfigCode,
-    );
+    const {
+      client,
+      bucket,
+      endpoint,
+      domain,
+      addressingStyle,
+      signingExpiresIn,
+    } = await this.getClientContext(options.ossConfigCode);
     const expiresIn = this.resolveExpiresIn(
       options.expiresIn,
       signingExpiresIn,
@@ -357,6 +412,40 @@ export class S3StorageService {
       bucket,
       key: options.key,
       operation: 'putObject' as const,
+      expiresIn,
+      url,
+      fullUrl: this.buildObjectUrl(
+        options.key,
+        bucket,
+        endpoint,
+        domain,
+        addressingStyle,
+      ),
+    };
+  }
+
+  /**
+   * 生成 GET 访问预签名 URL。
+   */
+  async generatePresignedGetUrl(options: S3StorageSignGetOptions) {
+    const { client, bucket, signingExpiresIn } = await this.getClientContext(
+      options.ossConfigCode,
+    );
+    const expiresIn = this.resolveExpiresIn(
+      options.expiresIn,
+      signingExpiresIn,
+    );
+    const command = new GetObjectCommand({
+      Bucket: bucket,
+      Key: options.key,
+      ResponseContentType: options.responseContentType,
+      ResponseContentDisposition: options.responseContentDisposition,
+    });
+    const url = await getSignedUrl(client, command, { expiresIn });
+    return {
+      bucket,
+      key: options.key,
+      operation: 'getObject' as const,
       expiresIn,
       url,
     };
@@ -501,9 +590,8 @@ export class S3StorageService {
    * 传入分片会按 `partNumber` 自动排序后提交。
    */
   async completeMultipartUpload(options: S3StorageCompleteMultipartOptions) {
-    const { client, bucket, endpoint, domain } = await this.getClientContext(
-      options.ossConfigCode,
-    );
+    const { client, bucket, endpoint, domain, addressingStyle } =
+      await this.getClientContext(options.ossConfigCode);
     if (!options.uploadId) {
       throw new BizError('uploadId 不能为空').codeAs(400);
     }
@@ -537,7 +625,13 @@ export class S3StorageService {
       eTag: output.ETag,
       versionId: output.VersionId,
       location: output.Location,
-      fullUrl: this.buildObjectUrl(options.key, bucket, endpoint, domain),
+      fullUrl: this.buildObjectUrl(
+        options.key,
+        bucket,
+        endpoint,
+        domain,
+        addressingStyle,
+      ),
     };
   }
 

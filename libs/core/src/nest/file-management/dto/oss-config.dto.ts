@@ -1,4 +1,5 @@
 import { Type } from 'class-transformer';
+import { OmitType } from '@nestjs/mapped-types';
 import {
   IsBoolean,
   IsNotEmpty,
@@ -6,9 +7,15 @@ import {
   IsOptional,
   IsString,
   IsNumber,
+  IsEnum,
+  Min,
   ValidateNested,
 } from 'class-validator';
-import { OssS3Config } from '@thomas/nestjs/entities/core/sys/oss-s3-config.interface';
+import {
+  OssAddressingStyle,
+  OssProvider,
+  OssS3Config,
+} from '@thomas/nestjs/entities/core/sys/oss-s3-config.interface';
 
 export class OssS3ConfigDto implements OssS3Config {
   @IsNotEmpty({ message: 'accessKeyId 不能为空' })
@@ -28,6 +35,14 @@ export class OssS3ConfigDto implements OssS3Config {
   sessionToken?: string;
 
   @IsOptional()
+  @IsEnum(OssProvider)
+  provider?: OssProvider;
+
+  @IsOptional()
+  @IsEnum(OssAddressingStyle)
+  addressingStyle?: OssAddressingStyle;
+
+  @IsOptional()
   @IsBoolean()
   forcePathStyle?: boolean;
 
@@ -37,7 +52,18 @@ export class OssS3ConfigDto implements OssS3Config {
 
   @IsOptional()
   @IsNumber()
+  @Min(1)
   signingExpiresIn?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  multipartChunkSize?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  chunkSize?: number;
 
   @IsOptional()
   @IsObject()
@@ -70,4 +96,6 @@ export class CreateOssConfigDto {
   config: OssS3ConfigDto;
 }
 
-export class UpdateOssConfigDto extends CreateOssConfigDto {}
+export class UpdateOssConfigDto extends OmitType(CreateOssConfigDto, [
+  'code',
+] as const) {}

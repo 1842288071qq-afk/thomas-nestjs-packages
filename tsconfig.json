@@ -40,6 +40,12 @@
       ],
       "@thomas/nestjs/entities/*": [
         "./libs/entities/src/*"
+      ],
+      "@thomas/nestjs/web": [
+        "./libs/web/src"
+      ],
+      "@thomas/nestjs/web/*": [
+        "./libs/web/src/*"
       ]
     },
     "types": ["node", "jest", "express", "multer"]

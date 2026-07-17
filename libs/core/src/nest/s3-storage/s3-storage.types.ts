@@ -53,6 +53,13 @@ export interface S3StorageSignPutOptions extends S3StorageBaseOptions {
   acl?: ObjectCannedACL;
 }
 
+export interface S3StorageSignGetOptions extends S3StorageBaseOptions {
+  key: string;
+  expiresIn?: number;
+  responseContentType?: string;
+  responseContentDisposition?: string;
+}
+
 export interface S3StorageSignUploadPartOptions extends S3StorageBaseOptions {
   key: string;
   uploadId: string;

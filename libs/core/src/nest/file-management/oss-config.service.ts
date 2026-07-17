@@ -6,6 +6,11 @@ import { CreateOssConfigDto, UpdateOssConfigDto } from './dto/oss-config.dto';
 import { BizError } from '@thomas/nestjs/core/BizError';
 import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
 import { RedisService } from '../redis/redis.service';
+import {
+  OssAddressingStyle,
+  OssProvider,
+  OssS3Config,
+} from '@thomas/nestjs/entities/core/sys/oss-s3-config.interface';
 
 @Injectable()
 export class OssConfigService {
@@ -33,6 +38,7 @@ export class OssConfigService {
   }
 
   async create(dto: CreateOssConfigDto) {
+    this.validateS3Config(dto.config);
     const existing = await this.ossConfigRepo.findOne({
       where: { code: dto.code },
     });
@@ -53,6 +59,7 @@ export class OssConfigService {
   }
 
   async update(code: string, dto: UpdateOssConfigDto) {
+    this.validateS3Config(dto.config);
     const config = await this.ossConfigRepo.findOne({ where: { code } });
     if (!config) {
       throw new BizError('配置不存在').codeAs(404);
@@ -112,5 +119,31 @@ export class OssConfigService {
     }
     const result = await this.ossConfigRepo.delete(code);
     return !!result.affected && result.affected > 0;
+  }
+
+  private validateS3Config(config: OssS3Config) {
+    const addressingStyle =
+      config.addressingStyle ??
+      (config.forcePathStyle
+        ? OssAddressingStyle.PATH
+        : OssAddressingStyle.VIRTUAL_HOSTED);
+    if (
+      config.provider === OssProvider.ALIYUN &&
+      addressingStyle !== OssAddressingStyle.VIRTUAL_HOSTED
+    ) {
+      throw new BizError('阿里云 OSS 仅支持 virtual-hosted 寻址样式').codeAs(
+        400,
+      );
+    }
+    if (
+      config.addressingStyle &&
+      config.forcePathStyle != null &&
+      config.forcePathStyle !==
+        (config.addressingStyle === OssAddressingStyle.PATH)
+    ) {
+      throw new BizError(
+        'addressingStyle 与兼容字段 forcePathStyle 配置冲突',
+      ).codeAs(400);
+    }
   }
 }

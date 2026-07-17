@@ -37,6 +37,15 @@
         "tsConfigPath": "libs/entities/tsconfig.lib.json"
       }
     },
+    "web": {
+      "type": "library",
+      "root": "libs/web",
+      "entryFile": "index",
+      "sourceRoot": "libs/web/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/web/tsconfig.lib.json"
+      }
+    },
     "khy": {
       "type": "application",
       "root": "apps/khy",

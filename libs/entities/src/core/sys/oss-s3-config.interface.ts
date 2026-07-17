@@ -1,3 +1,13 @@
+export enum OssProvider {
+  S3 = 's3',
+  ALIYUN = 'aliyun',
+}
+
+export enum OssAddressingStyle {
+  VIRTUAL_HOSTED = 'virtual-hosted',
+  PATH = 'path',
+}
+
 export interface OssS3Config {
   /**
    * 访问密钥 ID（AK），用于 S3 鉴权。
@@ -18,6 +28,18 @@ export interface OssS3Config {
    * 临时凭证 Token（使用 STS 时填写）。
    */
   sessionToken?: string;
+
+  /**
+   * 对象存储供应商。阿里云 OSS 仅允许虚拟主机样式。
+   */
+  provider?: OssProvider;
+
+  /**
+   * Bucket 寻址样式。
+   * - `virtual-hosted`: `https://bucket.endpoint/key`
+   * - `path`: `https://endpoint/bucket/key`
+   */
+  addressingStyle?: OssAddressingStyle;
 
   /**
    * 是否启用 path-style 访问。

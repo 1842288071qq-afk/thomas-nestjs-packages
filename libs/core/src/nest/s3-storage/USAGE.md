@@ -8,10 +8,16 @@
 - `secretAccessKey`: S3 访问密钥 Secret（必填）
 - `region`: 区域（必填）
 - `sessionToken`: 临时凭证 token（可选）
-- `forcePathStyle`: 是否使用 path-style（可选，默认 false）
+- `provider`: `s3` 或 `aliyun`（可选，默认 `s3`）
+- `addressingStyle`: `virtual-hosted` 或 `path`（可选，默认 `virtual-hosted`）
+- `forcePathStyle`: 旧版兼容字段，新配置应使用 `addressingStyle`
 - `domain`: 对象访问域名/CDN 域名（可选）
 - `signingExpiresIn`: 预签名默认过期秒数（可选）
+- `multipartChunkSize`: 默认分片大小（可选，默认 8 MiB）
 - `extensions`: 扩展配置（可选，后续扩展统一放这里）
+
+阿里云 OSS 只允许 `provider: "aliyun"` 配合
+`addressingStyle: "virtual-hosted"`。服务端会拒绝 path-style 配置。
 
 示例：
 
@@ -25,7 +31,8 @@
     "accessKeyId": "xxxx",
     "secretAccessKey": "xxxx",
     "region": "us-east-1",
-    "forcePathStyle": true,
+    "provider": "s3",
+    "addressingStyle": "path",
     "domain": "https://cdn.example.com",
     "extensions": {
       "provider": "minio"
@@ -33,6 +40,9 @@
   }
 }
 ```
+
+阿里云配置模板见同目录
+[`oss-config.example.json`](./oss-config.example.json)。
 
 ## 2. 模块接入
 
@@ -68,10 +78,9 @@ export class DemoService {
   }
 
   async signDownloadUrl() {
-    return await this.s3StorageService.signObject({
+    return await this.s3StorageService.generatePresignedGetUrl({
       ossConfigCode: 'minio_prod',
       key: 'demo/hello.txt',
-      operation: 'getObject',
       expiresIn: 600,
     });
   }
