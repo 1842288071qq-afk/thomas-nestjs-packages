@@ -6,6 +6,7 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  Matches,
   Max,
   Min,
 } from 'class-validator';
@@ -18,6 +19,23 @@ export class OssPutSignDto {
   @IsNotEmpty()
   @IsString()
   key: string;
+
+  @IsNotEmpty()
+  @IsString()
+  filename: string;
+
+  @IsNotEmpty()
+  @IsString()
+  hash: string;
+
+  @IsString()
+  @Matches(/^(0|[1-9]\d*)$/, { message: 'size 必须为非负整数字符串' })
+  size: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @Matches(/^[A-Za-z0-9+/]{22}==$/, { message: 'contentMd5 格式不正确' })
+  contentMd5: string;
 
   @IsOptional()
   @IsString()
@@ -36,6 +54,10 @@ export class OssPutSignDto {
   metadata?: Record<string, string>;
 
   @IsOptional()
+  @IsObject()
+  meta?: Record<string, unknown>;
+
+  @IsOptional()
   @IsString()
   acl?: ObjectCannedACL;
 
@@ -50,37 +72,13 @@ export class OssPutSignDto {
 export class OssUploadCallbackDto {
   @IsNotEmpty()
   @IsString()
-  filename: string;
-
-  @IsNotEmpty()
-  @IsString()
-  object: string;
-
-  @IsNotEmpty()
-  @IsString()
-  ossConfigCode: string;
-
-  @IsOptional()
-  @IsString()
-  hash?: string;
-
-  @IsOptional()
-  @IsString()
-  suffix?: string;
-
-  @IsOptional()
-  @IsObject()
-  meta?: Record<string, unknown>;
+  fileId: string;
 }
 
 export class OssGetSignDto {
   @IsNotEmpty()
   @IsString()
-  ossConfigCode: string;
-
-  @IsNotEmpty()
-  @IsString()
-  key: string;
+  fileId: string;
 
   @IsOptional()
   @Type(() => Number)
@@ -147,9 +145,9 @@ export class OssMultipartInitDto {
   @IsString()
   domain?: string;
 
-  @IsOptional()
   @IsString()
-  size?: string;
+  @Matches(/^[1-9]\d*$/, { message: 'size 必须为正整数字符串' })
+  size: string;
 
   @IsOptional()
   @Type(() => Number)
@@ -161,26 +159,23 @@ export class OssMultipartInitDto {
 export class OssMultipartSignPartDto {
   @IsNotEmpty()
   @IsString()
-  ossConfigCode: string;
-
-  @IsNotEmpty()
-  @IsString()
-  key: string;
-
-  @IsNotEmpty()
-  @IsString()
-  uploadId: string;
+  fileId: string;
 
   @Type(() => Number)
   @IsInt()
   @Min(1)
+  @Max(10_000)
   partNumber: number;
 
-  @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  contentLength?: number;
+  contentLength: number;
+
+  @IsNotEmpty()
+  @IsString()
+  @Matches(/^[A-Za-z0-9+/]{22}==$/, { message: 'contentMd5 格式不正确' })
+  contentMd5: string;
 
   @IsOptional()
   @Type(() => Number)
@@ -188,17 +183,6 @@ export class OssMultipartSignPartDto {
   @Min(1)
   @Max(7 * 24 * 3600)
   expiresIn?: number;
-}
-
-export class OssMultipartPartDto {
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  partNumber: number;
-
-  @IsNotEmpty()
-  @IsString()
-  eTag: string;
 }
 
 export class OssMultipartCompleteDto {

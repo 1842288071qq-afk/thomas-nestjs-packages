@@ -21,15 +21,16 @@ const record = await sdk.upload({
 });
 
 const accessUrl = await sdk.getAccessUrl({
-  key: record.object,
-  ossConfigCode: record.ossConfigCode,
+  fileId: record.id,
   expiresIn: 600,
 });
 ```
 
-`upload` 完成对象直传后，会自动调用 `/files/oss/callback` 建立
-`sys_file` 映射。后端会先执行 `HeadObject` 验证对象确实存在，并以 OSS
-返回的大小、MIME 和服务端生成的访问地址落库，不信任 Web 回传的这些字段。
+`upload` 会先创建未完成的 `sys_file` 上传任务，再取得绑定文件大小和
+`Content-MD5` 的 PUT 地址。直传完成后 SDK 自动调用 `/files/oss/callback`，
+后端通过 `HeadObject` 核对对象大小，并以 OSS 返回的 MIME 和访问地址完成
+建档。相同 OSS 配置下的活动 `key` 唯一；新文件使用已有 `key` 会返回 409，
+只有原上传任务重试或续传才能复用。
 
 ## 分片上传流程
 
@@ -46,8 +47,7 @@ const process = sdk.createUploadProcess({
 });
 
 const resultPromise = process.start();
-process.pause();
-await process.resume();
+// 上传进入 uploading 状态后可调用 process.pause()，随后 await process.resume()
 // await process.stop(); // 主动终止并清理 OSS 服务端分片
 const result = await resultPromise;
 ```
@@ -69,9 +69,14 @@ const process = new FileUploadProcess({
 ```
 
 `start()` 返回的 Promise 会持续到上传最终完成；暂停不会让它提前结束。
-重新调用 init 时，后端依据 `object + hash` 返回已上传分片，从而续传。
-默认 hash 是文件名、大小、修改时间和 MIME 的稳定指纹；如果业务要求内容
-校验或跨重命名续传，可注入 `hashProvider`（例如增量 MD5/WASM 实现）。
+重新调用 init 时，后端依据 `ossConfigCode + key + hash` 返回已上传分片。
+SDK 默认 hash 会组合文件元信息及首部、中部、尾部内容样本，避免用户误选
+同名同大小文件后拼接旧分片；要求全文件强一致或跨重命名续传时，可注入
+增量 MD5/SHA 实现作为 `hashProvider`。
+
+默认适配器会为普通直传和每个分片计算 `Content-MD5`。MD5 会同时参与预签名
+和 PUT 请求，OSS/S3 在接收时校验传输内容；服务端在 Complete 前核对分片
+编号、分片大小和总文件大小，完成后再次通过 `HeadObject` 核对对象大小。
 
 `fetch` 没有标准的请求体上传进度事件，因此默认 S3 适配器在每个分片完成
 后更新进度，而不是报告单个 PUT 内部的字节进度。若需要更细粒度进度，可
@@ -95,5 +100,5 @@ Controller 路由。
 ## OSS CORS 要求
 
 Bucket 必须允许前端来源执行 `PUT`，允许请求头至少包含
-`Content-Type`，并暴露响应头 `ETag`。后端 API 域名也需要允许前端来源
+`Content-Type`、`Content-MD5`，并暴露响应头 `ETag`。后端 API 域名也需要允许前端来源
 访问。预签名 URL 过期后，流程会按 `retries` 重新请求签名。

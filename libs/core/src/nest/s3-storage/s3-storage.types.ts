@@ -51,6 +51,8 @@ export interface S3StorageSignPutOptions extends S3StorageBaseOptions {
   contentDisposition?: string;
   metadata?: Record<string, string>;
   acl?: ObjectCannedACL;
+  contentLength?: number;
+  contentMd5?: string;
 }
 
 export interface S3StorageSignGetOptions extends S3StorageBaseOptions {
@@ -66,6 +68,7 @@ export interface S3StorageSignUploadPartOptions extends S3StorageBaseOptions {
   partNumber: number;
   expiresIn?: number;
   contentLength?: number;
+  contentMd5?: string;
 }
 
 export interface S3StorageMultipartInitOptions extends S3StorageBaseOptions {

@@ -5,6 +5,7 @@ import type {
   FileUploadState,
   MultipartCompleteResult,
   MultipartUploadSession,
+  UploadPartChecksum,
 } from './types';
 
 export class FileUploadProcess {
@@ -115,31 +116,43 @@ export class FileUploadProcess {
           : createFileFingerprint(this.options.file));
       this.throwIfStopped();
       this.session = await this.runPausable(() =>
-        this.options.adapter.initialize({
-          file: this.options.file,
-          key: this.options.key,
-          hash,
-          ossConfigCode: this.options.ossConfigCode,
-          chunkSize: this.options.chunkSize,
-          metadata: this.options.metadata,
-          meta: this.options.meta,
-        }),
+        this.withController((signal) =>
+          this.options.adapter.initialize({
+            file: this.options.file,
+            key: this.options.key,
+            hash,
+            ossConfigCode: this.options.ossConfigCode,
+            chunkSize: this.options.chunkSize,
+            metadata: this.options.metadata,
+            meta: this.options.meta,
+            signal,
+          }),
+        ),
       );
+      if (this.stopped) {
+        await this.options.adapter.abort(this.session);
+        this.throwIfStopped();
+      }
       if (
         !Number.isInteger(this.session.chunkSize) ||
         this.session.chunkSize <= 0
       ) {
         throw new OssSdkError('上传适配器返回了非法 chunkSize');
       }
-      const totalParts = Math.ceil(
-        this.options.file.size / this.session.chunkSize,
-      );
+      const session = this.session;
+      const totalParts = Math.ceil(this.options.file.size / session.chunkSize);
       this.completedPartNumbers.clear();
-      this.session.uploadedParts.forEach((part) => {
+      session.uploadedParts.forEach((part) => {
         if (
           Number.isInteger(part.partNumber) &&
           part.partNumber >= 1 &&
-          part.partNumber <= totalParts
+          part.partNumber <= totalParts &&
+          part.size ===
+            Math.min(
+              session.chunkSize,
+              this.options.file.size -
+                (part.partNumber - 1) * session.chunkSize,
+            )
         ) {
           this.completedPartNumbers.add(part.partNumber);
         }
@@ -182,16 +195,29 @@ export class FileUploadProcess {
     partNumber: number,
     totalParts: number,
   ): Promise<void> {
+    const session = this.session!;
+    const start = (partNumber - 1) * session.chunkSize;
+    const body = this.options.file.slice(
+      start,
+      Math.min(start + session.chunkSize, this.options.file.size),
+    );
+    let checksum: UploadPartChecksum | undefined;
+    while (!checksum && this.options.partChecksumProvider) {
+      await this.waitWhilePaused();
+      this.throwIfStopped();
+      try {
+        checksum = await this.withController((signal) =>
+          this.options.partChecksumProvider!(body, signal),
+        );
+      } catch (error) {
+        if (this.stateValue === 'paused') continue;
+        throw error;
+      }
+    }
     let attempt = 0;
     while (true) {
       await this.waitWhilePaused();
       this.throwIfStopped();
-      const session = this.session!;
-      const start = (partNumber - 1) * session.chunkSize;
-      const body = this.options.file.slice(
-        start,
-        Math.min(start + session.chunkSize, this.options.file.size),
-      );
       try {
         const uploadedPart = await this.withController((signal) =>
           this.options.adapter.uploadPart({
@@ -200,6 +226,7 @@ export class FileUploadProcess {
             partNumber,
             body,
             signal,
+            checksum,
           }),
         );
         session.uploadedParts = session.uploadedParts

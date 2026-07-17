@@ -23,6 +23,11 @@ export interface UploadedPart {
   size?: number;
 }
 
+export interface UploadPartChecksum {
+  algorithm: 'content-md5';
+  value: string;
+}
+
 export interface MultipartUploadSession {
   fileId: string;
   uploadId: string;
@@ -40,6 +45,7 @@ export interface MultipartInitializeInput {
   chunkSize?: number;
   metadata?: Record<string, string>;
   meta?: Record<string, unknown>;
+  signal: AbortSignal;
 }
 
 export interface MultipartUploadPartInput {
@@ -48,6 +54,7 @@ export interface MultipartUploadPartInput {
   partNumber: number;
   body: Blob;
   signal: AbortSignal;
+  checksum?: UploadPartChecksum;
 }
 
 export interface MultipartCompleteResult {
@@ -71,6 +78,10 @@ export interface FileUploadProcessOptions {
   adapter: MultipartUploadAdapter;
   hash?: string;
   hashProvider?: (file: File, signal: AbortSignal) => Promise<string>;
+  partChecksumProvider?: (
+    body: Blob,
+    signal: AbortSignal,
+  ) => Promise<UploadPartChecksum>;
   chunkSize?: number;
   concurrency?: number;
   retries?: number;

@@ -1,4 +1,4 @@
-import { Entity, Column, JoinColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, Index, JoinColumn, ManyToOne } from 'typeorm';
 import {
   WithSoftDelete,
   WithAuditor,
@@ -10,6 +10,10 @@ import { SysOssConfigEntity } from './sys-oss-config.entity';
 class SysFileEntityRoot {}
 
 @Entity('sys_file')
+@Index('uq_sys_file_oss_object_active', ['ossConfigCode', 'object'], {
+  unique: true,
+  where: `"deleted_at" IS NULL AND "storage_type" = 'oss'`,
+})
 export class SysFileEntity extends WithSoftDelete(
   WithAuditor(WithTimeTrace(WithId(SysFileEntityRoot))),
 ) {
@@ -46,7 +50,7 @@ export class SysFileEntity extends WithSoftDelete(
   storageType: string;
 
   @Column({ name: 'upload_id', nullable: true, comment: '分片上传 ID' })
-  uploadId?: string;
+  uploadId?: string | null;
 
   @Column({ name: 'chunk_size', nullable: true, comment: '分片大小 (字节)' })
   chunkSize?: number;

@@ -123,6 +123,25 @@ export class FileService {
     return saved;
   }
 
+  async createOssUploadTask(
+    dto: CreateFileDto,
+    authorType: string,
+    createdBy: string,
+  ) {
+    if (dto.storageType !== 'oss' || !dto.ossConfigCode) {
+      throw new BizError('OSS 上传任务缺少存储配置').codeAs(400);
+    }
+    const file = this.fileRepo.create({
+      ...dto,
+      authorType,
+      createdBy,
+      updatedBy: createdBy,
+    });
+    const saved = await this.fileRepo.save(file);
+    await this.redisService.hset(this.REDIS_CACHE_KEY, saved.id, saved);
+    return saved;
+  }
+
   async save(file: SysFileEntity) {
     const saved = await this.fileRepo.save(file);
     await this.redisService.hset(this.REDIS_CACHE_KEY, saved.id, saved);
@@ -150,6 +169,22 @@ export class FileService {
     return await this.fileRepo.findOne({
       where,
       withDeleted: options?.withDeleted ?? false,
+    });
+  }
+
+  async findOssByObject(
+    object: string,
+    ossConfigCode: string,
+    options?: { withDeleted?: boolean },
+  ) {
+    return await this.fileRepo.findOne({
+      where: {
+        object,
+        ossConfigCode,
+        storageType: 'oss',
+      },
+      withDeleted: options?.withDeleted ?? false,
+      order: { createdAt: 'DESC' },
     });
   }
 

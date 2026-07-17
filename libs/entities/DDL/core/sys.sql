@@ -79,6 +79,9 @@ COMMENT ON COLUMN sys_file.deleted_at IS '逻辑删除时间';
 
 CREATE INDEX idx_sys_file_storage_type ON sys_file (storage_type);
 CREATE INDEX idx_sys_file_object_hash ON sys_file (object, hash);
+CREATE UNIQUE INDEX uq_sys_file_oss_object_active
+    ON sys_file (oss_config_code, object)
+    WHERE deleted_at IS NULL AND storage_type = 'oss';
 CREATE INDEX idx_sys_file_oss_config_code ON sys_file (oss_config_code);
 CREATE INDEX idx_sys_file_created_at ON sys_file (created_at);
 CREATE INDEX idx_sys_file_deleted_at ON sys_file (deleted_at);

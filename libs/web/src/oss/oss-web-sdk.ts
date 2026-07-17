@@ -2,6 +2,7 @@ import { OssSdkError } from './errors';
 import { FileUploadProcess } from './file-upload-process';
 import { OssFetchClient } from './http-client';
 import { S3MultipartUploadAdapter } from './s3-multipart-upload.adapter';
+import { createContentMd5, createFileContentFingerprint } from './md5';
 import type {
   FileRecord,
   FileUploadProcessOptions,
@@ -18,8 +19,7 @@ export interface DirectUploadOptions {
 }
 
 export interface AccessUrlOptions {
-  key: string;
-  ossConfigCode: string;
+  fileId: string;
   expiresIn?: number;
   responseContentType?: string;
   responseContentDisposition?: string;
@@ -37,19 +37,36 @@ export class OssWebSdk {
   ): FileUploadProcess {
     return new FileUploadProcess({
       ...options,
+      hashProvider:
+        options.hash || options.hashProvider
+          ? options.hashProvider
+          : createFileContentFingerprint,
+      partChecksumProvider:
+        options.partChecksumProvider ??
+        (async (body, signal) => ({
+          algorithm: 'content-md5',
+          value: await createContentMd5(body, signal),
+        })),
       adapter: new S3MultipartUploadAdapter({ client: this.client }),
     });
   }
 
   async upload(options: DirectUploadOptions): Promise<FileRecord> {
+    const contentMd5 = await createContentMd5(options.file, options.signal);
     const signed = await this.client.post<{
       url: string;
       fullUrl?: string;
+      file: FileRecord;
     }>(
       this.client.endpoints.signPut,
       {
         ossConfigCode: options.ossConfigCode,
         key: options.key,
+        filename: options.file.name,
+        hash: options.hash ?? `md5:${contentMd5}`,
+        size: `${options.file.size}`,
+        contentMd5,
+        meta: options.meta,
         contentType: options.file.type || undefined,
       },
       options.signal,
@@ -57,9 +74,12 @@ export class OssWebSdk {
     const uploadResponse = await this.client.fetch(signed.url, {
       method: 'PUT',
       body: options.file,
-      headers: options.file.type
-        ? { 'content-type': options.file.type }
-        : undefined,
+      headers: {
+        'content-md5': contentMd5,
+        ...(options.file.type
+          ? { 'content-type': options.file.type }
+          : undefined),
+      },
       signal: options.signal,
     });
     if (!uploadResponse.ok) {
@@ -71,12 +91,7 @@ export class OssWebSdk {
     return await this.client.post<FileRecord>(
       this.client.endpoints.callback,
       {
-        filename: options.file.name,
-        suffix: getFileSuffix(options.file.name),
-        meta: options.meta,
-        object: options.key,
-        hash: options.hash,
-        ossConfigCode: options.ossConfigCode,
+        fileId: signed.file.id,
       },
       options.signal,
     );
@@ -89,9 +104,4 @@ export class OssWebSdk {
     );
     return signed.url;
   }
-}
-
-function getFileSuffix(filename: string): string | undefined {
-  const dotIndex = filename.lastIndexOf('.');
-  return dotIndex > -1 ? filename.slice(dotIndex + 1) : undefined;
 }

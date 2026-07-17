@@ -10,7 +10,6 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileService } from '@thomas/nestjs/core/nest/file-management/file.service';
 import { LocalUploadService } from '@thomas/nestjs/core/nest/file-management/local-upload.service';
-import { S3StorageService } from '@thomas/nestjs/core/nest/s3-storage';
 import { ApiResBody } from '@thomas/nestjs/core/ApiResBody';
 import { BizError } from '@thomas/nestjs/core/BizError';
 import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
@@ -34,7 +33,6 @@ export class FileController {
   constructor(
     private readonly fileService: FileService,
     private readonly localUploadService: LocalUploadService,
-    private readonly s3StorageService: S3StorageService,
     private readonly multipartUploadService: MultipartUploadService,
     private readonly threadLocal: ThreadLocal,
   ) {}
@@ -84,57 +82,60 @@ export class FileController {
   // --- 获取 OSS PUT 直传签名 ---
   @Post('oss/sign/put')
   async signPut(@Body() dto: OssPutSignDto) {
-    if (!dto.ossConfigCode) {
-      throw new BizError('参数 ossConfigCode 不能为空').codeAs(400);
-    }
-    const signed = await this.s3StorageService.generatePresignedPutUrl(dto);
+    const signed = await this.multipartUploadService.prepareDirectUpload(
+      dto,
+      this.getUploadActor(),
+    );
     return ApiResBody.of(signed);
   }
 
   // --- 获取 OSS 对象访问签名 ---
   @Post('oss/sign/get')
   async signGet(@Body() dto: OssGetSignDto) {
-    const signed = await this.s3StorageService.generatePresignedGetUrl(dto);
+    const signed = await this.multipartUploadService.signGet(
+      dto,
+      this.getUploadActor(),
+    );
     return ApiResBody.of(signed);
   }
 
   // --- 初始化 OSS 分片上传 ---
   @Post('oss/multipart/init')
   async initMultipart(@Body() dto: OssMultipartInitDto) {
-    const identity = this.threadLocal.getStore()?.identity;
-    const result = await this.multipartUploadService.initMultipart(dto, {
-      identityType: identity?.identityType,
-      identityId: identity?.id,
-    });
+    const result = await this.multipartUploadService.initMultipart(
+      dto,
+      this.getUploadActor(),
+    );
     return ApiResBody.of(result);
   }
 
   // --- 获取 OSS 分片上传签名 ---
   @Post('oss/multipart/sign-part')
   async signMultipartPart(@Body() dto: OssMultipartSignPartDto) {
-    const signedPart = await this.multipartUploadService.signMultipartPart(dto);
+    const signedPart = await this.multipartUploadService.signMultipartPart(
+      dto,
+      this.getUploadActor(),
+    );
     return ApiResBody.of(signedPart);
   }
 
   // --- 完成 OSS 分片上传并创建文件映射 ---
   @Post('oss/multipart/complete')
   async completeMultipart(@Body() dto: OssMultipartCompleteDto) {
-    const identity = this.threadLocal.getStore()?.identity;
-    const saved = await this.multipartUploadService.completeMultipart(dto, {
-      identityType: identity?.identityType,
-      identityId: identity?.id,
-    });
+    const saved = await this.multipartUploadService.completeMultipart(
+      dto,
+      this.getUploadActor(),
+    );
     return ApiResBody.of(saved);
   }
 
   // --- 主动终止 OSS 分片上传 ---
   @Post('oss/multipart/abort')
   async abortMultipart(@Body() dto: OssMultipartAbortDto) {
-    const identity = this.threadLocal.getStore()?.identity;
-    const saved = await this.multipartUploadService.abortMultipart(dto, {
-      identityType: identity?.identityType,
-      identityId: identity?.id,
-    });
+    const saved = await this.multipartUploadService.abortMultipart(
+      dto,
+      this.getUploadActor(),
+    );
     return ApiResBody.of(saved);
   }
 
@@ -146,5 +147,13 @@ export class FileController {
     }
     const result = await this.fileService.translateIds(ids);
     return ApiResBody.of(result);
+  }
+
+  private getUploadActor() {
+    const identity = this.threadLocal.getStore()?.identity;
+    return {
+      identityType: identity?.identityType,
+      identityId: identity?.id,
+    };
   }
 }

@@ -404,6 +404,8 @@ export class S3StorageService {
       ContentDisposition: options.contentDisposition,
       Metadata: options.metadata,
       ACL: options.acl,
+      ContentLength: options.contentLength,
+      ContentMD5: options.contentMd5,
     });
 
     const url = await getSignedUrl(client, command, { expiresIn });
@@ -478,6 +480,7 @@ export class S3StorageService {
       UploadId: options.uploadId,
       PartNumber: options.partNumber,
       ContentLength: options.contentLength,
+      ContentMD5: options.contentMd5,
     });
 
     const url = await getSignedUrl(client, command, { expiresIn });

@@ -1,5 +1,6 @@
 import { OssSdkError } from './errors';
 import { OssFetchClient } from './http-client';
+import { createContentMd5 } from './md5';
 import type {
   FileRecord,
   MultipartCompleteResult,
@@ -57,6 +58,7 @@ export class S3MultipartUploadAdapter implements MultipartUploadAdapter {
         metadata: input.metadata,
         meta: input.meta,
       },
+      input.signal,
     );
     const totalParts = Math.ceil(input.file.size / result.chunkSize);
     if (totalParts > 1 && result.chunkSize < MIN_S3_CHUNK_SIZE) {
@@ -76,14 +78,17 @@ export class S3MultipartUploadAdapter implements MultipartUploadAdapter {
   }
 
   async uploadPart(input: MultipartUploadPartInput): Promise<UploadedPart> {
+    const checksum = input.checksum ?? {
+      algorithm: 'content-md5' as const,
+      value: await createContentMd5(input.body, input.signal),
+    };
     const signed = await this.options.client.post<SignPartResponse>(
       this.options.client.endpoints.multipartSignPart,
       {
-        ossConfigCode: input.session.ossConfigCode,
-        key: input.session.key,
-        uploadId: input.session.uploadId,
+        fileId: input.session.fileId,
         partNumber: input.partNumber,
         contentLength: input.body.size,
+        contentMd5: checksum.value,
       },
       input.signal,
     );
@@ -91,9 +96,13 @@ export class S3MultipartUploadAdapter implements MultipartUploadAdapter {
       typeof this.options.uploadHeaders === 'function'
         ? this.options.uploadHeaders(input.partNumber)
         : this.options.uploadHeaders;
+    const uploadHeaders = new Headers(configuredHeaders);
+    if (checksum.algorithm === 'content-md5') {
+      uploadHeaders.set('content-md5', checksum.value);
+    }
     const response = await this.options.client.fetch(signed.url, {
       method: 'PUT',
-      headers: configuredHeaders,
+      headers: uploadHeaders,
       body: input.body,
       signal: input.signal,
     });

@@ -22,7 +22,7 @@
     "typeorm": "^0.3.0"
   },
   "scripts": {
-    "build": "npm run build:play",
+    "build": "npm run build:web && npm run build:play",
     "build:web": "tsc -p libs/web/tsconfig.lib.json",
     "build:play": "nest build playground --webpack",
     "dev:play": "nest start playground --watch --debug 9232",
@@ -118,7 +118,14 @@
     "rootDir": ".",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.(t|j)s$": [
+        "ts-jest",
+        {
+          "tsconfig": {
+            "rootDir": "."
+          }
+        }
+      ]
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"
