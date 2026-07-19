@@ -49,7 +49,13 @@ export class SysFileEntity extends WithSoftDelete(
   @Column({ name: 'storage_type', comment: '存储类型: local, oss' })
   storageType: string;
 
-  @Column({ name: 'upload_id', nullable: true, comment: '分片上传 ID' })
+  @Column({
+    name: 'upload_id',
+    type: 'varchar',
+    length: 128,
+    nullable: true,
+    comment: '分片上传 ID',
+  })
   uploadId?: string | null;
 
   @Column({ name: 'chunk_size', nullable: true, comment: '分片大小 (字节)' })
