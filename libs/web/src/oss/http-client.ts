@@ -39,26 +39,45 @@ export class OssFetchClient {
       typeof this.headers === 'function' ? await this.headers() : this.headers;
     const headers = new Headers(dynamicHeaders);
     headers.set('content-type', 'application/json');
-    const response = await this.fetch(`${this.baseUrl}${path}`, {
+    return await this.request<T>(path, {
       method: 'POST',
       headers,
       body: JSON.stringify(body),
       signal,
     });
+  }
+
+  async postForm<T>(
+    path: string,
+    body: FormData,
+    signal?: AbortSignal,
+  ): Promise<T> {
+    const dynamicHeaders =
+      typeof this.headers === 'function' ? await this.headers() : this.headers;
+    return await this.request<T>(path, {
+      method: 'POST',
+      headers: new Headers(dynamicHeaders),
+      body,
+      signal,
+    });
+  }
+
+  private async request<T>(path: string, init: RequestInit): Promise<T> {
+    const response = await this.fetch(`${this.baseUrl}${path}`, init);
 
     let payload: ApiResBody<T>;
     try {
       payload = (await response.json()) as ApiResBody<T>;
     } catch (error) {
       throw new OssSdkError(
-        `OSS 接口响应不是有效 JSON: ${response.status}`,
+        `文件接口响应不是有效 JSON: ${response.status}`,
         response.status,
         error,
       );
     }
     if (!response.ok || payload.code < 200 || payload.code >= 300) {
       throw new OssSdkError(
-        payload.message || `OSS 接口请求失败: ${response.status}`,
+        payload.message || `文件接口请求失败: ${response.status}`,
         payload.code || response.status,
       );
     }

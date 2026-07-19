@@ -31,7 +31,17 @@ export class LocalUploadService {
     authorType?: string,
     createdBy?: string,
   ): Promise<SysFileEntity> {
-    const targetPath = path.join(this.storageRoot, object);
+    if (!file) {
+      throw new BizError('请选择要上传的文件').codeAs(400);
+    }
+    const targetPath = path.resolve(this.storageRoot, object);
+    if (
+      !object ||
+      path.isAbsolute(object) ||
+      !targetPath.startsWith(`${this.storageRoot}${path.sep}`)
+    ) {
+      throw new BizError('本地 object 必须是安全的相对路径').codeAs(400);
+    }
     const targetDir = path.dirname(targetPath);
     await fs.ensureDir(targetDir);
 
@@ -52,7 +62,7 @@ export class LocalUploadService {
         object: object,
         completed: true,
         storageType: 'local',
-        fullUrl: `${this.serveRoot}/${object}`,
+        fullUrl: `${this.serveRoot.replace(/\/$/, '')}/${object}`,
         size: file.size.toString(),
         meta: {},
       },

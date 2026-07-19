@@ -99,6 +99,8 @@ export interface FileConfig {
   local: {
     storageRoot: string;
     serveRoot: string;
+    multipartTempRoot?: string;
+    multipartChunkSize: number;
   };
 }
 

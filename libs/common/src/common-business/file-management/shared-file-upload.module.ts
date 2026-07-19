@@ -5,6 +5,7 @@ import { S3StorageModule } from '@thomas/nestjs/core/nest/s3-storage';
 import { FileController } from './file.controller';
 import { BusinessFileController } from './business-file.controller';
 import { MultipartUploadService } from './multipart-upload.service';
+import { LocalMultipartUploadService } from './local-multipart-upload.service';
 import { SharedServicesModule } from '../../shared/services/shared-services.module';
 import { AccountAvatarService } from './account-avatar.service';
 
@@ -16,7 +17,16 @@ import { AccountAvatarService } from './account-avatar.service';
     EventEmitterModule,
   ],
   controllers: [FileController, BusinessFileController],
-  providers: [MultipartUploadService, AccountAvatarService],
-  exports: [CoreFileManagementModule, S3StorageModule, MultipartUploadService],
+  providers: [
+    MultipartUploadService,
+    LocalMultipartUploadService,
+    AccountAvatarService,
+  ],
+  exports: [
+    CoreFileManagementModule,
+    S3StorageModule,
+    MultipartUploadService,
+    LocalMultipartUploadService,
+  ],
 })
 export class SharedFileUploadModule {}

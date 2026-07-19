@@ -26,6 +26,13 @@ import {
   OssUploadCallbackDto,
 } from './dto/oss-upload.dto';
 import { MultipartUploadService } from './multipart-upload.service';
+import {
+  LocalMultipartAbortDto,
+  LocalMultipartCompleteDto,
+  LocalMultipartInitDto,
+  LocalMultipartPartDto,
+} from './dto/local-upload.dto';
+import { LocalMultipartUploadService } from './local-multipart-upload.service';
 
 @IdentityRequired(IdentityType.OP_USER, IdentityType.User)
 @Controller('files')
@@ -33,6 +40,7 @@ export class FileController {
   constructor(
     private readonly fileService: FileService,
     private readonly localUploadService: LocalUploadService,
+    private readonly localMultipartUploadService: LocalMultipartUploadService,
     private readonly multipartUploadService: MultipartUploadService,
     private readonly threadLocal: ThreadLocal,
   ) {}
@@ -61,6 +69,53 @@ export class FileController {
       identity?.id,
     );
     return ApiResBody.of(record);
+  }
+
+  // --- 初始化或恢复本地分片上传 ---
+  @Post('local/multipart/init')
+  async initLocalMultipart(@Body() dto: LocalMultipartInitDto) {
+    const result = await this.localMultipartUploadService.initMultipart(
+      dto,
+      this.getUploadActor(),
+    );
+    return ApiResBody.of(result);
+  }
+
+  // --- 上传单个本地分片 ---
+  @Post('local/multipart/part')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadLocalMultipartPart(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() dto: LocalMultipartPartDto,
+  ) {
+    if (!file) {
+      throw new BizError('参数 file 不能为空').codeAs(400);
+    }
+    const result = await this.localMultipartUploadService.uploadPart(
+      { ...dto, file },
+      this.getUploadActor(),
+    );
+    return ApiResBody.of(result);
+  }
+
+  // --- 合并本地分片并完成文件记录 ---
+  @Post('local/multipart/complete')
+  async completeLocalMultipart(@Body() dto: LocalMultipartCompleteDto) {
+    const result = await this.localMultipartUploadService.completeMultipart(
+      dto,
+      this.getUploadActor(),
+    );
+    return ApiResBody.of(result);
+  }
+
+  // --- 中止本地分片上传并清理临时文件 ---
+  @Post('local/multipart/abort')
+  async abortLocalMultipart(@Body() dto: LocalMultipartAbortDto) {
+    const result = await this.localMultipartUploadService.abortMultipart(
+      dto,
+      this.getUploadActor(),
+    );
+    return ApiResBody.of(result);
   }
 
   // --- OSS 上传后的记录创建 (由客户端通知) ---

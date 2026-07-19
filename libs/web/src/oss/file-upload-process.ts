@@ -43,7 +43,7 @@ export class FileUploadProcess {
           ? 'direct'
           : 'multipart';
     if (this.mode === 'multipart' && options.file.size === 0) {
-      throw new OssSdkError('空文件不应使用分片上传，请改用 OssWebSdk.upload');
+      throw new OssSdkError('空文件不应使用分片上传，请改用 direct 模式');
     }
     this.concurrency = toPositiveInteger(
       options.concurrency ?? 4,

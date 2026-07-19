@@ -142,6 +142,25 @@ export class FileService {
     return saved;
   }
 
+  async createLocalUploadTask(
+    dto: CreateFileDto,
+    authorType: string,
+    createdBy: string,
+  ) {
+    if (dto.storageType !== 'local') {
+      throw new BizError('本地上传任务的存储类型必须为 local').codeAs(400);
+    }
+    const file = this.fileRepo.create({
+      ...dto,
+      authorType,
+      createdBy,
+      updatedBy: createdBy,
+    });
+    const saved = await this.fileRepo.save(file);
+    await this.redisService.hset(this.REDIS_CACHE_KEY, saved.id, saved);
+    return saved;
+  }
+
   async save(file: SysFileEntity) {
     const saved = await this.fileRepo.save(file);
     await this.redisService.hset(this.REDIS_CACHE_KEY, saved.id, saved);
@@ -183,6 +202,14 @@ export class FileService {
         ossConfigCode,
         storageType: 'oss',
       },
+      withDeleted: options?.withDeleted ?? false,
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async findLocalByObject(object: string, options?: { withDeleted?: boolean }) {
+    return await this.fileRepo.findOne({
+      where: { object, storageType: 'local' },
       withDeleted: options?.withDeleted ?? false,
       order: { createdAt: 'DESC' },
     });

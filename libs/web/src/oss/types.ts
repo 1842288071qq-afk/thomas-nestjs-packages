@@ -126,13 +126,29 @@ export interface OssWebSdkOptions {
   multipartThreshold?: number;
 }
 
+export interface LocalWebSdkEndpoints {
+  directUpload: string;
+  multipartInit: string;
+  multipartPart: string;
+  multipartComplete: string;
+  multipartAbort: string;
+}
+
+export interface LocalWebSdkOptions {
+  baseUrl?: string;
+  fetch?: typeof fetch;
+  headers?: HeadersInit | RequestHeadersFactory;
+  endpoints?: Partial<LocalWebSdkEndpoints>;
+  multipartThreshold?: number;
+}
+
 export interface FileRecord extends MultipartCompleteResult {
   filename: string;
   mimeType?: string;
   suffix?: string;
   hash?: string;
-  storageType: 'oss';
-  ossConfigCode: string;
+  storageType: 'local' | 'oss';
+  ossConfigCode?: string;
   size?: string;
   completed: boolean;
 }
