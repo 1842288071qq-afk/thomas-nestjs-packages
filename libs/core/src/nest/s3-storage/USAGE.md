@@ -11,13 +11,18 @@
 - `provider`: `s3` 或 `aliyun`（可选，默认 `s3`）
 - `addressingStyle`: `virtual-hosted` 或 `path`（可选，默认 `virtual-hosted`）
 - `forcePathStyle`: 旧版兼容字段，新配置应使用 `addressingStyle`
-- `domain`: 对象访问域名/CDN 域名（可选）
+- `domain`: 对象访问域名（可选，必须是完整的 HTTP/HTTPS Origin，不含路径）
 - `signingExpiresIn`: 预签名默认过期秒数（可选）
 - `multipartChunkSize`: 默认分片大小（可选，默认 8 MiB）
 - `extensions`: 扩展配置（可选，后续扩展统一放这里）
 
 阿里云 OSS 只允许 `provider: "aliyun"` 配合
 `addressingStyle: "virtual-hosted"`。服务端会拒绝 path-style 配置。
+
+阿里云配置填写 `domain` 后，GET 预签名 URL 会使用该自定义域名，适用于
+OSS Bucket 已绑定的 CNAME 域名在线预览；上传、分片和对象校验仍使用标准
+`endpoint`。填写前必须先在 OSS 控制台绑定域名并完成 DNS CNAME 与 HTTPS
+证书配置。不要直接填写 OSS 提供的 CNAME 解析目标域名。
 
 示例：
 

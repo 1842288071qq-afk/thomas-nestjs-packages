@@ -2,6 +2,7 @@ import {
   AbortMultipartUploadCommand,
   CompleteMultipartUploadCommand,
   CreateMultipartUploadCommand,
+  DeleteObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
   ListObjectsV2Command,
@@ -21,6 +22,7 @@ import { OssConfigService } from '../file-management/oss-config.service';
 import {
   S3StorageAbortMultipartOptions,
   S3StorageCompleteMultipartOptions,
+  S3StorageDeleteOptions,
   S3StorageDownloadOptions,
   S3StorageHeadOptions,
   S3StorageListOptions,
@@ -37,7 +39,10 @@ import {
 interface CachedS3ClientContext {
   fingerprint: string;
   client: S3Client;
+  accessClient?: S3Client;
+  accessDomain?: string;
   bucket: string;
+  provider: OssProvider;
   endpoint?: string;
   domain?: string;
   signingExpiresIn?: number;
@@ -112,6 +117,7 @@ export class S3StorageService {
     }
 
     const freeConfig = ossConfig.config;
+    const provider = freeConfig?.provider ?? OssProvider.S3;
     const accessKeyId = freeConfig?.accessKeyId;
     const secretAccessKey = freeConfig?.secretAccessKey;
     const sessionToken = freeConfig?.sessionToken;
@@ -135,6 +141,7 @@ export class S3StorageService {
     const signingExpiresIn = freeConfig?.signingExpiresIn;
 
     const fingerprint = JSON.stringify({
+      provider,
       endpoint,
       region,
       accessKeyId,
@@ -158,21 +165,36 @@ export class S3StorageService {
       ).codeAs(400);
     }
 
+    const credentials = {
+      accessKeyId,
+      secretAccessKey,
+      sessionToken,
+    };
     const client = new S3Client({
       region,
       endpoint,
       forcePathStyle,
-      credentials: {
-        accessKeyId,
-        secretAccessKey,
-        sessionToken,
-      },
+      credentials,
     });
+    const accessDomain =
+      provider === OssProvider.ALIYUN && domain
+        ? this.normalizeAccessDomain(domain)
+        : undefined;
+    const accessClient = accessDomain
+      ? new S3Client({
+          region,
+          bucketEndpoint: true,
+          credentials,
+        })
+      : undefined;
 
     const context: CachedS3ClientContext = {
       fingerprint,
       client,
+      accessClient,
+      accessDomain,
       bucket: ossConfig.bucket,
+      provider,
       endpoint,
       domain,
       signingExpiresIn,
@@ -180,6 +202,24 @@ export class S3StorageService {
     };
     this.clientCache.set(ossConfigCode, context);
     return context;
+  }
+
+  private normalizeAccessDomain(domain: string) {
+    let url: URL;
+    try {
+      url = new URL(domain);
+    } catch {
+      throw new BizError('OSS 配置中的 domain 必须是完整 URL').codeAs(400);
+    }
+    if (!['http:', 'https:'].includes(url.protocol)) {
+      throw new BizError('OSS 配置中的 domain 仅支持 HTTP/HTTPS').codeAs(400);
+    }
+    if (url.pathname !== '/' || url.search || url.hash) {
+      throw new BizError('OSS 配置中的 domain 不能包含路径、查询或锚点').codeAs(
+        400,
+      );
+    }
+    return url.origin;
   }
 
   /**
@@ -430,20 +470,32 @@ export class S3StorageService {
    * 生成 GET 访问预签名 URL。
    */
   async generatePresignedGetUrl(options: S3StorageSignGetOptions) {
-    const { client, bucket, signingExpiresIn } = await this.getClientContext(
-      options.ossConfigCode,
-    );
+    const {
+      client,
+      accessClient,
+      accessDomain,
+      bucket,
+      provider,
+      signingExpiresIn,
+    } = await this.getClientContext(options.ossConfigCode);
     const expiresIn = this.resolveExpiresIn(
       options.expiresIn,
       signingExpiresIn,
     );
     const command = new GetObjectCommand({
-      Bucket: bucket,
+      // bucketEndpoint 模式要求 Bucket 传入完整自定义域名 URL。
+      Bucket: accessDomain ?? bucket,
       Key: options.key,
-      ResponseContentType: options.responseContentType,
+      // 阿里云 OSS 明确禁止通过 GET 参数覆盖 Content-Type（0017-00000902）。
+      ResponseContentType:
+        provider === OssProvider.ALIYUN
+          ? undefined
+          : options.responseContentType,
       ResponseContentDisposition: options.responseContentDisposition,
     });
-    const url = await getSignedUrl(client, command, { expiresIn });
+    const url = await getSignedUrl(accessClient ?? client, command, {
+      expiresIn,
+    });
     return {
       bucket,
       key: options.key,
@@ -658,6 +710,29 @@ export class S3StorageService {
       key: options.key,
       uploadId: options.uploadId,
       aborted: true,
+    };
+  }
+
+  /**
+   * 删除对象。S3 DeleteObject 对不存在的 key 也按成功处理，适合清理失败上传残留。
+   */
+  async deleteObject(options: S3StorageDeleteOptions) {
+    const { client, bucket } = await this.getClientContext(
+      options.ossConfigCode,
+    );
+    const output = await client.send(
+      new DeleteObjectCommand({
+        Bucket: bucket,
+        Key: options.key,
+      }),
+    );
+
+    return {
+      bucket,
+      key: options.key,
+      deleted: true,
+      deleteMarker: output.DeleteMarker,
+      versionId: output.VersionId,
     };
   }
 }

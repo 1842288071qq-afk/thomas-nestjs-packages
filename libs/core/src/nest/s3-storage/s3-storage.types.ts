@@ -27,6 +27,10 @@ export interface S3StorageHeadOptions extends S3StorageBaseOptions {
   key: string;
 }
 
+export interface S3StorageDeleteOptions extends S3StorageBaseOptions {
+  key: string;
+}
+
 export interface S3StorageListOptions extends S3StorageBaseOptions {
   prefix?: string;
   delimiter?: string;
