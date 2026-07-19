@@ -18,6 +18,7 @@ describe('MultipartUploadService', () => {
   let storageService: {
     resolveMultipartChunkSize: jest.Mock;
     initMultipartUpload: jest.Mock;
+    generatePresignedPutUrl: jest.Mock;
     generatePresignedUploadPartUrl: jest.Mock;
     listUploadParts: jest.Mock;
     completeMultipartUpload: jest.Mock;
@@ -36,6 +37,7 @@ describe('MultipartUploadService', () => {
     storageService = {
       resolveMultipartChunkSize: jest.fn(),
       initMultipartUpload: jest.fn(),
+      generatePresignedPutUrl: jest.fn(),
       generatePresignedUploadPartUrl: jest.fn(),
       listUploadParts: jest.fn(),
       completeMultipartUpload: jest.fn(),
@@ -65,6 +67,30 @@ describe('MultipartUploadService', () => {
         actor,
       ),
     ).rejects.toThrow('该 OSS key 已被另一个文件的上传任务占用');
+  });
+
+  it('同一普通直传任务已完成时幂等返回文件记录', async () => {
+    const file = createFile({
+      hash: 'md5:hash',
+      size: '10',
+      completed: true,
+    });
+    fileService.findOssByObject.mockResolvedValue(file);
+
+    await expect(
+      service.prepareDirectUpload(
+        {
+          ossConfigCode: 'oss',
+          key: file.object,
+          filename: file.filename,
+          hash: 'md5:hash',
+          size: '10',
+          contentMd5: '1B2M2Y8AsgTpgAmY7PhCfg==',
+        },
+        actor,
+      ),
+    ).resolves.toEqual({ file, completed: true });
+    expect(storageService.generatePresignedPutUrl).not.toHaveBeenCalled();
   });
 
   it('分片签名只使用 fileId 对应的服务端任务信息', async () => {

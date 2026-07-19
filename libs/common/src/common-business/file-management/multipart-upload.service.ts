@@ -78,15 +78,13 @@ export class MultipartUploadService {
 
     if (file) {
       this.assertUploadOwner(file.createdBy, actor);
-      if (file.completed) {
-        throw new BizError('该 OSS key 已有完成文件，请为新文件生成新 key')
-          .codeAs(409)
-          .httpStatusAs(409);
-      }
-      if (file.hash !== input.hash) {
+      if (file.hash !== input.hash || file.size !== `${expectedSize}`) {
         throw new BizError('该 OSS key 已被另一个文件的上传任务占用')
           .codeAs(409)
           .httpStatusAs(409);
+      }
+      if (file.completed) {
+        return { file, completed: true as const };
       }
       Object.assign(file, {
         filename: input.filename,
@@ -124,7 +122,7 @@ export class MultipartUploadService {
       ...input,
       contentLength: expectedSize,
     });
-    return { ...signed, file };
+    return { ...signed, file, completed: false as const };
   }
 
   async signGet(

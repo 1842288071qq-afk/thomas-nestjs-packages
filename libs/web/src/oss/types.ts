@@ -8,6 +8,9 @@ export type FileUploadState =
   | 'stopped'
   | 'failed';
 
+export type FileUploadMode = 'direct' | 'multipart';
+export type FileUploadStrategy = 'auto' | FileUploadMode;
+
 export interface FileUploadProgress {
   state: FileUploadState;
   loaded: number;
@@ -76,6 +79,9 @@ export interface FileUploadProcessOptions {
   key: string;
   ossConfigCode: string;
   adapter: MultipartUploadAdapter;
+  directUpload?: (signal: AbortSignal) => Promise<MultipartCompleteResult>;
+  uploadMode?: FileUploadStrategy;
+  multipartThreshold?: number;
   hash?: string;
   hashProvider?: (file: File, signal: AbortSignal) => Promise<string>;
   partChecksumProvider?: (
@@ -117,6 +123,7 @@ export interface OssWebSdkOptions {
   fetch?: typeof fetch;
   headers?: HeadersInit | RequestHeadersFactory;
   endpoints?: Partial<OssWebSdkEndpoints>;
+  multipartThreshold?: number;
 }
 
 export interface FileRecord extends MultipartCompleteResult {

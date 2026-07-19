@@ -2,11 +2,15 @@ import { OssSdkError, UploadStoppedError } from './errors';
 import type {
   FileUploadProcessOptions,
   FileUploadProgress,
+  FileUploadMode,
   FileUploadState,
   MultipartCompleteResult,
   MultipartUploadSession,
   UploadPartChecksum,
 } from './types';
+
+export const DEFAULT_MULTIPART_THRESHOLD = 10 * 1024 * 1024;
+const UPLOAD_PAUSE_REASON = new OssSdkError('上传已暂停');
 
 export class FileUploadProcess {
   private stateValue: FileUploadState = 'idle';
@@ -21,9 +25,24 @@ export class FileUploadProcess {
   private readonly concurrency: number;
   private readonly retries: number;
   private readonly retryDelayMs: number;
+  readonly mode: FileUploadMode;
 
   constructor(private readonly options: FileUploadProcessOptions) {
-    if (options.file.size === 0) {
+    const multipartThreshold = toPositiveInteger(
+      options.multipartThreshold ?? DEFAULT_MULTIPART_THRESHOLD,
+      'multipartThreshold',
+    );
+    const uploadMode = options.uploadMode ?? 'auto';
+    if (uploadMode === 'direct' && !options.directUpload) {
+      throw new OssSdkError('direct 模式必须提供 directUpload');
+    }
+    this.mode =
+      !options.directUpload || uploadMode === 'multipart'
+        ? 'multipart'
+        : uploadMode === 'direct' || options.file.size < multipartThreshold
+          ? 'direct'
+          : 'multipart';
+    if (this.mode === 'multipart' && options.file.size === 0) {
       throw new OssSdkError('空文件不应使用分片上传，请改用 OssWebSdk.upload');
     }
     this.concurrency = toPositiveInteger(
@@ -77,7 +96,7 @@ export class FileUploadProcess {
       this.resolvePause = resolve;
     });
     this.setState('paused');
-    this.abortActiveRequests('pause');
+    this.abortActiveRequests(UPLOAD_PAUSE_REASON);
   }
 
   resume(): Promise<MultipartCompleteResult> {
@@ -106,6 +125,9 @@ export class FileUploadProcess {
   private async run(): Promise<MultipartCompleteResult> {
     try {
       this.throwIfStopped();
+      if (this.mode === 'direct') {
+        return await this.runDirectUpload();
+      }
       this.setState('initializing');
       const hash =
         this.options.hash ??
@@ -191,6 +213,21 @@ export class FileUploadProcess {
     }
   }
 
+  private async runDirectUpload(): Promise<MultipartCompleteResult> {
+    this.setState('initializing');
+    this.emitProgress(1);
+    this.setState('uploading');
+    this.emitProgress(1);
+    const result = await this.runPausable(() =>
+      this.withController((signal) => this.options.directUpload!(signal)),
+    );
+    this.throwIfStopped();
+    this.setState('completing');
+    this.setState('completed');
+    this.emitProgress(1);
+    return result;
+  }
+
   private async uploadPart(
     partNumber: number,
     totalParts: number,
@@ -210,7 +247,9 @@ export class FileUploadProcess {
           this.options.partChecksumProvider!(body, signal),
         );
       } catch (error) {
-        if (this.stateValue === 'paused') continue;
+        if (this.stateValue === 'paused' || error === UPLOAD_PAUSE_REASON) {
+          continue;
+        }
         throw error;
       }
     }
@@ -236,7 +275,9 @@ export class FileUploadProcess {
         this.emitProgress(totalParts);
         return;
       } catch (error) {
-        if (this.stateValue === 'paused') continue;
+        if (this.stateValue === 'paused' || error === UPLOAD_PAUSE_REASON) {
+          continue;
+        }
         this.throwIfStopped();
         if (attempt++ >= this.retries) throw error;
         await delay(this.retryDelayMs * attempt);
@@ -257,7 +298,9 @@ export class FileUploadProcess {
       try {
         return await operation();
       } catch (error) {
-        if (this.stateValue !== 'paused') throw error;
+        if (this.stateValue !== 'paused' && error !== UPLOAD_PAUSE_REASON) {
+          throw error;
+        }
       }
     }
   }
@@ -289,6 +332,18 @@ export class FileUploadProcess {
   }
 
   private emitProgress(totalParts: number): void {
+    if (this.mode === 'direct') {
+      const completed = this.stateValue === 'completed';
+      this.options.onProgress?.({
+        state: this.stateValue,
+        loaded: completed ? this.options.file.size : 0,
+        total: this.options.file.size,
+        percent: completed ? 100 : 0,
+        completedParts: completed ? 1 : 0,
+        totalParts: 1,
+      });
+      return;
+    }
     const chunkSize = this.session?.chunkSize ?? this.options.chunkSize ?? 0;
     const loaded = Math.min(
       this.options.file.size,

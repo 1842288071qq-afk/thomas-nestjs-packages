@@ -27,20 +27,37 @@ export interface AccessUrlOptions {
 
 export class OssWebSdk {
   readonly client: OssFetchClient;
+  private readonly multipartThreshold?: number;
 
   constructor(options: OssWebSdkOptions = {}) {
     this.client = new OssFetchClient(options);
+    this.multipartThreshold = options.multipartThreshold;
   }
 
   createUploadProcess(
     options: Omit<FileUploadProcessOptions, 'adapter'>,
   ): FileUploadProcess {
+    const hashProvider = options.hashProvider ?? createFileContentFingerprint;
+    const directUpload =
+      options.directUpload ??
+      (async (signal: AbortSignal) => {
+        const hash =
+          options.hash ??
+          (await hashProvider(options.file, signal));
+        return await this.upload({
+          file: options.file,
+          key: options.key,
+          ossConfigCode: options.ossConfigCode,
+          hash,
+          meta: options.meta,
+          signal,
+        });
+      });
     return new FileUploadProcess({
       ...options,
-      hashProvider:
-        options.hash || options.hashProvider
-          ? options.hashProvider
-          : createFileContentFingerprint,
+      directUpload,
+      multipartThreshold: options.multipartThreshold ?? this.multipartThreshold,
+      hashProvider,
       partChecksumProvider:
         options.partChecksumProvider ??
         (async (body, signal) => ({
@@ -54,9 +71,10 @@ export class OssWebSdk {
   async upload(options: DirectUploadOptions): Promise<FileRecord> {
     const contentMd5 = await createContentMd5(options.file, options.signal);
     const signed = await this.client.post<{
-      url: string;
+      url?: string;
       fullUrl?: string;
       file: FileRecord;
+      completed: boolean;
     }>(
       this.client.endpoints.signPut,
       {
@@ -71,6 +89,10 @@ export class OssWebSdk {
       },
       options.signal,
     );
+    if (signed.completed) return signed.file;
+    if (!signed.url) {
+      throw new OssSdkError('OSS 直传签名响应缺少 URL');
+    }
     const uploadResponse = await this.client.fetch(signed.url, {
       method: 'PUT',
       body: options.file,

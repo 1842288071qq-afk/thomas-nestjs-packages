@@ -12,6 +12,7 @@ import { OssWebSdk } from '@thomas/nestjs/web/oss';
 const sdk = new OssWebSdk({
   baseUrl: '/api/v1',
   headers: () => ({ Authorization: `Bearer ${getToken()}` }),
+  multipartThreshold: 20 * 1024 * 1024,
 });
 
 const record = await sdk.upload({
@@ -32,13 +33,18 @@ const accessUrl = await sdk.getAccessUrl({
 建档。相同 OSS 配置下的活动 `key` 唯一；新文件使用已有 `key` 会返回 409，
 只有原上传任务重试或续传才能复用。
 
-## 分片上传流程
+## 自动选择直传或分片
+
+`createUploadProcess` 默认使用 `auto` 策略：文件大小达到阈值时使用 multipart，
+低于阈值时使用普通 PUT 直传。SDK 默认阈值为 10 MiB，也可以在 SDK 全局或
+单次 Process 中覆盖；单次配置优先级更高。
 
 ```typescript
 const process = sdk.createUploadProcess({
   file,
   key: `videos/${crypto.randomUUID()}-${file.name}`,
   ossConfigCode: 'aliyun_prod',
+  multipartThreshold: 50 * 1024 * 1024,
   concurrency: 4,
   retries: 2,
   signal: abortController.signal,
@@ -46,13 +52,20 @@ const process = sdk.createUploadProcess({
   onError: console.error,
 });
 
+console.log(process.mode); // direct 或 multipart
+
 const resultPromise = process.start();
 // 上传进入 uploading 状态后可调用 process.pause()，随后 await process.resume()
 // await process.stop(); // 主动终止并清理 OSS 服务端分片
 const result = await resultPromise;
 ```
 
-也可以直接实例化流程并替换适配器：
+需要绕过自动判断时，可显式设置 `uploadMode: 'direct'` 或
+`uploadMode: 'multipart'`。直传模式没有可续传的 Part；调用 `pause()` 会中断
+当前 PUT，`resume()` 后从头重传该文件。分片模式则只重传尚未完成的 Part。
+
+也可以直接实例化流程并替换适配器。未提供 `directUpload` 时，
+`FileUploadProcess` 保持原有行为并始终使用 multipart：
 
 ```typescript
 import {
