@@ -8,15 +8,18 @@ import { MultipartUploadService } from './multipart-upload.service';
 import { LocalMultipartUploadService } from './local-multipart-upload.service';
 import { SharedServicesModule } from '../../shared/services/shared-services.module';
 import { AccountAvatarService } from './account-avatar.service';
+import { OssConfigController } from './oss-config.controller';
+import { PermissionModule } from '../../shared/guards/permission/permission.module';
 
 @Module({
   imports: [
     CoreFileManagementModule,
     S3StorageModule,
     SharedServicesModule,
+    PermissionModule,
     EventEmitterModule,
   ],
-  controllers: [FileController, BusinessFileController],
+  controllers: [FileController, BusinessFileController, OssConfigController],
   providers: [
     MultipartUploadService,
     LocalMultipartUploadService,

@@ -1,14 +1,20 @@
 import { Type } from 'class-transformer';
-import { OmitType } from '@nestjs/mapped-types';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
 import {
   IsBoolean,
+  IsDefined,
+  IsUrl,
   IsNotEmpty,
   IsObject,
   IsOptional,
   IsString,
   IsNumber,
   IsEnum,
+  Matches,
+  Max,
+  MaxLength,
   Min,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import {
@@ -47,17 +53,20 @@ export class OssS3ConfigDto implements OssS3Config {
   forcePathStyle?: boolean;
 
   @IsOptional()
+  @ValidateIf((_, value) => value !== '')
+  @IsUrl({ require_protocol: true })
   @IsString()
   domain?: string;
 
   @IsOptional()
   @IsNumber()
   @Min(1)
+  @Max(7 * 24 * 3600)
   signingExpiresIn?: number;
 
   @IsOptional()
   @IsNumber()
-  @Min(1)
+  @Min(5 * 1024 * 1024)
   multipartChunkSize?: number;
 
   @IsOptional()
@@ -70,13 +79,20 @@ export class OssS3ConfigDto implements OssS3Config {
   extensions?: Record<string, unknown>;
 }
 
+export class UpdateOssS3ConfigDto extends PartialType(OssS3ConfigDto) {}
+
 export class CreateOssConfigDto {
   @IsNotEmpty({ message: '名称不能为空' })
   @IsString()
+  @MaxLength(255)
   name: string;
 
   @IsNotEmpty({ message: '识别码不能为空' })
   @IsString()
+  @MaxLength(64)
+  @Matches(/^[A-Za-z0-9_-]+$/, {
+    message: '识别码只能包含字母、数字、下划线和中划线',
+  })
   code: string;
 
   @IsOptional()
@@ -85,17 +101,42 @@ export class CreateOssConfigDto {
 
   @IsNotEmpty({ message: '存储桶不能为空' })
   @IsString()
+  @MaxLength(255)
   bucket: string;
 
   @IsNotEmpty({ message: '端点不能为空' })
+  @IsUrl({ require_protocol: true })
   @IsString()
+  @MaxLength(512)
   endpoint: string;
 
+  @IsDefined()
+  @IsObject()
   @ValidateNested()
   @Type(() => OssS3ConfigDto)
   config: OssS3ConfigDto;
 }
 
-export class UpdateOssConfigDto extends OmitType(CreateOssConfigDto, [
-  'code',
-] as const) {}
+export class UpdateOssConfigDto extends PartialType(
+  OmitType(CreateOssConfigDto, ['code', 'config'] as const),
+) {
+  @IsOptional()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => UpdateOssS3ConfigDto)
+  declare config?: UpdateOssS3ConfigDto;
+}
+
+export class OssConfigPageQueryDto {
+  @IsOptional()
+  @IsString()
+  code?: string;
+
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsEnum(OssProvider)
+  provider?: OssProvider;
+}
