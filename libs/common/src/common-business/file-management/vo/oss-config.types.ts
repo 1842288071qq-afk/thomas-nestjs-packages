@@ -21,6 +21,8 @@ export class OssConfigVO {
   remark?: string;
   bucket: string;
   endpoint: string;
+  internalEndpoint?: string;
+  useInternalEndpoint: boolean;
   config: OssConfigSafeConfigVO;
   createdBy?: string;
   updatedBy?: string;

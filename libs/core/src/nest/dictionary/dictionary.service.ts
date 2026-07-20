@@ -146,7 +146,9 @@ export class DictionaryService implements OnModuleInit {
     source: string,
   ) {
     if (!group.key) {
-      this.logger.warn(`Dictionary group without key skipped (from ${source}).`);
+      this.logger.warn(
+        `Dictionary group without key skipped (from ${source}).`,
+      );
       return;
     }
     if (map.has(group.key)) {

@@ -41,9 +41,7 @@ export class OssWebSdk {
     const directUpload =
       options.directUpload ??
       (async (signal: AbortSignal) => {
-        const hash =
-          options.hash ??
-          (await hashProvider(options.file, signal));
+        const hash = options.hash ?? (await hashProvider(options.file, signal));
         return await this.upload({
           file: options.file,
           key: options.key,

@@ -25,6 +25,8 @@ export interface CreateOssConfigInput {
   remark?: string;
   bucket: string;
   endpoint: string;
+  internalEndpoint?: string;
+  useInternalEndpoint?: boolean;
   config: OssS3Config;
 }
 
@@ -33,6 +35,8 @@ export interface UpdateOssConfigInput {
   remark?: string;
   bucket?: string;
   endpoint?: string;
+  internalEndpoint?: string;
+  useInternalEndpoint?: boolean;
   config?: Partial<OssS3Config>;
 }
 
@@ -73,6 +77,11 @@ export class OssConfigService {
       code: input.code.trim(),
       bucket: input.bucket.trim(),
       endpoint: this.normalizeEndpoint(input.endpoint),
+      internalEndpoint: this.normalizeInternalEndpoint(
+        input.internalEndpoint,
+        input.useInternalEndpoint ?? false,
+      ),
+      useInternalEndpoint: input.useInternalEndpoint ?? false,
       remark: this.normalizeOptionalText(input.remark),
       config: this.normalizeCreateConfig(input.config),
       createdBy: actor.identityId,
@@ -99,6 +108,22 @@ export class OssConfigService {
     }
     if (input.endpoint !== undefined) {
       entity.endpoint = this.normalizeEndpoint(input.endpoint);
+    }
+    const nextUseInternalEndpoint =
+      input.useInternalEndpoint ?? entity.useInternalEndpoint;
+    const nextInternalEndpoint =
+      input.internalEndpoint !== undefined
+        ? input.internalEndpoint
+        : entity.internalEndpoint;
+    if (
+      input.internalEndpoint !== undefined ||
+      input.useInternalEndpoint !== undefined
+    ) {
+      entity.internalEndpoint = this.normalizeInternalEndpoint(
+        nextInternalEndpoint ?? undefined,
+        nextUseInternalEndpoint,
+      );
+      entity.useInternalEndpoint = nextUseInternalEndpoint;
     }
     if (input.remark !== undefined) {
       entity.remark = this.normalizeOptionalText(input.remark);
@@ -199,6 +224,10 @@ export class OssConfigService {
     this.assertNotBlank(input.code, '配置识别码');
     this.assertNotBlank(input.bucket, '存储桶');
     this.normalizeEndpoint(input.endpoint);
+    this.normalizeInternalEndpoint(
+      input.internalEndpoint,
+      input.useInternalEndpoint ?? false,
+    );
     this.normalizeCreateConfig(input.config);
   }
 
@@ -313,6 +342,20 @@ export class OssConfigService {
       ).codeAs(400);
     }
     return url.toString().replace(/\/$/, '');
+  }
+
+  private normalizeInternalEndpoint(
+    endpoint: string | undefined,
+    useInternalEndpoint: boolean,
+  ) {
+    const normalized = endpoint?.trim();
+    if (!normalized) {
+      if (useInternalEndpoint) {
+        throw new BizError('启用内网传输时，内网端点不能为空').codeAs(400);
+      }
+      return null;
+    }
+    return this.normalizeEndpoint(normalized);
   }
 
   private normalizeDomain(domain: string) {

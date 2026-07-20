@@ -2,6 +2,12 @@
 
 ## 1. OSS 配置结构（固定）
 
+`sys_oss_config` 的端点字段：
+
+- `endpoint`: 公网端点，始终用于浏览器、外部服务和预签名 URL。
+- `internalEndpoint`: Node.js 服务端可选的内网端点。
+- `useInternalEndpoint`: 服务端是否使用内网端点，默认 `false`；开启时 `internalEndpoint` 必填。
+
 `sys_oss_config.config` 统一使用 `OssS3Config`：
 
 - `accessKeyId`: S3 访问密钥 ID（必填）
@@ -20,8 +26,10 @@
 `addressingStyle: "virtual-hosted"`。服务端会拒绝 path-style 配置。
 
 阿里云配置填写 `domain` 后，GET 预签名 URL 会使用该自定义域名，适用于
-OSS Bucket 已绑定的 CNAME 域名在线预览；上传、分片和对象校验仍使用标准
-`endpoint`。填写前必须先在 OSS 控制台绑定域名并完成 DNS CNAME 与 HTTPS
+OSS Bucket 已绑定的 CNAME 域名在线预览；自定义域名不替代对象存储操作端点。
+若开启 `useInternalEndpoint`，Node.js 上传、下载、Head、列举、初始化及
+合并分片走 `internalEndpoint`；浏览器直传/分片和 GET 预签名仍使用公网
+`endpoint`。填写自定义域名前必须先在 OSS 控制台绑定域名并完成 DNS CNAME 与 HTTPS
 证书配置。不要直接填写 OSS 提供的 CNAME 解析目标域名。
 
 示例：
@@ -32,6 +40,7 @@ OSS Bucket 已绑定的 CNAME 域名在线预览；上传、分片和对象校�
   "code": "minio_prod",
   "bucket": "app-assets",
   "endpoint": "https://minio.example.com",
+  "useInternalEndpoint": false,
   "config": {
     "accessKeyId": "xxxx",
     "secretAccessKey": "xxxx",

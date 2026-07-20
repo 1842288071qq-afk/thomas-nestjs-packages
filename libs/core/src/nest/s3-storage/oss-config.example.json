@@ -4,6 +4,8 @@
     "code": "aliyun_prod",
     "bucket": "replace-with-bucket",
     "endpoint": "https://oss-cn-hangzhou.aliyuncs.com",
+    "internalEndpoint": "https://oss-cn-hangzhou-internal.aliyuncs.com",
+    "useInternalEndpoint": true,
     "remark": "AK/SK 请通过安全配置流程写入，不要提交真实凭证",
     "config": {
       "accessKeyId": "replace-with-access-key-id",

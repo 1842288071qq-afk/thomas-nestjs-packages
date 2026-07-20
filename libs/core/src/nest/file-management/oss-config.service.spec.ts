@@ -29,6 +29,8 @@ describe('OssConfigService', () => {
         name: ' 阿里云开发环境 ',
         bucket: ' bucket-dev ',
         endpoint: 'https://oss-cn-hangzhou.aliyuncs.com/',
+        internalEndpoint: 'https://oss-cn-hangzhou-internal.aliyuncs.com/',
+        useInternalEndpoint: true,
         config: {
           accessKeyId: ' test-ak ',
           secretAccessKey: ' test-sk ',
@@ -47,6 +49,8 @@ describe('OssConfigService', () => {
       name: '阿里云开发环境',
       bucket: 'bucket-dev',
       endpoint: 'https://oss-cn-hangzhou.aliyuncs.com',
+      internalEndpoint: 'https://oss-cn-hangzhou-internal.aliyuncs.com',
+      useInternalEndpoint: true,
       createdBy: 'admin-1',
       updatedBy: 'admin-1',
       config: {
@@ -57,6 +61,33 @@ describe('OssConfigService', () => {
       },
     });
     expect(save).toHaveBeenCalledTimes(1);
+  });
+
+  it('启用内网传输但未配置内网端点时拒绝保存', async () => {
+    const create = jest.fn();
+    const repo = {
+      findOne: jest.fn(() => Promise.resolve(null)),
+      create,
+      save: jest.fn(),
+    } as unknown as Repository<SysOssConfigEntity>;
+    const service = createService(repo);
+
+    await expect(
+      service.create({
+        code: 'aliyun_internal',
+        name: '阿里云内网',
+        bucket: 'bucket-dev',
+        endpoint: 'https://oss-cn-hangzhou.aliyuncs.com',
+        useInternalEndpoint: true,
+        config: {
+          accessKeyId: 'test-ak',
+          secretAccessKey: 'test-sk',
+          region: 'cn-hangzhou',
+          provider: OssProvider.ALIYUN,
+        },
+      }),
+    ).rejects.toBeInstanceOf(BizError);
+    expect(create).not.toHaveBeenCalled();
   });
 
   it('更新时空凭证保持原值，并允许清除自定义域名和 SessionToken', async () => {
@@ -109,6 +140,8 @@ function createEntity(): SysOssConfigEntity {
     name: '阿里云开发环境',
     bucket: 'bucket-dev',
     endpoint: 'https://oss-cn-hangzhou.aliyuncs.com',
+    internalEndpoint: 'https://oss-cn-hangzhou-internal.aliyuncs.com',
+    useInternalEndpoint: true,
     config: {
       accessKeyId: 'original-ak',
       secretAccessKey: 'original-sk',

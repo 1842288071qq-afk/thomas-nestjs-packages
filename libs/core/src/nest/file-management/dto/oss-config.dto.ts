@@ -110,6 +110,17 @@ export class CreateOssConfigDto {
   @MaxLength(512)
   endpoint: string;
 
+  @IsOptional()
+  @ValidateIf((_, value) => value !== '')
+  @IsUrl({ require_protocol: true })
+  @IsString()
+  @MaxLength(512)
+  internalEndpoint?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  useInternalEndpoint?: boolean;
+
   @IsDefined()
   @IsObject()
   @ValidateNested()

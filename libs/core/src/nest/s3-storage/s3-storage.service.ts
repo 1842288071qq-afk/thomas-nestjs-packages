@@ -38,7 +38,10 @@ import {
 
 interface CachedS3ClientContext {
   fingerprint: string;
+  /** Node.js 服务端对象操作客户端，可按配置走内网。 */
   client: S3Client;
+  /** 对外预签名客户端，始终使用公网 endpoint。 */
+  signingClient: S3Client;
   accessClient?: S3Client;
   accessDomain?: string;
   bucket: string;
@@ -123,6 +126,14 @@ export class S3StorageService {
     const sessionToken = freeConfig?.sessionToken;
     const region = freeConfig?.region || 'us-east-1';
     const endpoint = ossConfig.endpoint;
+    const internalEndpoint = ossConfig.internalEndpoint ?? undefined;
+    const useInternalEndpoint = ossConfig.useInternalEndpoint ?? false;
+    if (useInternalEndpoint && !internalEndpoint) {
+      throw new BizError(
+        `OSS 配置已启用内网传输但缺少内网端点: ${ossConfigCode}`,
+      ).codeAs(400);
+    }
+    const serverEndpoint = useInternalEndpoint ? internalEndpoint : endpoint;
     const addressingStyle =
       freeConfig?.addressingStyle ??
       (freeConfig?.forcePathStyle
@@ -143,6 +154,8 @@ export class S3StorageService {
     const fingerprint = JSON.stringify({
       provider,
       endpoint,
+      internalEndpoint,
+      useInternalEndpoint,
       region,
       accessKeyId,
       secretAccessKey,
@@ -170,11 +183,28 @@ export class S3StorageService {
       secretAccessKey,
       sessionToken,
     };
+    // AWS SDK v3 默认会给流式 PutObject 加上 aws-chunked checksum trailer。
+    // 阿里云 OSS 的 S3 兼容接口不支持该编码，仅在服务端要求时再计算校验和。
+    const checksumCompatibility =
+      provider === OssProvider.ALIYUN
+        ? ({
+            requestChecksumCalculation: 'WHEN_REQUIRED',
+            responseChecksumValidation: 'WHEN_REQUIRED',
+          } as const)
+        : {};
     const client = new S3Client({
+      region,
+      endpoint: serverEndpoint,
+      forcePathStyle,
+      credentials,
+      ...checksumCompatibility,
+    });
+    const signingClient = new S3Client({
       region,
       endpoint,
       forcePathStyle,
       credentials,
+      ...checksumCompatibility,
     });
     const accessDomain =
       provider === OssProvider.ALIYUN && domain
@@ -185,12 +215,14 @@ export class S3StorageService {
           region,
           bucketEndpoint: true,
           credentials,
+          ...checksumCompatibility,
         })
       : undefined;
 
     const context: CachedS3ClientContext = {
       fingerprint,
       client,
+      signingClient,
       accessClient,
       accessDomain,
       bucket: ossConfig.bucket,
@@ -383,9 +415,8 @@ export class S3StorageService {
    * 支持 `getObject` 与 `putObject` 两种操作。
    */
   async signObject(options: S3StorageSignOptions) {
-    const { client, bucket, signingExpiresIn } = await this.getClientContext(
-      options.ossConfigCode,
-    );
+    const { signingClient, bucket, signingExpiresIn } =
+      await this.getClientContext(options.ossConfigCode);
     const expiresIn = this.resolveExpiresIn(
       options.expiresIn,
       signingExpiresIn,
@@ -408,7 +439,7 @@ export class S3StorageService {
     };
 
     const command = commandMap[options.operation]();
-    const url = await getSignedUrl(client, command, { expiresIn });
+    const url = await getSignedUrl(signingClient, command, { expiresIn });
 
     return {
       bucket,
@@ -424,7 +455,7 @@ export class S3StorageService {
    */
   async generatePresignedPutUrl(options: S3StorageSignPutOptions) {
     const {
-      client,
+      signingClient,
       bucket,
       endpoint,
       domain,
@@ -448,7 +479,7 @@ export class S3StorageService {
       ContentMD5: options.contentMd5,
     });
 
-    const url = await getSignedUrl(client, command, { expiresIn });
+    const url = await getSignedUrl(signingClient, command, { expiresIn });
 
     return {
       bucket,
@@ -471,7 +502,7 @@ export class S3StorageService {
    */
   async generatePresignedGetUrl(options: S3StorageSignGetOptions) {
     const {
-      client,
+      signingClient,
       accessClient,
       accessDomain,
       bucket,
@@ -493,7 +524,7 @@ export class S3StorageService {
           : options.responseContentType,
       ResponseContentDisposition: options.responseContentDisposition,
     });
-    const url = await getSignedUrl(accessClient ?? client, command, {
+    const url = await getSignedUrl(accessClient ?? signingClient, command, {
       expiresIn,
     });
     return {
@@ -518,9 +549,8 @@ export class S3StorageService {
       throw new BizError('partNumber 必须大于 0').codeAs(400);
     }
 
-    const { client, bucket, signingExpiresIn } = await this.getClientContext(
-      options.ossConfigCode,
-    );
+    const { signingClient, bucket, signingExpiresIn } =
+      await this.getClientContext(options.ossConfigCode);
     const expiresIn = this.resolveExpiresIn(
       options.expiresIn,
       signingExpiresIn,
@@ -535,7 +565,7 @@ export class S3StorageService {
       ContentMD5: options.contentMd5,
     });
 
-    const url = await getSignedUrl(client, command, { expiresIn });
+    const url = await getSignedUrl(signingClient, command, { expiresIn });
 
     return {
       bucket,

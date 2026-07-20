@@ -8,19 +8,25 @@ CREATE TABLE sys_oss_config (
   name VARCHAR(255) NOT NULL,
   bucket VARCHAR(255) NOT NULL,
   endpoint VARCHAR(512) NOT NULL,
+  internal_endpoint VARCHAR(512),
+  use_internal_endpoint BOOLEAN NOT NULL DEFAULT FALSE,
   config JSONB DEFAULT '{}',
   remark TEXT,
   created_by BIGINT,
   updated_by BIGINT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT chk_sys_oss_config_internal_endpoint_enabled
+    CHECK (NOT use_internal_endpoint OR NULLIF(BTRIM(internal_endpoint), '') IS NOT NULL)
 );
 
 COMMENT ON TABLE sys_oss_config IS '系统文件存储配置表，支持多种 OSS 配置';
 COMMENT ON COLUMN sys_oss_config.code IS '配置唯一标识（主键）';
 COMMENT ON COLUMN sys_oss_config.name IS '配置描述名称';
 COMMENT ON COLUMN sys_oss_config.bucket IS '存储桶名称';
-COMMENT ON COLUMN sys_oss_config.endpoint IS 'OSS 端点地址';
+COMMENT ON COLUMN sys_oss_config.endpoint IS '公网 OSS 端点地址';
+COMMENT ON COLUMN sys_oss_config.internal_endpoint IS '服务端内网 OSS 端点地址';
+COMMENT ON COLUMN sys_oss_config.use_internal_endpoint IS '服务端对象操作是否使用内网端点';
 COMMENT ON COLUMN sys_oss_config.config IS '字面配置，JSON 格式，存储 AK/SK/Region 等';
 COMMENT ON COLUMN sys_oss_config.remark IS '备注说明';
 COMMENT ON COLUMN sys_oss_config.created_by IS '创建人 ID';

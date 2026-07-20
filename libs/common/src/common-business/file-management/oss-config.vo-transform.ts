@@ -19,6 +19,8 @@ export function toOssConfigVO(entity: SysOssConfigEntity): OssConfigVO {
     remark: entity.remark,
     bucket: entity.bucket,
     endpoint: entity.endpoint,
+    internalEndpoint: entity.internalEndpoint,
+    useInternalEndpoint: entity.useInternalEndpoint ?? false,
     config: {
       provider: config.provider ?? OssProvider.S3,
       addressingStyle,

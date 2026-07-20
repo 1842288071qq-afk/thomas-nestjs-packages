@@ -12,6 +12,8 @@ describe('toOssConfigVO', () => {
       name: '阿里云开发环境',
       bucket: 'bucket-dev',
       endpoint: 'https://oss-cn-hangzhou.aliyuncs.com',
+      internalEndpoint: 'https://oss-cn-hangzhou-internal.aliyuncs.com',
+      useInternalEndpoint: true,
       config: {
         accessKeyId: 'LTAI1234567890',
         secretAccessKey: 'secret-value',
@@ -29,6 +31,8 @@ describe('toOssConfigVO', () => {
     expect(JSON.stringify(plain)).not.toContain('secret-value');
     expect(JSON.stringify(plain)).not.toContain('token-value');
     expect(plain).toMatchObject({
+      internalEndpoint: 'https://oss-cn-hangzhou-internal.aliyuncs.com',
+      useInternalEndpoint: true,
       config: {
         accessKeyIdMasked: 'LTAI****7890',
         hasSecretAccessKey: true,
