@@ -3,8 +3,8 @@ import type { OssConfigService } from '../file-management/oss-config.service';
 import {
   OssAddressingStyle,
   OssProvider,
-} from '@thomas/nestjs/entities/core/sys/oss-s3-config.interface';
-import { SysOssConfigEntity } from '@thomas/nestjs/entities/core/sys/sys-oss-config.entity';
+} from '@qyy-code-lego/nestjs/entities/core/sys/oss-s3-config.interface';
+import { SysOssConfigEntity } from '@qyy-code-lego/nestjs/entities/core/sys/sys-oss-config.entity';
 import { S3StorageService } from './s3-storage.service';
 
 describe('S3StorageService 内外网端点隔离', () => {

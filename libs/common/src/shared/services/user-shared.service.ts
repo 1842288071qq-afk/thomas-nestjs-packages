@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
-import { BizError } from '@thomas/nestjs/core/BizError';
-import { IPageData } from '@thomas/nestjs/core/Pagination';
-import { PasswordUtil } from '@thomas/nestjs/common/utils/password';
+import { BizError } from '@qyy-code-lego/nestjs/core/BizError';
+import { IPageData } from '@qyy-code-lego/nestjs/core/Pagination';
+import { PasswordUtil } from '@qyy-code-lego/nestjs/common/utils/password';
 import {
   Account,
   AccountProfile,
@@ -13,7 +13,7 @@ import {
   IdentityType,
   ObjectActiveStatus,
   User,
-} from '@thomas/nestjs/entities';
+} from '@qyy-code-lego/nestjs/entities';
 import { FindAccountService } from './find-account.service';
 
 export interface ICreateUserParams {

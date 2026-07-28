@@ -1,10 +1,10 @@
-import { IsChinaPhoneNumber } from '@thomas/nestjs/core';
+import { IsChinaPhoneNumber } from '@qyy-code-lego/nestjs/core';
 import {
   ICreateUserParams,
   IUserQueryParams,
   IUpdateUserParams,
 } from '../../../shared/services/user-shared.service';
-import { EnsureNotBlank } from '@thomas/nestjs/core/nest/composition/ensure-not-blank.decorator';
+import { EnsureNotBlank } from '@qyy-code-lego/nestjs/core/nest/composition/ensure-not-blank.decorator';
 import { IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class CreateBizUserDTO implements ICreateUserParams {

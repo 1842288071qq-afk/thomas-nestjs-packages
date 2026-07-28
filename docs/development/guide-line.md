@@ -338,8 +338,8 @@ export class CreateUserDTO {
 **代码示例 (DTO):**
 
 ```typescript
-import { ParseDateTimeRange } from '@thomas/nestjs/core/nest/transform/ParseDateTimeRange.decorator';
-import { ParseRange } from '@thomas/nestjs/core/nest/transform/ParseRange.decorator';
+import { ParseDateTimeRange } from '@qyy-code-lego/nestjs/core/nest/transform/ParseDateTimeRange.decorator';
+import { ParseRange } from '@qyy-code-lego/nestjs/core/nest/transform/ParseRange.decorator';
 
 export class QueryDTO {
   @IsOptional()
@@ -590,7 +590,7 @@ const permissions = this.threadLocal.get('permissions');
 所有分页接口必须使用 `IPageData<T>` 作为返回类型:
 
 ```typescript
-import { IPageData } from '@thomas/nestjs/core/Pagination';
+import { IPageData } from '@qyy-code-lego/nestjs/core/Pagination';
 
 // IPageData 接口定义
 interface IPageData<T> {
@@ -605,7 +605,7 @@ interface IPageData<T> {
 Controller 层使用 `PaginationDTO` 获取分页参数:
 
 ```typescript
-import { PaginationDTO } from '@thomas/nestjs/core/Pagination';
+import { PaginationDTO } from '@qyy-code-lego/nestjs/core/Pagination';
 
 // PaginationDTO 定义
 class PaginationDTO {
@@ -787,7 +787,7 @@ const hospitalId = identity.hospitalAdmin.hospitalId; // 失去类型保护
 **正例 (Good):**
 
 ```typescript
-import { AccountIdentity } from '@thomas/nestjs/entities/account/account-identity.entity';
+import { AccountIdentity } from '@qyy-code-lego/nestjs/entities/account/account-identity.entity';
 
 // 在业务代码第一层显式断言为具体类型
 const identity = this.threadLocal.get('identity') as AccountIdentity;
@@ -821,7 +821,7 @@ const hospitalId = identity?.hospitalAdmin?.hospitalId; // 享有完备补全和
 
 **1. 基础查询与 Limit**
 所有 `list` 类接口（非分页）应支持基础过滤查询，并且必须提供 `limit` 参数以限制返回条数。
-控制器上对应的 DTO 必须继承自 `ListLimitDto` (位于 `@thomas/nestjs/core/Pagination`)。
+控制器上对应的 DTO 必须继承自 `ListLimitDto` (位于 `@qyy-code-lego/nestjs/core/Pagination`)。
 `limit` 在 `ListLimitDto` 中默认为 10。
 
 **2. 统一返回类型**
@@ -951,7 +951,7 @@ export class CustomQuestionBankSharedService {
 
 ### 14.1 核心服务
 
-- **`FileService`**: 位于 `@thomas/nestjs/core/nest/file-management`，是文件管理系统的核心。
+- **`FileService`**: 位于 `@qyy-code-lego/nestjs/core/nest/file-management`，是文件管理系统的核心。
   - **元数据追踪**: 记录文件在数据库（`sys_file`）中的元数据（文件名、MIME、大小、存储 ID `object` 等）。
   - **ID 翻译 (`translateIds`)**: **(推荐用法)** 批量将文件 ID 翻译为完整的实体对象。利用 Redis 缓存（`file:translate:map`）优化，极大减少频繁查询数据库的压力。
   - **审计支持**: 支持追踪文件的上传者类型（`authorType`）和上传人 ID（`createdBy`）。

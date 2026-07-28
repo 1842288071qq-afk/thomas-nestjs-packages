@@ -16,7 +16,7 @@ when_to_use: 关键词 — 日志落盘, log file, setupAppLogger, APP_LOG_FILE,
 各 app `main.ts` 用 `setupAppLogger` 取代 `app.useLogger(...)`：
 
 ```typescript
-import { setupAppLogger } from '@thomas/nestjs/core/nest/log-file';
+import { setupAppLogger } from '@qyy-code-lego/nestjs/core/nest/log-file';
 
 const appConfig = config.get<AppConfig>('app')!;
 await setupAppLogger(app, appConfig); // 替代 app.useLogger(appConfig.logger.levels)

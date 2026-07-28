@@ -147,7 +147,7 @@ pnpm dev:myapp
 - [ ] env 文件有独立 `PORT` 与 `REDIS_KEY_PREFIX`
 - [ ] `.env.example` 同步
 - [ ] `main.ts` 调了 `connectGlobalGuards(app)`
-- [ ] `module.ts` 引入了 `import '@thomas/nestjs/common/shared/types/shared-types'`
+- [ ] `module.ts` 引入了 `import '@qyy-code-lego/nestjs/common/shared/types/shared-types'`
 - [ ] 不需要 MQ 的 app 删除了 `MqModule.connectMicroservices` 与 `mq.config.ts`
 
 ## 相关 skill

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { BizError } from '@thomas/nestjs/core/BizError';
-import { FileService } from '@thomas/nestjs/core/nest/file-management/file.service';
-import { S3StorageService } from '@thomas/nestjs/core/nest/s3-storage';
+import { BizError } from '@qyy-code-lego/nestjs/core/BizError';
+import { FileService } from '@qyy-code-lego/nestjs/core/nest/file-management/file.service';
+import { S3StorageService } from '@qyy-code-lego/nestjs/core/nest/s3-storage';
 import type { ObjectCannedACL } from '@aws-sdk/client-s3';
-import { IdentityType } from '@thomas/nestjs/entities/core/identity/constants';
+import { IdentityType } from '@qyy-code-lego/nestjs/entities/core/identity/constants';
 
 const MIN_S3_MULTIPART_CHUNK_SIZE = 5 * 1024 * 1024;
 const MAX_S3_MULTIPART_PARTS = 10_000;

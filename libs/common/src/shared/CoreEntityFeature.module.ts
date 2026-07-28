@@ -1,7 +1,7 @@
-import { AccountEntities } from '@thomas/nestjs/entities/core/account';
-import { IdentityEntities } from '@thomas/nestjs/entities/core/identity';
-import { CommonBusinessEntities } from '@thomas/nestjs/entities/core/common-business';
-import { SysEntities } from '@thomas/nestjs/entities/core/sys';
+import { AccountEntities } from '@qyy-code-lego/nestjs/entities/core/account';
+import { IdentityEntities } from '@qyy-code-lego/nestjs/entities/core/identity';
+import { CommonBusinessEntities } from '@qyy-code-lego/nestjs/entities/core/common-business';
+import { SysEntities } from '@qyy-code-lego/nestjs/entities/core/sys';
 import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 

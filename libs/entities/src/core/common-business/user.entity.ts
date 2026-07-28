@@ -4,7 +4,7 @@ import {
   WithAuditor,
   WithTimeTrace,
   WithId,
-} from '@thomas/nestjs/entities/core/base/extendable';
+} from '@qyy-code-lego/nestjs/entities/core/base/extendable';
 import {
   Column,
   Entity,

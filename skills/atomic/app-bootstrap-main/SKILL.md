@@ -17,10 +17,10 @@ when_to_use: 关键词 — main, bootstrap, NestFactory, AppConfig, apiPrefix, l
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { connectGlobalGuards } from '@thomas/nestjs/common';
-import type { AppConfig } from '@thomas/nestjs/common/config/config.interface';
+import { connectGlobalGuards } from '@qyy-code-lego/nestjs/common';
+import type { AppConfig } from '@qyy-code-lego/nestjs/common/config/config.interface';
 // 如需使用 Kafka / RabbitMQ，取消下一行 import 注释
-// import { MqModule } from '@thomas/nestjs/core/nest/mq/mq.module';
+// import { MqModule } from '@qyy-code-lego/nestjs/core/nest/mq/mq.module';
 import { AdminAppModule } from './admin-app.module';
 
 async function bootstrap() {

@@ -1,7 +1,7 @@
 import { Controller, Get, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Response } from 'express';
-import type { AppConfig } from '@thomas/nestjs/common/config/config.interface';
+import type { AppConfig } from '@qyy-code-lego/nestjs/common/config/config.interface';
 import { Public } from '../jwt-auth/decorator/public.decorator';
 import { HEALTH_ROUTE_BASE } from './health.constants';
 import { HealthService } from './health.service';

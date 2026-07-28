@@ -17,7 +17,7 @@ const identity = this.threadLocal.get('identity') as any;
 const hospitalId = identity.hospitalAdmin.hospitalId;
 
 // ✅
-import { AccountIdentity } from '@thomas/nestjs/entities/account/account-identity.entity';
+import { AccountIdentity } from '@qyy-code-lego/nestjs/entities/account/account-identity.entity';
 const identity = this.threadLocal.get('identity') as AccountIdentity;
 const hospitalId = identity?.hospitalAdmin?.hospitalId;
 ```

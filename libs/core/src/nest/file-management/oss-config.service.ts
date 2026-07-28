@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IPageData } from '@thomas/nestjs/core/Pagination';
-import { BizError } from '@thomas/nestjs/core/BizError';
+import { IPageData } from '@qyy-code-lego/nestjs/core/Pagination';
+import { BizError } from '@qyy-code-lego/nestjs/core/BizError';
 import {
   OssAddressingStyle,
   OssProvider,
   OssS3Config,
-} from '@thomas/nestjs/entities/core/sys/oss-s3-config.interface';
-import { SysFileEntity } from '@thomas/nestjs/entities/core/sys/sys-file.entity';
-import { SysOssConfigEntity } from '@thomas/nestjs/entities/core/sys/sys-oss-config.entity';
+} from '@qyy-code-lego/nestjs/entities/core/sys/oss-s3-config.interface';
+import { SysFileEntity } from '@qyy-code-lego/nestjs/entities/core/sys/sys-file.entity';
+import { SysOssConfigEntity } from '@qyy-code-lego/nestjs/entities/core/sys/sys-oss-config.entity';
 import { Repository } from 'typeorm';
 import { RedisService } from '../redis/redis.service';
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // 把 skills/{atomic,composite} 下的 skill 目录安装到消费工程的 AI 工具目录。
-// 用法：node packages/thomas-nestjs/skills/bin/install-skills.mjs --target=claude-code|copilot|gemini|codex|trae|all [--out=path] [--dry-run] [--force] [--list]
+// 用法：node packages/qyy-code-lego-nestjs/skills/bin/install-skills.mjs --target=claude-code|copilot|gemini|codex|trae|all [--out=path] [--dry-run] [--force] [--list]
 
 import { copyFile, mkdir, readFile, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';

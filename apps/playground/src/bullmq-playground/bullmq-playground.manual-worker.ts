@@ -4,7 +4,7 @@ import {
   WorkerFactory,
   QueueName,
   TaskProcessor,
-} from '@thomas/nestjs/core/nest/bullmq';
+} from '@qyy-code-lego/nestjs/core/nest/bullmq';
 
 /**
  * BullMQ Playground Manual Worker

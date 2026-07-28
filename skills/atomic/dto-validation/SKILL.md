@@ -19,7 +19,7 @@ when_to_use: 关键词 — dto, validation, class-validator, IsEnum, ObjectActiv
 
 | 用途 | 装饰器 | 来源 |
 | - | - | - |
-| 字符串 → Date | `@ToDate()` | `@thomas/nestjs/core/nest/transform/ToDate.decorator` |
+| 字符串 → Date | `@ToDate()` | `@qyy-code-lego/nestjs/core/nest/transform/ToDate.decorator` |
 | Query 字符串 → Boolean | `@Transform(parseBooleanGeneral)` | 同上目录 |
 | 枚举 code 校验 | `@IsEnum(SomeEnum)` | class-validator |
 | 非空字符串 + trim | `@EnsureNotBlank()` | 同上目录 |
@@ -34,7 +34,7 @@ when_to_use: 关键词 — dto, validation, class-validator, IsEnum, ObjectActiv
 
 ```typescript
 import { IsEnum, IsOptional } from 'class-validator';
-import { ObjectActiveStatus } from '@thomas/nestjs/entities';
+import { ObjectActiveStatus } from '@qyy-code-lego/nestjs/entities';
 
 export enum KnowledgeBaseSourceType {
   MANUAL = 'manual',
@@ -59,10 +59,10 @@ export class UpdateKnowledgeBaseDTO {
 ```typescript
 import { Transform, Type } from 'class-transformer';
 import { IsEnum, IsNotEmpty, IsObject, ValidateNested } from 'class-validator';
-import { ToDate } from '@thomas/nestjs/core/nest/transform/ToDate.decorator';
-import { parseBooleanGeneral } from '@thomas/nestjs/core/nest/transform';
-import { EnsureNotBlank } from '@thomas/nestjs/core/nest/transform/EnsureNotBlank.decorator';
-import { ObjectActiveStatus } from '@thomas/nestjs/entities';
+import { ToDate } from '@qyy-code-lego/nestjs/core/nest/transform/ToDate.decorator';
+import { parseBooleanGeneral } from '@qyy-code-lego/nestjs/core/nest/transform';
+import { EnsureNotBlank } from '@qyy-code-lego/nestjs/core/nest/transform/EnsureNotBlank.decorator';
+import { ObjectActiveStatus } from '@qyy-code-lego/nestjs/entities';
 
 class MetaData {
   @IsNotEmpty({ message: '字段 a 不能为空' })

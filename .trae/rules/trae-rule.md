@@ -9,7 +9,7 @@
 - **[docs/development/intro.md](../../docs/development/intro.md:0:0-0:0)**: 了解工程整体架构、libs/apps 划分、全局基础设施（Filter/Pipe/Interceptor）及请求生命周期。
 - **[docs/development/guide-line.md](../../docs/development/guide-line.md:0:0-0:0)**: 掌握最佳实践，核心包括：
   - **Context (ALS)**: 线程隔离的上下文获取。
-  - **身份拦截**: `@IdentityRequired` 的使用。import { IdentityRequired } from '@thomas/nestjs/common/shared/guards/identity-required/identity-required.decorator';
+  - **身份拦截**: `@IdentityRequired` 的使用。import { IdentityRequired } from '@qyy-code-lego/nestjs/common/shared/guards/identity-required/identity-required.decorator';
   - **DTO与转换**: `class-validator`/`class-transform` 规范。
   - **响应与异常**: [ApiResBody](../../libs/core/src/ApiResBody.ts:15:0-76:1) 和 [BizError](../../libs/core/src/BizError.ts:2:0-21:1) 的使用。
   - **服务层范式**: 保持 Service 上下文无关。

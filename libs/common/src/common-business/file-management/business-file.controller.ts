@@ -6,9 +6,9 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiResBody } from '@thomas/nestjs/core/ApiResBody';
+import { ApiResBody } from '@qyy-code-lego/nestjs/core/ApiResBody';
 import { IdentityRequired } from '../../shared/guards/identity-required/identity-required.decorator';
-import { IdentityType } from '@thomas/nestjs/entities/core/identity/constants';
+import { IdentityType } from '@qyy-code-lego/nestjs/entities/core/identity/constants';
 import { AvatarUploadDto } from './dto/business-file.dto';
 import { AccountAvatarService } from './account-avatar.service';
 

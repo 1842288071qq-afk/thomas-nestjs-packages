@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Repository } from 'typeorm';
-import { LocalUploadService } from '@thomas/nestjs/core/nest/file-management/local-upload.service';
-import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
-import { BizError } from '@thomas/nestjs/core/BizError';
+import { LocalUploadService } from '@qyy-code-lego/nestjs/core/nest/file-management/local-upload.service';
+import { ThreadLocal } from '@qyy-code-lego/nestjs/core/nest/als/thread-local';
+import { BizError } from '@qyy-code-lego/nestjs/core/BizError';
 import {
   Account,
   AccountProfile,
@@ -12,8 +12,8 @@ import {
   Identity,
   OpAccount,
   OpAccountProfile,
-} from '@thomas/nestjs/entities';
-import { SysFileEntity } from '@thomas/nestjs/entities/core/sys/sys-file.entity';
+} from '@qyy-code-lego/nestjs/entities';
+import { SysFileEntity } from '@qyy-code-lego/nestjs/entities/core/sys/sys-file.entity';
 import { AvatarUploadDto } from './dto/business-file.dto';
 import {
   ACCOUNT_AVATAR_UPDATED_EVENT,

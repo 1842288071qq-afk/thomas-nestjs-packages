@@ -88,7 +88,7 @@ RequestLogsModule.forRootAsync({
 埋点等高频、记录无意义的接口（`track/event`、`track/events`），用 `@IgnoreRequestLog()` 跳过——access log 与持久化**双双不记录**。可加在 `@Controller` 类（覆盖全部路由）或单个路由方法上。命中时 `RequestLogsService.start` 直接返回 `null`。
 
 ```typescript
-import { IgnoreRequestLog } from '@thomas/nestjs/core/nest/request-logs';
+import { IgnoreRequestLog } from '@qyy-code-lego/nestjs/core/nest/request-logs';
 
 @IgnoreRequestLog()
 @Controller('track')
@@ -105,7 +105,7 @@ export class TrackController {
 默认不采集 body（避免体积与隐私）。需要对某接口采集请求/响应体时：
 
 ```typescript
-import { CaptureRequestLogBody } from '@thomas/nestjs/core/nest/request-logs';
+import { CaptureRequestLogBody } from '@qyy-code-lego/nestjs/core/nest/request-logs';
 
 @CaptureRequestLogBody() // 默认 requestBody+responseBody 都采集
 @Post('order')

@@ -9,16 +9,16 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiResBody } from '@thomas/nestjs/core/ApiResBody';
+import { ApiResBody } from '@qyy-code-lego/nestjs/core/ApiResBody';
 import { IdentityRequired } from '../../shared/guards/identity-required/identity-required.decorator';
-import { BizError } from '@thomas/nestjs/core/BizError';
-import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
-import { Identity, IdentityType, User } from '@thomas/nestjs/entities';
+import { BizError } from '@qyy-code-lego/nestjs/core/BizError';
+import { ThreadLocal } from '@qyy-code-lego/nestjs/core/nest/als/thread-local';
+import { Identity, IdentityType, User } from '@qyy-code-lego/nestjs/entities';
 import {
   IPageData,
   ListParamsDTO,
   PaginationDTO,
-} from '@thomas/nestjs/core/Pagination';
+} from '@qyy-code-lego/nestjs/core/Pagination';
 import { UserSharedService } from '../../shared/services/user-shared.service';
 import {
   BizUserQueryDTO,

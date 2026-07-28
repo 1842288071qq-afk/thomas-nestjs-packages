@@ -8,14 +8,14 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FileService } from '@thomas/nestjs/core/nest/file-management/file.service';
-import { LocalUploadService } from '@thomas/nestjs/core/nest/file-management/local-upload.service';
-import { ApiResBody } from '@thomas/nestjs/core/ApiResBody';
-import { BizError } from '@thomas/nestjs/core/BizError';
-import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
+import { FileService } from '@qyy-code-lego/nestjs/core/nest/file-management/file.service';
+import { LocalUploadService } from '@qyy-code-lego/nestjs/core/nest/file-management/local-upload.service';
+import { ApiResBody } from '@qyy-code-lego/nestjs/core/ApiResBody';
+import { BizError } from '@qyy-code-lego/nestjs/core/BizError';
+import { ThreadLocal } from '@qyy-code-lego/nestjs/core/nest/als/thread-local';
 import { IdentityRequired } from '../../shared/guards/identity-required/identity-required.decorator';
-import { ParseCsvArrayPipe } from '@thomas/nestjs/core/nest/transform/ParseCsvArray.pipe';
-import { IdentityType } from '@thomas/nestjs/entities/core/identity/constants';
+import { ParseCsvArrayPipe } from '@qyy-code-lego/nestjs/core/nest/transform/ParseCsvArray.pipe';
+import { IdentityType } from '@qyy-code-lego/nestjs/entities/core/identity/constants';
 import {
   OssMultipartCompleteDto,
   OssMultipartAbortDto,

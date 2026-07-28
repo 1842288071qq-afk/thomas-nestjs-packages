@@ -1,6 +1,6 @@
 import { IsArray, IsOptional, IsString, MaxLength } from 'class-validator';
-import { EnsureNotBlank } from '@thomas/nestjs/core/nest/composition/ensure-not-blank.decorator';
-import { OpAccount, OpUser } from '@thomas/nestjs/entities';
+import { EnsureNotBlank } from '@qyy-code-lego/nestjs/core/nest/composition/ensure-not-blank.decorator';
+import { OpAccount, OpUser } from '@qyy-code-lego/nestjs/entities';
 import {
   ICreateRoleParams,
   IRoleQueryParams,

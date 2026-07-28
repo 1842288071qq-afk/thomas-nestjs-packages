@@ -17,7 +17,7 @@
     - 底层技术组件，不包含任何具体的业务逻辑。
     - 例如：`nest/als` (ThreadLocal), `nest/cache` (Redis封装), `nest/jwt-auth` (认证鉴权), `config` 等。
 - **`libs/common`**: **本项目通用业务逻辑**。
-    - 包含本项目（wjy2026）特定的业务公共模块。
+    - 包含本项目特定的业务公共模块。
     - 例如：`guards/identity-required` (身份校验), `shared` (通用业务服务) 等。
 - **`libs/entities`**: **数据库实体定义**。
     - 存放所有 TypeORM Entity 定义，供 `apps` 和 `libs` 引用。

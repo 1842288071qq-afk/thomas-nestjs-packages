@@ -13,7 +13,7 @@ when_to_use: 关键词 — file, upload, LocalUploadService, FileService, transl
 
 | 服务 | 职责 |
 | - | - |
-| `FileService` (`@thomas/nestjs/core/nest/file-management`) | 元数据持久化（`sys_file`）、`translateIds` 批量 ID → 实体（Redis 缓存 `file:translate:map`）、审计 (`authorType`, `createdBy`) |
+| `FileService` (`@qyy-code-lego/nestjs/core/nest/file-management`) | 元数据持久化（`sys_file`）、`translateIds` 批量 ID → 实体（Redis 缓存 `file:translate:map`）、审计 (`authorType`, `createdBy`) |
 | `LocalUploadService` | 物理落盘（自动建子目录）、生成 `fullUrl`、调用 FileService 写元数据 |
 
 ## 上传流程

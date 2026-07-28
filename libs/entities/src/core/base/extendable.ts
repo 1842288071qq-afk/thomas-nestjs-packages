@@ -1,4 +1,4 @@
-import { snowflakeIdGenerator } from '@thomas/nestjs/common/utils/id';
+import { snowflakeIdGenerator } from '@qyy-code-lego/nestjs/common/utils/id';
 import {
   PrimaryColumn,
   BeforeInsert,

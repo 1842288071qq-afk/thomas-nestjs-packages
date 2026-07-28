@@ -1,11 +1,11 @@
-import { IsChinaPhoneNumber } from '@thomas/nestjs/core';
+import { IsChinaPhoneNumber } from '@qyy-code-lego/nestjs/core';
 import {
   ICreateOpUserParams,
   IOpUserQueryParams,
   IUpdateOpUserParams,
 } from '../../../shared/services/op-user-shared.service';
-import { ObjectActiveStatus } from '@thomas/nestjs/entities';
-import { EnsureNotBlank } from '@thomas/nestjs/core/nest/composition/ensure-not-blank.decorator';
+import { ObjectActiveStatus } from '@qyy-code-lego/nestjs/entities';
+import { EnsureNotBlank } from '@qyy-code-lego/nestjs/core/nest/composition/ensure-not-blank.decorator';
 import {
   IsEnum,
   IsArray,

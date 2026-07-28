@@ -2,7 +2,7 @@ import { mkdirSync } from 'fs';
 import os from 'os';
 import path from 'path';
 import type { Options } from 'rotating-file-stream';
-import type { AppLogFileConfig } from '@thomas/nestjs/common/config/config.interface';
+import type { AppLogFileConfig } from '@qyy-code-lego/nestjs/common/config/config.interface';
 
 /**
  * 日志文件落盘 sink：对外仅暴露 write/close，内部封装 rotating-file-stream（rfs）。

@@ -1,6 +1,6 @@
 # 进程健康监测（HealthModule）设计方案
 
-> 公共能力，位于 `libs/core/src/nest/health/`，通过 `@thomas/nestjs/core` 导出。
+> 公共能力，位于 `libs/core/src/nest/health/`，通过 `@qyy-code-lego/nestjs/core` 导出。
 > 应用根 Module `imports: [HealthModule.forRoot()]` 即自动获得健康接口，零业务侵入。
 > 本文档保留本次调研与选型，后续如需调整以此为基线。
 

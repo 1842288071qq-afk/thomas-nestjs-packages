@@ -14,7 +14,7 @@ when_to_use: 关键词 — pagination, list, simple-list, IPageData, IListData, 
 **用于数据量大、需要翻页的场景。**
 
 ```typescript
-import { PaginationDTO, IPageData } from '@thomas/nestjs/core/Pagination';
+import { PaginationDTO, IPageData } from '@qyy-code-lego/nestjs/core/Pagination';
 ```
 
 | 规则 | 内容 |

@@ -8,7 +8,7 @@ import {
   DEFAULT_JOB_OPTIONS,
   QUEUE_NAMES,
 } from './bullmq.constants';
-import type { AppConfig } from '@thomas/nestjs/common/config/config.interface';
+import type { AppConfig } from '@qyy-code-lego/nestjs/common/config/config.interface';
 import os from 'os';
 
 /**

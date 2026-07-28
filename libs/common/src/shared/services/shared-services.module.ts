@@ -1,7 +1,7 @@
 import { Injectable, Module, OnModuleInit, Logger } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { CacheModule } from '@thomas/nestjs/core/nest/cache/cache.module';
-import { BullMQModule } from '@thomas/nestjs/core/nest/bullmq';
+import { CacheModule } from '@qyy-code-lego/nestjs/core/nest/cache/cache.module';
+import { BullMQModule } from '@qyy-code-lego/nestjs/core/nest/bullmq';
 import { CoreEntityFeatureModule } from '../CoreEntityFeature.module';
 import { PermissionModule } from '../guards/permission/permission.module';
 import { FindAccountService } from './find-account.service';

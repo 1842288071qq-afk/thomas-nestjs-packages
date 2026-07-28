@@ -1,4 +1,4 @@
-import { BaseAccountProfile } from '@thomas/nestjs/entities/core/base/base-account-profile.entity';
+import { BaseAccountProfile } from '@qyy-code-lego/nestjs/entities/core/base/base-account-profile.entity';
 import { Column, Entity, Index, JoinColumn, OneToOne } from 'typeorm';
 
 import { Account } from './account.entity';

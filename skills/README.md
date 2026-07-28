@@ -1,4 +1,4 @@
-# Skills — thomas NestJS 公共子模块
+# Skills — qyy-code-lego NestJS 公共子模块
 
 本目录是「文档 → AI Skill」的权威源，按 [Anthropic Claude Code Skill](https://docs.anthropic.com/claude/docs) 风格组织：每个 skill 一个目录，内含 `SKILL.md`，frontmatter 包含 `name` / `description` / `type` / `tags`。
 
@@ -62,14 +62,14 @@ Composite 通过正文中的「相关 skill」段落引用 atomic，AI agent 可
 
 ## 3. 安装到消费工程
 
-在消费工程根目录（已通过 git submodule 引入本包，假设位于 `packages/thomas-nestjs/`）执行：
+在消费工程根目录（已通过 git submodule 引入本包，假设位于 `packages/qyy-code-lego-nestjs/`）执行：
 
 ```bash
-node packages/thomas-nestjs/skills/bin/install-skills.mjs --target=claude-code
-node packages/thomas-nestjs/skills/bin/install-skills.mjs --target=copilot
-node packages/thomas-nestjs/skills/bin/install-skills.mjs --target=gemini
-node packages/thomas-nestjs/skills/bin/install-skills.mjs --target=codex
-node packages/thomas-nestjs/skills/bin/install-skills.mjs --target=trae
+node packages/qyy-code-lego-nestjs/skills/bin/install-skills.mjs --target=claude-code
+node packages/qyy-code-lego-nestjs/skills/bin/install-skills.mjs --target=copilot
+node packages/qyy-code-lego-nestjs/skills/bin/install-skills.mjs --target=gemini
+node packages/qyy-code-lego-nestjs/skills/bin/install-skills.mjs --target=codex
+node packages/qyy-code-lego-nestjs/skills/bin/install-skills.mjs --target=trae
 ```
 
 可选参数：
@@ -108,7 +108,7 @@ node packages/thomas-nestjs/skills/bin/install-skills.mjs --target=trae
 - `name` 必须与目录名一致；`type` 必须与目录层级一致（`atomic` / `composite`）
 - frontmatter 必填：`name` / `description` / `type` / `tags`
 - 正文建议包含 `## 相关 skill` 段，便于组合链路检索
-- import 示例建议统一优先写包对外别名（`@thomas/nestjs/*`）；若示例使用内部别名（如 `@libs/*`），应保持同一 skill 内风格一致
+- import 示例建议统一优先写包对外别名（`@qyy-code-lego/nestjs/*`）；若示例使用内部别名（如 `@libs/*`），应保持同一 skill 内风格一致
 - 组织约束（如 `restful-style`）建议在文案中明确“本工程规范”，避免被泛化为通用最佳实践
 
 维护后建议执行：

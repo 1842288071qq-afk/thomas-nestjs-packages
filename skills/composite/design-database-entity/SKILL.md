@@ -59,7 +59,7 @@ import {
   WithAuditor,
   WithScopeStrategy,
   WithStatus,
-} from '@thomas/nestjs/entities';
+} from '@qyy-code-lego/nestjs/entities';
 
 export enum SubjectType {
   SYSTEM = 'system',

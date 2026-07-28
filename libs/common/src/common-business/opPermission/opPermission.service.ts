@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { OpPermission } from '@thomas/nestjs/entities';
+import { OpPermission } from '@qyy-code-lego/nestjs/entities';
 import { OpRoleSharedService } from '../../shared/services/op-role-shared.service';
 
 @Injectable()

@@ -15,16 +15,16 @@ when_to_use: 关键词 — module, root-module, configModuleImport, applyTypeOrm
 
 ```typescript
 import { Module } from '@nestjs/common';
-import { configModuleImport } from '@thomas/nestjs/common/config/configModuleImport';
-import { applyTypeOrmDs } from '@thomas/nestjs/common/config/applyTypeOrmDs';
-import { GlobalModule } from '@thomas/nestjs/core/nest/global.module';
-import { CoreEntityFeatureModule } from '@thomas/nestjs/common/shared';
-import { AccountDeserializeModule } from '@thomas/nestjs/common/shared/guards/account-deserialize/account-deserialize.module';
-import { IdentityRequiredModule } from '@thomas/nestjs/common/shared/guards/identity-required/identity-required.module';
-import { PermissionModule } from '@thomas/nestjs/common/shared/guards/permission/permission.module';
-import { RedisModule } from '@thomas/nestjs/core/nest/redis/redis.module';
-import { JwtAuthModule } from '@thomas/nestjs/core/nest/jwt-auth';
-import '@thomas/nestjs/common/shared/types/shared-types'; // ThreadLocalStore 类型聚合
+import { configModuleImport } from '@qyy-code-lego/nestjs/common/config/configModuleImport';
+import { applyTypeOrmDs } from '@qyy-code-lego/nestjs/common/config/applyTypeOrmDs';
+import { GlobalModule } from '@qyy-code-lego/nestjs/core/nest/global.module';
+import { CoreEntityFeatureModule } from '@qyy-code-lego/nestjs/common/shared';
+import { AccountDeserializeModule } from '@qyy-code-lego/nestjs/common/shared/guards/account-deserialize/account-deserialize.module';
+import { IdentityRequiredModule } from '@qyy-code-lego/nestjs/common/shared/guards/identity-required/identity-required.module';
+import { PermissionModule } from '@qyy-code-lego/nestjs/common/shared/guards/permission/permission.module';
+import { RedisModule } from '@qyy-code-lego/nestjs/core/nest/redis/redis.module';
+import { JwtAuthModule } from '@qyy-code-lego/nestjs/core/nest/jwt-auth';
+import '@qyy-code-lego/nestjs/common/shared/types/shared-types'; // ThreadLocalStore 类型聚合
 
 import { datasourceConfig } from './config/datasource.config';
 import { mqConfig } from './config/mq.config';

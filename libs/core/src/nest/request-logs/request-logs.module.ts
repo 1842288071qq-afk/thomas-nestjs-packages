@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { CoreRequestLogEntity } from '@thomas/nestjs/entities/core/sys/core-request-log.entity';
+import { CoreRequestLogEntity } from '@qyy-code-lego/nestjs/entities/core/sys/core-request-log.entity';
 import {
   REQUEST_LOGS_DEFAULT_KAFKA_TOPIC,
   REQUEST_LOGS_OPTIONS,

@@ -2,8 +2,8 @@ import { plainToInstance } from 'class-transformer';
 import {
   OssAddressingStyle,
   OssProvider,
-} from '@thomas/nestjs/entities/core/sys/oss-s3-config.interface';
-import type { SysOssConfigEntity } from '@thomas/nestjs/entities/core/sys/sys-oss-config.entity';
+} from '@qyy-code-lego/nestjs/entities/core/sys/oss-s3-config.interface';
+import type { SysOssConfigEntity } from '@qyy-code-lego/nestjs/entities/core/sys/sys-oss-config.entity';
 import { OssConfigVO } from './vo/oss-config.types';
 
 export function toOssConfigVO(entity: SysOssConfigEntity): OssConfigVO {

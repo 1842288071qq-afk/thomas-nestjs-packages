@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CoreRequestLogEntity } from '@thomas/nestjs/entities/core/sys/core-request-log.entity';
+import { CoreRequestLogEntity } from '@qyy-code-lego/nestjs/entities/core/sys/core-request-log.entity';
 import { Repository } from 'typeorm';
 import { getRealIp } from '../../utils/ip.util';
 import { KafkaEventPublisher } from '../mq/kafka-publisher.service';

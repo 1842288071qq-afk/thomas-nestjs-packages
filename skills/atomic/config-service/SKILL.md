@@ -13,7 +13,7 @@ when_to_use: 关键词 — config, AllConfig, AppConfig, registerAs, configModul
 
 ## 1. 全局类型 `AllConfig`
 
-`@thomas/nestjs/common/config/config.interface.ts` 通过 `declare global` 定义 `AllConfig`，作为所有命名空间的总索引：
+`@qyy-code-lego/nestjs/common/config/config.interface.ts` 通过 `declare global` 定义 `AllConfig`，作为所有命名空间的总索引：
 
 ```typescript
 declare global {

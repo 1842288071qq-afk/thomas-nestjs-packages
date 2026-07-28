@@ -55,7 +55,7 @@ import {
   WithAuditor,
   WithScopeStrategy,
   WithStatus,
-} from '@thomas/nestjs/entities';
+} from '@qyy-code-lego/nestjs/entities';
 import { Entity, Column } from 'typeorm';
 
 @Entity('biz_knowledge_base')

@@ -2,7 +2,7 @@
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
-# thomas NestJS Boilerplate
+# qyy-code-lego NestJS Boilerplate
 
 这是一个基于 NestJS 的 Monorepo 模板项目，采用模块化架构，用于快速启动新的 NestJS 应用。
 

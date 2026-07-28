@@ -1,6 +1,6 @@
-import { Identity, OpRole } from '@thomas/nestjs/entities';
-import { Account } from '@thomas/nestjs/entities/core/account/account.entity';
-import { OpAccount } from '@thomas/nestjs/entities/core/account/op-account.entity';
+import { Identity, OpRole } from '@qyy-code-lego/nestjs/entities';
+import { Account } from '@qyy-code-lego/nestjs/entities/core/account/account.entity';
+import { OpAccount } from '@qyy-code-lego/nestjs/entities/core/account/op-account.entity';
 
 declare global {
   // 扩展 ThreadLocalStore 接口

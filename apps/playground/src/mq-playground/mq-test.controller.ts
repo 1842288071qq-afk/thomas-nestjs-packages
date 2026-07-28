@@ -7,13 +7,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { EventPattern, Payload, Transport } from '@nestjs/microservices';
-import { KafkaEventPublisher } from '@thomas/nestjs/core/nest/mq/kafka-publisher.service';
-import { RabbitEventPublisher } from '@thomas/nestjs/core/nest/mq/rabbit-publisher.service';
-import { MqDevFilterGuard } from '@thomas/nestjs/core/nest/mq/mq-dev-filter.guard';
-import { KafkaEvent } from '@thomas/nestjs/core/nest/mq/kafka-event.decorator';
-import { RabbitAckInterceptor } from '@thomas/nestjs/core/nest/mq/rabbit-ack.interceptor';
-import { KafkaCommitInterceptor } from '@thomas/nestjs/core/nest/mq/kafka-commit.interceptor';
-import { Public } from '@thomas/nestjs/core/nest/jwt-auth';
+import { KafkaEventPublisher } from '@qyy-code-lego/nestjs/core/nest/mq/kafka-publisher.service';
+import { RabbitEventPublisher } from '@qyy-code-lego/nestjs/core/nest/mq/rabbit-publisher.service';
+import { MqDevFilterGuard } from '@qyy-code-lego/nestjs/core/nest/mq/mq-dev-filter.guard';
+import { KafkaEvent } from '@qyy-code-lego/nestjs/core/nest/mq/kafka-event.decorator';
+import { RabbitAckInterceptor } from '@qyy-code-lego/nestjs/core/nest/mq/rabbit-ack.interceptor';
+import { KafkaCommitInterceptor } from '@qyy-code-lego/nestjs/core/nest/mq/kafka-commit.interceptor';
+import { Public } from '@qyy-code-lego/nestjs/core/nest/jwt-auth';
 
 interface testMqPayload {
   key: number;

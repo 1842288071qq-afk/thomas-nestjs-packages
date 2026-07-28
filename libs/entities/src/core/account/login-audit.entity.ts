@@ -1,4 +1,4 @@
-import { BaseLoginAudit } from '@thomas/nestjs/entities/core/base/base-login-audit.entity';
+import { BaseLoginAudit } from '@qyy-code-lego/nestjs/entities/core/base/base-login-audit.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 import { Account } from './account.entity';

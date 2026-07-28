@@ -37,7 +37,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CacheService } from '@thomas/nestjs/core/nest/cache/cache.service';
+import { CacheService } from '@qyy-code-lego/nestjs/core/nest/cache/cache.service';
 
 @Injectable()
 export class XxxPermissionService {

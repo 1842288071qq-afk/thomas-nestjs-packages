@@ -10,11 +10,11 @@ import { Reflector } from '@nestjs/core';
 import { PermissionService } from './permission.service';
 import { PERMISSION_REQUIRED_KEY } from './permission-required.decorator';
 import { PermissionRequirement } from './permission.types';
-import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
+import { ThreadLocal } from '@qyy-code-lego/nestjs/core/nest/als/thread-local';
 import {
   Identity,
   IdentityType,
-} from '@thomas/nestjs/entities/core/identity';
+} from '@qyy-code-lego/nestjs/entities/core/identity';
 
 /**
  * 权限检查卫兵

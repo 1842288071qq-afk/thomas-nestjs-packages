@@ -4,7 +4,7 @@ import {
   IUpdateOpDeptParams,
   OpDeptSharedService,
 } from '../../shared/services/op-dept-shared.service';
-import { OpDept } from '@thomas/nestjs/entities';
+import { OpDept } from '@qyy-code-lego/nestjs/entities';
 
 @Injectable()
 export class OpDeptService {

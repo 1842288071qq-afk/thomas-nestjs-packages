@@ -1,13 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, In, Repository } from 'typeorm';
-import { OpUserRole } from '@thomas/nestjs/entities/core/common-business/op-user-role.entity';
-import { OpAccount } from '@thomas/nestjs/entities/core/account/op-account.entity';
-import { OpAccountCredential } from '@thomas/nestjs/entities/core/account/op-account-credential.entity';
-import { OpAccountProfile } from '@thomas/nestjs/entities/core/account/op-account-profile.entity';
-import { BizError } from '@thomas/nestjs/core/BizError';
-import { IPageData } from '@thomas/nestjs/core/Pagination';
-import { PasswordUtil } from '@thomas/nestjs/common/utils/password';
+import { OpUserRole } from '@qyy-code-lego/nestjs/entities/core/common-business/op-user-role.entity';
+import { OpAccount } from '@qyy-code-lego/nestjs/entities/core/account/op-account.entity';
+import { OpAccountCredential } from '@qyy-code-lego/nestjs/entities/core/account/op-account-credential.entity';
+import { OpAccountProfile } from '@qyy-code-lego/nestjs/entities/core/account/op-account-profile.entity';
+import { BizError } from '@qyy-code-lego/nestjs/core/BizError';
+import { IPageData } from '@qyy-code-lego/nestjs/core/Pagination';
+import { PasswordUtil } from '@qyy-code-lego/nestjs/common/utils/password';
 import {
   AccountSource,
   Identity,
@@ -15,7 +15,7 @@ import {
   ObjectActiveStatus,
   OpRole,
   OpUser,
-} from '@thomas/nestjs/entities';
+} from '@qyy-code-lego/nestjs/entities';
 import { PermissionService } from '../guards/permission/permission.service';
 import { FindAccountService } from './find-account.service';
 

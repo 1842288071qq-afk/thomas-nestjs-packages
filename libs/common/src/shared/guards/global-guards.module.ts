@@ -1,5 +1,5 @@
 import { INestApplication, Type } from '@nestjs/common';
-import { JwtAuthGuard, SessionGuard } from '@thomas/nestjs/core';
+import { JwtAuthGuard, SessionGuard } from '@qyy-code-lego/nestjs/core';
 import { AccountDeserializeGuard } from './account-deserialize';
 import { IdentityRequiredGuard } from './identity-required';
 import { PermissionGuard } from './permission';

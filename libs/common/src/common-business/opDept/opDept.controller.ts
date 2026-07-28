@@ -9,11 +9,11 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiResBody } from '@thomas/nestjs/core/ApiResBody';
+import { ApiResBody } from '@qyy-code-lego/nestjs/core/ApiResBody';
 import { IdentityRequired } from '../../shared/guards/identity-required/identity-required.decorator';
-import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
-import { Identity, IdentityType, OpDept } from '@thomas/nestjs/entities';
-import { IListData } from '@thomas/nestjs/core/Pagination';
+import { ThreadLocal } from '@qyy-code-lego/nestjs/core/nest/als/thread-local';
+import { Identity, IdentityType, OpDept } from '@qyy-code-lego/nestjs/entities';
+import { IListData } from '@qyy-code-lego/nestjs/core/Pagination';
 import { OpDeptService } from './opDept.service';
 import {
   CreateDeptDTO,

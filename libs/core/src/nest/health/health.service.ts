@@ -3,7 +3,7 @@ import { DiscoveryService, ModuleRef, Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { DataSource } from 'typeorm';
 import os from 'os';
-import type { AppConfig } from '@thomas/nestjs/common/config/config.interface';
+import type { AppConfig } from '@qyy-code-lego/nestjs/common/config/config.interface';
 import { RedisService } from '../redis/redis.service';
 import { HEALTH_INDICATOR_METADATA } from './health.constants';
 import type {

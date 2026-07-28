@@ -21,7 +21,7 @@ import {
   OssAddressingStyle,
   OssProvider,
   OssS3Config,
-} from '@thomas/nestjs/entities/core/sys/oss-s3-config.interface';
+} from '@qyy-code-lego/nestjs/entities/core/sys/oss-s3-config.interface';
 
 export class OssS3ConfigDto implements OssS3Config {
   @IsNotEmpty({ message: 'accessKeyId 不能为空' })

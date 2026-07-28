@@ -1,7 +1,7 @@
-import { FileService } from '@thomas/nestjs/core/nest/file-management/file.service';
-import { S3StorageService } from '@thomas/nestjs/core/nest/s3-storage';
-import { IdentityType } from '@thomas/nestjs/entities/core/identity/constants';
-import { SysFileEntity } from '@thomas/nestjs/entities/core/sys/sys-file.entity';
+import { FileService } from '@qyy-code-lego/nestjs/core/nest/file-management/file.service';
+import { S3StorageService } from '@qyy-code-lego/nestjs/core/nest/s3-storage';
+import { IdentityType } from '@qyy-code-lego/nestjs/entities/core/identity/constants';
+import { SysFileEntity } from '@qyy-code-lego/nestjs/entities/core/sys/sys-file.entity';
 import { MultipartUploadService } from './multipart-upload.service';
 
 describe('MultipartUploadService', () => {

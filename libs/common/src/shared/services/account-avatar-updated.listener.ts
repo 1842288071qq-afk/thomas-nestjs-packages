@@ -7,7 +7,7 @@ import {
   IdentityType,
   OpUser,
   User,
-} from '@thomas/nestjs/entities';
+} from '@qyy-code-lego/nestjs/entities';
 import { In, Repository } from 'typeorm';
 import {
   ACCOUNT_AVATAR_UPDATED_EVENT,

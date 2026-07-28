@@ -12,8 +12,8 @@ when_to_use: 关键词 — range, dto, query, between, ParseRange, ParseDateTime
 ## DTO 侧
 
 ```typescript
-import { ParseRange } from '@thomas/nestjs/core/nest/transform/ParseRange.decorator';
-import { ParseDateTimeRange } from '@thomas/nestjs/core/nest/transform/ParseDateTimeRange.decorator';
+import { ParseRange } from '@qyy-code-lego/nestjs/core/nest/transform/ParseRange.decorator';
+import { ParseDateTimeRange } from '@qyy-code-lego/nestjs/core/nest/transform/ParseDateTimeRange.decorator';
 
 export class QueryDTO {
   @IsOptional() @IsArray() @ParseDateTimeRange()

@@ -1,5 +1,5 @@
 import type { INestApplication } from '@nestjs/common';
-import type { AppConfig } from '@thomas/nestjs/common/config/config.interface';
+import type { AppConfig } from '@qyy-code-lego/nestjs/common/config/config.interface';
 import { createLogFileSink, type LogFileSink } from './log-file-sink';
 import { FileLogger } from './file-logger';
 import { installCrashCapture, teeStdStreams } from './std-capture';

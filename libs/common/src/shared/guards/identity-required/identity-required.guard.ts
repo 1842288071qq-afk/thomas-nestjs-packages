@@ -1,16 +1,16 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
-import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
+import { ThreadLocal } from '@qyy-code-lego/nestjs/core/nest/als/thread-local';
 import {
   IDENTITY_REQUIRED_KEY,
   IdentityType,
   identityTypeNameMap,
 } from './identity-required.decorator';
-import { BizError } from '@thomas/nestjs/core/BizError';
+import { BizError } from '@qyy-code-lego/nestjs/core/BizError';
 import { IdentityActiveService } from '../../services/identity-active.service';
-import { ObjectActiveStatus } from '@thomas/nestjs/entities';
-import { IS_PUBLIC_KEY } from '@thomas/nestjs/core/nest/jwt-auth/decorator/public.decorator';
+import { ObjectActiveStatus } from '@qyy-code-lego/nestjs/entities';
+import { IS_PUBLIC_KEY } from '@qyy-code-lego/nestjs/core/nest/jwt-auth/decorator/public.decorator';
 
 @Injectable()
 export class IdentityRequiredGuard implements CanActivate {

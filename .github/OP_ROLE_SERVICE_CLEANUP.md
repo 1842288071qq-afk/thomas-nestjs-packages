@@ -12,20 +12,20 @@
 
 ```typescript
 // 错误
-import { OpRole } from '@thomas/nestjs/entities/auth/op-role.entity';
-import { OpRolePermission } from '@thomas/nestjs/entities/auth/op-role-permission.entity';
-import { OpUserRole } from '@thomas/nestjs/entities/auth/op-user-role.entity';
-import { OpUser } from '@thomas/nestjs/entities/op-account/op-user.entity';
+import { OpRole } from '@qyy-code-lego/nestjs/entities/auth/op-role.entity';
+import { OpRolePermission } from '@qyy-code-lego/nestjs/entities/auth/op-role-permission.entity';
+import { OpUserRole } from '@qyy-code-lego/nestjs/entities/auth/op-user-role.entity';
+import { OpUser } from '@qyy-code-lego/nestjs/entities/op-account/op-user.entity';
 ```
 
 **修复**: 统一导入从新的实体位置
 
 ```typescript
 // 正确
-import { OpRole } from '@thomas/nestjs/entities/core/common-business/op-role.entity';
-import { OpRolePermission } from '@thomas/nestjs/entities/core/common-business/op-role-permission.entity';
-import { OpUserRole } from '@thomas/nestjs/entities/core/common-business/op-user-role.entity';
-import { OpUser } from '@thomas/nestjs/entities/core/common-business/op-user.entity';
+import { OpRole } from '@qyy-code-lego/nestjs/entities/core/common-business/op-role.entity';
+import { OpRolePermission } from '@qyy-code-lego/nestjs/entities/core/common-business/op-role-permission.entity';
+import { OpUserRole } from '@qyy-code-lego/nestjs/entities/core/common-business/op-user-role.entity';
+import { OpUser } from '@qyy-code-lego/nestjs/entities/core/common-business/op-user.entity';
 import { PermissionService } from '../guards/permission/permission.service';
 ```
 

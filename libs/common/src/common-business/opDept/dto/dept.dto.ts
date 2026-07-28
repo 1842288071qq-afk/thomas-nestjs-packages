@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, IsString } from 'class-validator';
-import { EnsureNotBlank } from '@thomas/nestjs/core/nest/composition/ensure-not-blank.decorator';
+import { EnsureNotBlank } from '@qyy-code-lego/nestjs/core/nest/composition/ensure-not-blank.decorator';
 
 export class CreateDeptDTO {
   @EnsureNotBlank({ message: '部门名称不能为空' })

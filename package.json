@@ -1,7 +1,7 @@
 {
-  "name": "@thomas/nestjs",
+  "name": "@qyy-code-lego/nestjs",
   "version": "0.0.1",
-  "description": "thomas NestJS Boilerplate & Shared Libraries",
+  "description": "qyy-code-lego NestJS Boilerplate & Shared Libraries",
   "author": "",
   "private": true,
   "license": "UNLICENSED",
@@ -137,9 +137,9 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@thomas/nestjs/common(|/.*)$": "<rootDir>/libs/common/src/$1",
-      "^@thomas/nestjs/core(|/.*)$": "<rootDir>/libs/core/src/$1",
-      "^@thomas/nestjs/entities(|/.*)$": "<rootDir>/libs/entities/src/$1"
+      "^@qyy-code-lego/nestjs/common(|/.*)$": "<rootDir>/libs/common/src/$1",
+      "^@qyy-code-lego/nestjs/core(|/.*)$": "<rootDir>/libs/core/src/$1",
+      "^@qyy-code-lego/nestjs/entities(|/.*)$": "<rootDir>/libs/entities/src/$1"
     }
   }
 }

@@ -13,11 +13,11 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable } from '@nestjs/common';
-import { BizError } from '@thomas/nestjs/core/BizError';
+import { BizError } from '@qyy-code-lego/nestjs/core/BizError';
 import {
   OssAddressingStyle,
   OssProvider,
-} from '@thomas/nestjs/entities/core/sys/oss-s3-config.interface';
+} from '@qyy-code-lego/nestjs/entities/core/sys/oss-s3-config.interface';
 import { OssConfigService } from '../file-management/oss-config.service';
 import {
   S3StorageAbortMultipartOptions,

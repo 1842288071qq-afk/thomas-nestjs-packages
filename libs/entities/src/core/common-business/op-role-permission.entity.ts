@@ -1,4 +1,4 @@
-import { WithId } from '@thomas/nestjs/entities/core/base/extendable';
+import { WithId } from '@qyy-code-lego/nestjs/entities/core/base/extendable';
 import {
   Column,
   CreateDateColumn,

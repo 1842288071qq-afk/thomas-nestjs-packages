@@ -1,4 +1,4 @@
-import { AccountSource } from '@thomas/nestjs/entities';
+import { AccountSource } from '@qyy-code-lego/nestjs/entities';
 
 export const ACCOUNT_AVATAR_UPDATED_EVENT = 'account.avatar.updated';
 

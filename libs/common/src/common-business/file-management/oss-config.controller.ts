@@ -8,18 +8,18 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiResBody } from '@thomas/nestjs/core/ApiResBody';
-import { BizError } from '@thomas/nestjs/core/BizError';
-import { IPageData, PaginationDTO } from '@thomas/nestjs/core/Pagination';
-import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
+import { ApiResBody } from '@qyy-code-lego/nestjs/core/ApiResBody';
+import { BizError } from '@qyy-code-lego/nestjs/core/BizError';
+import { IPageData, PaginationDTO } from '@qyy-code-lego/nestjs/core/Pagination';
+import { ThreadLocal } from '@qyy-code-lego/nestjs/core/nest/als/thread-local';
 import {
   CreateOssConfigDto,
   OssConfigPageQueryDto,
   UpdateOssConfigDto,
-} from '@thomas/nestjs/core/nest/file-management/dto/oss-config.dto';
-import { OssConfigService } from '@thomas/nestjs/core/nest/file-management/oss-config.service';
-import { S3StorageService } from '@thomas/nestjs/core/nest/s3-storage';
-import { IdentityType } from '@thomas/nestjs/entities/core/identity/constants';
+} from '@qyy-code-lego/nestjs/core/nest/file-management/dto/oss-config.dto';
+import { OssConfigService } from '@qyy-code-lego/nestjs/core/nest/file-management/oss-config.service';
+import { S3StorageService } from '@qyy-code-lego/nestjs/core/nest/s3-storage';
+import { IdentityType } from '@qyy-code-lego/nestjs/entities/core/identity/constants';
 import { IdentityRequired } from '../../shared/guards/identity-required/identity-required.decorator';
 import { PermissionRequired } from '../../shared/guards/permission/permission-required.decorator';
 import { PermissionGuard } from '../../shared/guards/permission/permission.guard';

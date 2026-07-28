@@ -2,12 +2,12 @@
 
 本库是纯浏览器 TypeScript SDK，仅依赖 `fetch`、`File`、`Blob`、
 `AbortController` 等 Web 标准。NestJS 后端不会引用本库，前端可通过
-`@thomas/nestjs/web/oss` 直接引用源码并交给自身构建器打包。
+`@qyy-code-lego/nestjs/web/oss` 直接引用源码并交给自身构建器打包。
 
 ## 普通直传与访问链接
 
 ```typescript
-import { OssWebSdk } from '@thomas/nestjs/web/oss';
+import { OssWebSdk } from '@qyy-code-lego/nestjs/web/oss';
 
 const sdk = new OssWebSdk({
   baseUrl: '/api/v1',
@@ -71,7 +71,7 @@ const result = await resultPromise;
 import {
   FileUploadProcess,
   S3MultipartUploadAdapter,
-} from '@thomas/nestjs/web/oss';
+} from '@qyy-code-lego/nestjs/web/oss';
 
 const process = new FileUploadProcess({
   file,

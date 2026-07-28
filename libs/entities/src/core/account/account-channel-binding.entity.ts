@@ -1,4 +1,4 @@
-import { BaseAccountChannelBinding } from '@thomas/nestjs/entities/core/base/base-account-channel-binding.entity';
+import { BaseAccountChannelBinding } from '@qyy-code-lego/nestjs/entities/core/base/base-account-channel-binding.entity';
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 
 import { Account } from './account.entity';

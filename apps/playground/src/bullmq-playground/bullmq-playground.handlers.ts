@@ -4,7 +4,7 @@ import {
   TaskHandler,
   QueueName,
   CronHandler,
-} from '@thomas/nestjs/core/nest/bullmq';
+} from '@qyy-code-lego/nestjs/core/nest/bullmq';
 
 /**
  * BullMQ Playground 任务处理器

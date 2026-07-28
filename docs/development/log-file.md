@@ -1,6 +1,6 @@
 # 应用日志文件落盘（异步滚动 + 翻转）
 
-> 公共能力，位于 `libs/core/src/nest/log-file/`，通过 `@thomas/nestjs/core/nest/log-file` 导出。
+> 公共能力，位于 `libs/core/src/nest/log-file/`，通过 `@qyy-code-lego/nestjs/core/nest/log-file` 导出。
 > 默认关闭，完全由 env（`APP_LOG_FILE_*`）驱动；关闭时对进程 std 输出**零侵入**，开发态保持原样。
 
 ## 1. 背景与目标
@@ -78,7 +78,7 @@ main.ts  ──►  setupAppLogger(app, appConfig)
 各 app `main.ts` 用 `setupAppLogger` 取代原 `app.useLogger(...)`：
 
 ```ts
-import { setupAppLogger } from '@thomas/nestjs/core/nest/log-file';
+import { setupAppLogger } from '@qyy-code-lego/nestjs/core/nest/log-file';
 
 // ...
 const appConfig = config.get<AppConfig>('app')!;

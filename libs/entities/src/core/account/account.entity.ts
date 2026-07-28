@@ -1,11 +1,11 @@
-import { BaseAccount } from '@thomas/nestjs/entities/core/base/base-account.entity';
+import { BaseAccount } from '@qyy-code-lego/nestjs/entities/core/base/base-account.entity';
 import { Entity, OneToMany, OneToOne } from 'typeorm';
 
 import { AccountCredential } from './account-credential.entity';
 import { AccountChannelBinding } from './account-channel-binding.entity';
 import { AccountProfile } from './account-profile.entity';
 import { LoginAudit } from './login-audit.entity';
-import { Identity } from '@thomas/nestjs/entities/core/identity/identity.entity';
+import { Identity } from '@qyy-code-lego/nestjs/entities/core/identity/identity.entity';
 
 @Entity({ name: 'account' })
 export class Account extends BaseAccount {

@@ -64,7 +64,7 @@ OSS Bucket 已绑定的 CNAME 域名在线预览；自定义域名不替代对�
 
 ```typescript
 import { Module } from '@nestjs/common';
-import { S3StorageModule } from '@thomas/nestjs/core/nest/s3-storage';
+import { S3StorageModule } from '@qyy-code-lego/nestjs/core/nest/s3-storage';
 
 @Module({
   imports: [S3StorageModule],
@@ -76,7 +76,7 @@ export class BizModule {}
 
 ```typescript
 import { Injectable } from '@nestjs/common';
-import { S3StorageService } from '@thomas/nestjs/core/nest/s3-storage';
+import { S3StorageService } from '@qyy-code-lego/nestjs/core/nest/s3-storage';
 
 @Injectable()
 export class DemoService {

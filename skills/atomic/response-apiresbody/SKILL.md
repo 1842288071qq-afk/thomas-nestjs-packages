@@ -24,7 +24,7 @@ when_to_use: 关键词 — response, apiresbody, filter
 ## Controller 写法
 
 ```typescript
-import { ApiResBody } from '@thomas/nestjs/core/ApiResBody';
+import { ApiResBody } from '@qyy-code-lego/nestjs/core/ApiResBody';
 
 @Get('detail')
 async detail(@Query('id') id: string): Promise<ApiResBody<UserDetailVO>> {

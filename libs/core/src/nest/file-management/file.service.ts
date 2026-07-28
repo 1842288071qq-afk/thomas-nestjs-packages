@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, In } from 'typeorm';
-import { SysFileEntity } from '@thomas/nestjs/entities/core/sys/sys-file.entity';
+import { SysFileEntity } from '@qyy-code-lego/nestjs/entities/core/sys/sys-file.entity';
 import { CreateFileDto, FileQueryDto } from './dto/file.dto';
-import { BizError } from '@thomas/nestjs/core/BizError';
-import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
-import { IPageData } from '@thomas/nestjs/core/Pagination';
+import { BizError } from '@qyy-code-lego/nestjs/core/BizError';
+import { ThreadLocal } from '@qyy-code-lego/nestjs/core/nest/als/thread-local';
+import { IPageData } from '@qyy-code-lego/nestjs/core/Pagination';
 import { RedisService } from '../redis/redis.service';
 
 @Injectable()

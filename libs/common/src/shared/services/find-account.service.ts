@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsOrder, FindOptionsWhere } from 'typeorm';
-import { CacheService } from '@thomas/nestjs/core/nest/cache/cache.service';
+import { CacheService } from '@qyy-code-lego/nestjs/core/nest/cache/cache.service';
 
-import { Account } from '@thomas/nestjs/entities/core/account/account.entity';
-import { OpAccount } from '@thomas/nestjs/entities/core/account/op-account.entity';
+import { Account } from '@qyy-code-lego/nestjs/entities/core/account/account.entity';
+import { OpAccount } from '@qyy-code-lego/nestjs/entities/core/account/op-account.entity';
 import {
   ACCOUNT_RELATIONS,
   OP_ACCOUNT_RELATIONS,

@@ -1,12 +1,12 @@
 import type { Repository } from 'typeorm';
-import { BizError } from '@thomas/nestjs/core/BizError';
-import type { RedisService } from '@thomas/nestjs/core/nest/redis/redis.service';
+import { BizError } from '@qyy-code-lego/nestjs/core/BizError';
+import type { RedisService } from '@qyy-code-lego/nestjs/core/nest/redis/redis.service';
 import {
   OssAddressingStyle,
   OssProvider,
-} from '@thomas/nestjs/entities/core/sys/oss-s3-config.interface';
-import { SysFileEntity } from '@thomas/nestjs/entities/core/sys/sys-file.entity';
-import { SysOssConfigEntity } from '@thomas/nestjs/entities/core/sys/sys-oss-config.entity';
+} from '@qyy-code-lego/nestjs/entities/core/sys/oss-s3-config.interface';
+import { SysFileEntity } from '@qyy-code-lego/nestjs/entities/core/sys/sys-file.entity';
+import { SysOssConfigEntity } from '@qyy-code-lego/nestjs/entities/core/sys/sys-oss-config.entity';
 import { OssConfigService } from './oss-config.service';
 
 describe('OssConfigService', () => {

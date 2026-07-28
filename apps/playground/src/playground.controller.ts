@@ -5,12 +5,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PlaygroundService } from './playground.service';
-import { ApiResBody } from '@thomas/nestjs/core/ApiResBody';
+import { ApiResBody } from '@qyy-code-lego/nestjs/core/ApiResBody';
 import { ConfigService } from '@nestjs/config';
-import { BizError } from '@thomas/nestjs/core/BizError';
-import { DataSourceConfig } from '@thomas/nestjs/common/config/config.interface';
-import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
-import { RedisService } from '@thomas/nestjs/core/nest/redis/redis.service';
+import { BizError } from '@qyy-code-lego/nestjs/core/BizError';
+import { DataSourceConfig } from '@qyy-code-lego/nestjs/common/config/config.interface';
+import { ThreadLocal } from '@qyy-code-lego/nestjs/core/nest/als/thread-local';
+import { RedisService } from '@qyy-code-lego/nestjs/core/nest/redis/redis.service';
 import { transformHelloResultToVO } from './playground.vo-transform';
 import type { HelloResultVO } from './vo/playground.types';
 

@@ -31,7 +31,7 @@ docs/DDL/
 | `WithAuditor` | `created_by VARCHAR(64) NULL` `updated_by VARCHAR(64) NULL` | 操作人 |
 | `WithStatus` | `status VARCHAR(16) NOT NULL DEFAULT 'active'` | 通用启停状态 |
 
-参考文件：`server/packages/@thomas/nestjs/libs/entities/src/core/base/extendable.ts`
+参考文件：`server/packages/@qyy-code-lego/nestjs/libs/entities/src/core/base/extendable.ts`
 
 ### 2.2 禁止数据库外键
 

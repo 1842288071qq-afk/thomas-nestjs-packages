@@ -1,14 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, In, Repository } from 'typeorm';
-import { BizError } from '@thomas/nestjs/core/BizError';
-import { OpRole } from '@thomas/nestjs/entities/core/common-business/op-role.entity';
-import { OpRolePermission } from '@thomas/nestjs/entities/core/common-business/op-role-permission.entity';
-import { OpUserRole } from '@thomas/nestjs/entities/core/common-business/op-user-role.entity';
-import { OpUser } from '@thomas/nestjs/entities/core/common-business/op-user.entity';
-import { IPageData } from '@thomas/nestjs/core/Pagination';
+import { BizError } from '@qyy-code-lego/nestjs/core/BizError';
+import { OpRole } from '@qyy-code-lego/nestjs/entities/core/common-business/op-role.entity';
+import { OpRolePermission } from '@qyy-code-lego/nestjs/entities/core/common-business/op-role-permission.entity';
+import { OpUserRole } from '@qyy-code-lego/nestjs/entities/core/common-business/op-user-role.entity';
+import { OpUser } from '@qyy-code-lego/nestjs/entities/core/common-business/op-user.entity';
+import { IPageData } from '@qyy-code-lego/nestjs/core/Pagination';
 import { PermissionService } from '../guards/permission/permission.service';
-import { ObjectActiveStatus } from '@thomas/nestjs/entities';
+import { ObjectActiveStatus } from '@qyy-code-lego/nestjs/entities';
 
 /**
  * 创建角色的参数

@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
-import { OpDept } from '@thomas/nestjs/entities/core/common-business/op-dept.entity';
-import { OpDeptClosure } from '@thomas/nestjs/entities/core/common-business/op-dept-closure.entity';
-import { BizError } from '@thomas/nestjs/core/BizError';
-import { snowflakeIdGenerator } from '@thomas/nestjs/common/utils/id';
-import { OpUser } from '@thomas/nestjs/entities';
+import { OpDept } from '@qyy-code-lego/nestjs/entities/core/common-business/op-dept.entity';
+import { OpDeptClosure } from '@qyy-code-lego/nestjs/entities/core/common-business/op-dept-closure.entity';
+import { BizError } from '@qyy-code-lego/nestjs/core/BizError';
+import { snowflakeIdGenerator } from '@qyy-code-lego/nestjs/common/utils/id';
+import { OpUser } from '@qyy-code-lego/nestjs/entities';
 
 export interface ICreateOpDeptParams {
   name: string;

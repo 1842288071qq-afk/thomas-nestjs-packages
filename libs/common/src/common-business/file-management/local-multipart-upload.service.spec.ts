@@ -1,9 +1,9 @@
 import { createHash, randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { ConfigService } from '@nestjs/config';
-import type { FileService } from '@thomas/nestjs/core/nest/file-management/file.service';
-import { IdentityType } from '@thomas/nestjs/entities/core/identity/constants';
-import { SysFileEntity } from '@thomas/nestjs/entities/core/sys/sys-file.entity';
+import type { FileService } from '@qyy-code-lego/nestjs/core/nest/file-management/file.service';
+import { IdentityType } from '@qyy-code-lego/nestjs/entities/core/identity/constants';
+import { SysFileEntity } from '@qyy-code-lego/nestjs/entities/core/sys/sys-file.entity';
 import fs from 'fs-extra';
 import { LocalMultipartUploadService } from './local-multipart-upload.service';
 

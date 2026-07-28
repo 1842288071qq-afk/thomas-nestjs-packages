@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Request } from 'express';
-import type { AppConfig } from '@thomas/nestjs/common/config/config.interface';
+import type { AppConfig } from '@qyy-code-lego/nestjs/common/config/config.interface';
 import { HEALTH_TOKEN_HEADER } from './health.constants';
 
 /**

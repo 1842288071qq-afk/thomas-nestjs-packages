@@ -4,10 +4,10 @@ import { open } from 'node:fs/promises';
 import path from 'node:path';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { BizError } from '@thomas/nestjs/core/BizError';
-import { FileService } from '@thomas/nestjs/core/nest/file-management/file.service';
-import { IdentityType } from '@thomas/nestjs/entities/core/identity/constants';
-import type { SysFileEntity } from '@thomas/nestjs/entities/core/sys/sys-file.entity';
+import { BizError } from '@qyy-code-lego/nestjs/core/BizError';
+import { FileService } from '@qyy-code-lego/nestjs/core/nest/file-management/file.service';
+import { IdentityType } from '@qyy-code-lego/nestjs/entities/core/identity/constants';
+import type { SysFileEntity } from '@qyy-code-lego/nestjs/entities/core/sys/sys-file.entity';
 import fs from 'fs-extra';
 import type { MultipartUploadActor } from './multipart-upload.service';
 

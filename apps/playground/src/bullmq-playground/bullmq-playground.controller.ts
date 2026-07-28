@@ -3,8 +3,8 @@ import {
   TaskService,
   QueueName,
   CronService,
-} from '@thomas/nestjs/core/nest/bullmq';
-import { Public } from '@thomas/nestjs/core/nest/jwt-auth/decorator/public.decorator';
+} from '@qyy-code-lego/nestjs/core/nest/bullmq';
+import { Public } from '@qyy-code-lego/nestjs/core/nest/jwt-auth/decorator/public.decorator';
 
 /**
  * BullMQ Playground Controller

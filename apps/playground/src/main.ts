@@ -1,9 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { PlaygroundModule } from './playground.module';
-import { MqModule } from '@thomas/nestjs/core/nest/mq/mq.module';
+import { MqModule } from '@qyy-code-lego/nestjs/core/nest/mq/mq.module';
 import 'source-map-support/register';
 import { Logger } from '@nestjs/common';
-import { connectGlobalGuards } from '@thomas/nestjs/common';
+import { connectGlobalGuards } from '@qyy-code-lego/nestjs/common';
 
 // declare const module: any;
 

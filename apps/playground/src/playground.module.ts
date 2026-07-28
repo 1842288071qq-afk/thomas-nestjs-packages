@@ -2,19 +2,19 @@ import { Module } from '@nestjs/common';
 import { PlaygroundController } from './playground.controller';
 import { PlaygroundService } from './playground.service';
 import { datasourceConfig } from './config/datasource.config';
-import { configModuleImport } from '@thomas/nestjs/common/config/configModuleImport';
-import { applyTypeOrmDs } from '@thomas/nestjs/common/config/applyTypeOrmDs';
-import { GlobalModule } from '@thomas/nestjs/core/nest/global.module';
-import { RedisModule } from '@thomas/nestjs/core/nest/redis/redis.module';
-import { JwtAuthModule } from '@thomas/nestjs/core/nest/jwt-auth';
+import { configModuleImport } from '@qyy-code-lego/nestjs/common/config/configModuleImport';
+import { applyTypeOrmDs } from '@qyy-code-lego/nestjs/common/config/applyTypeOrmDs';
+import { GlobalModule } from '@qyy-code-lego/nestjs/core/nest/global.module';
+import { RedisModule } from '@qyy-code-lego/nestjs/core/nest/redis/redis.module';
+import { JwtAuthModule } from '@qyy-code-lego/nestjs/core/nest/jwt-auth';
 import { mqConfig } from './config/mq.config';
 import { MqPlaygroundModule } from './mq-playground/mq-playground.module';
 import { BullmqPlaygroundModule } from './bullmq-playground/bullmq-playground.module';
-import '@thomas/nestjs/common/shared/types/shared-types';
-import { CoreEntityFeatureModule } from '@thomas/nestjs/common/shared';
-import { AccountDeserializeModule } from '@thomas/nestjs/common/shared/guards/account-deserialize/account-deserialize.module';
-import { IdentityRequiredModule } from '@thomas/nestjs/common/shared/guards/identity-required/identity-required.module';
-import { PermissionModule } from '@thomas/nestjs/common/shared/guards/permission/permission.module';
+import '@qyy-code-lego/nestjs/common/shared/types/shared-types';
+import { CoreEntityFeatureModule } from '@qyy-code-lego/nestjs/common/shared';
+import { AccountDeserializeModule } from '@qyy-code-lego/nestjs/common/shared/guards/account-deserialize/account-deserialize.module';
+import { IdentityRequiredModule } from '@qyy-code-lego/nestjs/common/shared/guards/identity-required/identity-required.module';
+import { PermissionModule } from '@qyy-code-lego/nestjs/common/shared/guards/permission/permission.module';
 
 @Module({
   imports: [

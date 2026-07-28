@@ -6,7 +6,7 @@ import {
   Brackets,
   ObjectLiteral,
 } from 'typeorm';
-import { ScopeStrategy } from '@thomas/nestjs/entities/core/base/extendable';
+import { ScopeStrategy } from '@qyy-code-lego/nestjs/entities/core/base/extendable';
 
 const DEFAULT_CLOSURE_TABLE_NAME = 'op_dept_closure';
 

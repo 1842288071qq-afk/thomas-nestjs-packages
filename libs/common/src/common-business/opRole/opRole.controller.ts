@@ -9,10 +9,10 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiResBody } from '@thomas/nestjs/core/ApiResBody';
-import { ThreadLocal } from '@thomas/nestjs/core/nest/als/thread-local';
+import { ApiResBody } from '@qyy-code-lego/nestjs/core/ApiResBody';
+import { ThreadLocal } from '@qyy-code-lego/nestjs/core/nest/als/thread-local';
 import { IdentityRequired } from '../../shared/guards/identity-required/identity-required.decorator';
-import { IPageData, PaginationDTO } from '@thomas/nestjs/core/Pagination';
+import { IPageData, PaginationDTO } from '@qyy-code-lego/nestjs/core/Pagination';
 import {
   IOpUserWithAccountVO,
   OpRoleSharedService,
@@ -29,7 +29,7 @@ import {
   ObjectActiveStatus,
   OpRole,
   OpRolePermission,
-} from '@thomas/nestjs/entities';
+} from '@qyy-code-lego/nestjs/entities';
 
 @IdentityRequired(IdentityType.OP_USER)
 @Controller('o-role')

@@ -91,14 +91,14 @@ skills-usage/
 `total.mjs` 的权威源随本 skill 提供：
 
 ```
-{serverDir}/packages/@thomas/nestjs/skills/atomic/skill-usage-tracking/scripts/total.mjs
+{serverDir}/packages/@qyy-code-lego/nestjs/skills/atomic/skill-usage-tracking/scripts/total.mjs
 ```
 
 若项目中缺失该脚本，可从子模块复制：
 
 ```bash
 mkdir -p skills-usage/sessions
-cp {serverDir}/packages/@thomas/nestjs/skills/atomic/skill-usage-tracking/scripts/total.mjs skills-usage/total.mjs
+cp {serverDir}/packages/@qyy-code-lego/nestjs/skills/atomic/skill-usage-tracking/scripts/total.mjs skills-usage/total.mjs
 ```
 
 ## 废弃项

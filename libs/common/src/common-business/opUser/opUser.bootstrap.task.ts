@@ -3,7 +3,7 @@ import {
   QueueName,
   TaskHandler,
   TaskService,
-} from '@thomas/nestjs/core/nest/bullmq';
+} from '@qyy-code-lego/nestjs/core/nest/bullmq';
 import type { Job } from 'bullmq';
 import { OpUserSharedService } from '../../shared/services/op-user-shared.service';
 

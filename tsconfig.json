@@ -23,28 +23,28 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@thomas/nestjs/common": [
+      "@qyy-code-lego/nestjs/common": [
         "./libs/common/src"
       ],
-      "@thomas/nestjs/common/*": [
+      "@qyy-code-lego/nestjs/common/*": [
         "./libs/common/src/*"
       ],
-      "@thomas/nestjs/core": [
+      "@qyy-code-lego/nestjs/core": [
         "./libs/core/src"
       ],
-      "@thomas/nestjs/core/*": [
+      "@qyy-code-lego/nestjs/core/*": [
         "./libs/core/src/*"
       ],
-      "@thomas/nestjs/entities": [
+      "@qyy-code-lego/nestjs/entities": [
         "./libs/entities/src"
       ],
-      "@thomas/nestjs/entities/*": [
+      "@qyy-code-lego/nestjs/entities/*": [
         "./libs/entities/src/*"
       ],
-      "@thomas/nestjs/web": [
+      "@qyy-code-lego/nestjs/web": [
         "./libs/web/src"
       ],
-      "@thomas/nestjs/web/*": [
+      "@qyy-code-lego/nestjs/web/*": [
         "./libs/web/src/*"
       ]
     },

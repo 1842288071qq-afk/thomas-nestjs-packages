@@ -1,7 +1,7 @@
 import {
   OssAddressingStyle,
   OssProvider,
-} from '@thomas/nestjs/entities/core/sys/oss-s3-config.interface';
+} from '@qyy-code-lego/nestjs/entities/core/sys/oss-s3-config.interface';
 
 export class OssConfigSafeConfigVO {
   provider: OssProvider;

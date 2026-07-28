@@ -1,8 +1,8 @@
 import {
   OssAddressingStyle,
   OssProvider,
-} from '@thomas/nestjs/entities/core/sys/oss-s3-config.interface';
-import { SysOssConfigEntity } from '@thomas/nestjs/entities/core/sys/sys-oss-config.entity';
+} from '@qyy-code-lego/nestjs/entities/core/sys/oss-s3-config.interface';
+import { SysOssConfigEntity } from '@qyy-code-lego/nestjs/entities/core/sys/sys-oss-config.entity';
 import { toOssConfigVO } from './oss-config.vo-transform';
 
 describe('toOssConfigVO', () => {

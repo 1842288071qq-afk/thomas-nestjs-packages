@@ -8,7 +8,7 @@ import {
   getSessionLockKey,
   SESSION_BIZ_CODE,
 } from './session.constants';
-import { BizError } from '@thomas/nestjs/core/BizError';
+import { BizError } from '@qyy-code-lego/nestjs/core/BizError';
 
 @Injectable()
 export class SessionService {
